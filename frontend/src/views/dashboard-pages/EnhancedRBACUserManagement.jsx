@@ -263,35 +263,94 @@ const EnhancedRBACUserManagement = () => {
             
             console.log('🚀 Creating user with data:', JSON.stringify(userData, null, 2));
             
-            // Try multiple creation methods for robustness
+            // Enhanced user creation with comprehensive error handling
             let result;
+            console.log('🚀 Starting user creation process...');
+            console.log('📊 User data to create:', JSON.stringify(userData, null, 2));
+            
             try {
-                // Primary method: Use rbacService
+                // Primary method: Use rbacService with detailed logging
+                console.log('🔄 Attempting user creation via rbacService...');
                 result = await rbacService.createAdvancedUser(userData);
                 console.log('✅ User creation via rbacService successful:', result);
+                
+                // Verify the result structure
+                if (!result || !result.success) {
+                    console.warn('⚠️ rbacService returned unexpected result:', result);
+                    throw new Error('rbacService returned invalid response structure');
+                }
+                
             } catch (rbacError) {
-                console.warn('⚠️ rbacService failed, trying API directly:', rbacError);
-                // Fallback method: Direct API call
+                console.error('❌ rbacService failed:', rbacError);
+                console.log('🔄 Attempting fallback: Direct API call...');
+                
                 try {
-                    const response = await fetch('http://localhost:8000/api/rbac/users/create-advanced/', {
+                    const apiUrl = 'http://localhost:8000/api/rbac/users/create-advanced/';
+                    const requestBody = JSON.stringify(userData);
+                    const authToken = localStorage.getItem('auth_token') || 'mock-token';
+                    
+                    console.log('🌐 API URL:', apiUrl);
+                    console.log('📦 Request body:', requestBody);
+                    console.log('🔑 Auth token:', authToken ? 'Present' : 'Missing');
+                    
+                    const response = await fetch(apiUrl, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${localStorage.getItem('auth_token') || 'mock-token'}`
+                            'Authorization': `Bearer ${authToken}`,
+                            'Accept': 'application/json'
                         },
-                        body: JSON.stringify(userData)
+                        body: requestBody
                     });
                     
+                    console.log('📡 API Response status:', response.status, response.statusText);
+                    console.log('📋 API Response content-type:', response.headers.get('content-type'));
+                    
                     if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(errorData.error || `HTTP ${response.status}`);
+                        const contentType = response.headers.get('content-type');
+                        let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+                        
+                        if (contentType && contentType.includes('application/json')) {
+                            try {
+                                const errorData = await response.json();
+                                errorMessage = errorData.error || errorData.message || errorMessage;
+                                console.error('📄 API Error (JSON):', errorData);
+                            } catch (parseError) {
+                                console.error('🚫 Failed to parse error JSON:', parseError);
+                            }
+                        } else {
+                            // Handle HTML error responses
+                            const textResponse = await response.text();
+                            console.error('📄 API Error (HTML/Text):', textResponse.substring(0, 500));
+                            errorMessage = `Server returned ${contentType || 'unknown'} instead of JSON (Status: ${response.status})`;
+                        }
+                        
+                        throw new Error(errorMessage);
                     }
                     
-                    result = await response.json();
-                    console.log('✅ User creation via direct API successful:', result);
+                    // Parse successful response
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && contentType.includes('application/json')) {
+                        result = await response.json();
+                        console.log('✅ User creation via direct API successful:', result);
+                    } else {
+                        throw new Error('API returned non-JSON response for successful request');
+                    }
+                    
                 } catch (apiError) {
-                    console.error('❌ Both creation methods failed:', apiError);
-                    throw apiError;
+                    console.error('❌ Direct API call also failed:', apiError);
+                    
+                    // Provide user-friendly error message based on error type
+                    let userMessage = 'Failed to create user. ';
+                    if (apiError.message.includes('<!DOCTYPE')) {
+                        userMessage += 'Server returned an error page instead of expected data. Please check if the backend server is running correctly.';
+                    } else if (apiError.message.includes('fetch')) {
+                        userMessage += 'Unable to connect to the server. Please check your connection.';
+                    } else {
+                        userMessage += apiError.message;
+                    }
+                    
+                    throw new Error(userMessage);
                 }
             }
             
