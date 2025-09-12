@@ -26,6 +26,10 @@ const safeApiCall = async (apiCall, fallbackData = null, operation = 'API call')
 const rbacApiService = {
     // Get all users from Django backend with soft coding fallback
     async getUsers() {
+        // Get the auth token for API calls
+        const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+        const headers = token ? { Authorization: `Token ${token}` } : {};
+        
         const fallbackUsers = [
             {
                 id: 1,
@@ -49,9 +53,10 @@ const rbacApiService = {
         // Soft coding: Try multiple potential user endpoints
         const possibleEndpoints = [
             `${API_BASE_URL}/users/advanced/`,
-            '/api/auth/users/', // Alternative endpoint
+            '/api/auth/users/', // Alternative endpoint - requires admin permissions
             '/api/accounts/users/', // Another potential endpoint
-            `${API_BASE_URL}/users/` // Standard REST endpoint
+            `${API_BASE_URL}/users/`, // Standard REST endpoint
+            '/api/auth/profile/' // Current user profile - fallback for non-admin users
         ];
 
         console.log('🔄 Fetching users from database...');
@@ -59,7 +64,7 @@ const rbacApiService = {
         for (const endpoint of possibleEndpoints) {
             try {
                 console.log(`🔄 Trying users endpoint: ${endpoint}`);
-                const response = await api.get(endpoint);
+                const response = await api.get(endpoint, { headers });
                 
                 console.log('✅ Users fetched successfully:', response.data?.length || response.data?.results?.length || 'unknown count');
                 
@@ -69,7 +74,9 @@ const rbacApiService = {
                 } else if (response.data?.results && Array.isArray(response.data.results)) {
                     return response.data.results;
                 } else if (response.data) {
-                    return [response.data]; // Single user response
+                    // Single user response (e.g., from profile endpoint) - convert to array
+                    console.log('📋 Converting single user profile to array format');
+                    return [response.data];
                 }
                 
                 return fallbackUsers;
@@ -82,9 +89,18 @@ const rbacApiService = {
                     continue;
                 }
                 
-                // If we get auth error, still try other endpoints
-                if (error.response?.status === 401 || error.response?.status === 403) {
-                    console.warn(`⚠️ Authentication/authorization issue with ${endpoint}, trying next endpoint`);
+                // If we get 403 (permission denied), user is not admin - show current user only
+                if (error.response?.status === 403) {
+                    console.warn(`⚠️ Permission denied for ${endpoint}. Showing current user only.`);
+                    const currentUser = this.getCurrentUserFromStorage();
+                    if (currentUser) {
+                        return [currentUser];
+                    }
+                }
+                
+                // If we get 401, try other endpoints
+                if (error.response?.status === 401) {
+                    console.warn(`⚠️ Authentication issue with ${endpoint}, trying next endpoint`);
                     continue;
                 }
                 
@@ -95,6 +111,33 @@ const rbacApiService = {
 
         console.warn('⚠️ All user endpoints failed, using fallback data');
         return fallbackUsers;
+    },
+
+    // Helper method to get current user from localStorage or token
+    getCurrentUserFromStorage() {
+        try {
+            // Check if user info is stored in localStorage
+            const userInfo = localStorage.getItem('user') || localStorage.getItem('userInfo');
+            if (userInfo) {
+                const user = JSON.parse(userInfo);
+                console.log('📋 Retrieved current user from storage:', user.username);
+                return {
+                    id: user.id || 1,
+                    username: user.username || 'current_user',
+                    email: user.email || 'user@example.com',
+                    first_name: user.first_name || 'Current',
+                    last_name: user.last_name || 'User',
+                    is_active: user.is_active !== false,
+                    is_staff: user.is_staff || false,
+                    is_superuser: user.is_superuser || false,
+                    roles: user.roles || ['user'],
+                    date_joined: user.date_joined || new Date().toISOString()
+                };
+            }
+        } catch (error) {
+            console.warn('⚠️ Could not parse user from storage:', error.message);
+        }
+        return null;
     },
 
     // Get dashboard statistics
@@ -205,6 +248,13 @@ const rbacApiService = {
                 const response = await api.post(endpoint, requestData);
                 
                 console.log('✅ User creation successful:', response.data);
+                
+                // Store the newly created user info for future reference
+                if (response.data.user) {
+                    localStorage.setItem('user', JSON.stringify(response.data.user));
+                    console.log('💾 Stored new user info in localStorage');
+                }
+                
                 return {
                     success: true,
                     user: response.data,
