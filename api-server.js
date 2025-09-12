@@ -9,6 +9,18 @@ const PORT = 8000;
 let mockUsers = [
   {
     id: 1,
+    username: 'tanzeem.agra@rugrel.com',
+    email: 'tanzeem.agra@rugrel.com',
+    password: 'Tanzilla@tanzeem786', // In real app, this would be hashed
+    first_name: 'Tanzeem',
+    last_name: 'Agra',
+    is_active: true,
+    is_approved: true,
+    roles: ['super_admin'],
+    created_at: new Date().toISOString()
+  },
+  {
+    id: 2,
     username: 'admin',
     email: 'admin@example.com',
     password: 'admin123', // In real app, this would be hashed
