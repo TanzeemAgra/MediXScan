@@ -24,7 +24,7 @@ const safeApiCall = async (apiCall, fallbackData = null, operation = 'API call')
 
 // Real RBAC API Service with soft coding fallbacks
 const rbacApiService = {
-    // Get all users from Django backend
+    // Get all users from Django backend with soft coding fallback
     async getUsers() {
         const fallbackUsers = [
             {
@@ -46,11 +46,55 @@ const rbacApiService = {
             }
         ];
 
-        return safeApiCall(
-            () => api.get(`${API_BASE_URL}/users/advanced/`),
-            fallbackUsers,
-            'fetching users from database'
-        );
+        // Soft coding: Try multiple potential user endpoints
+        const possibleEndpoints = [
+            `${API_BASE_URL}/users/advanced/`,
+            '/api/auth/users/', // Alternative endpoint
+            '/api/accounts/users/', // Another potential endpoint
+            `${API_BASE_URL}/users/` // Standard REST endpoint
+        ];
+
+        console.log('🔄 Fetching users from database...');
+
+        for (const endpoint of possibleEndpoints) {
+            try {
+                console.log(`🔄 Trying users endpoint: ${endpoint}`);
+                const response = await api.get(endpoint);
+                
+                console.log('✅ Users fetched successfully:', response.data?.length || response.data?.results?.length || 'unknown count');
+                
+                // Handle both direct array and paginated response
+                if (Array.isArray(response.data)) {
+                    return response.data;
+                } else if (response.data?.results && Array.isArray(response.data.results)) {
+                    return response.data.results;
+                } else if (response.data) {
+                    return [response.data]; // Single user response
+                }
+                
+                return fallbackUsers;
+                
+            } catch (error) {
+                console.warn(`⚠️ Users endpoint ${endpoint} failed:`, error.response?.status, error.response?.statusText);
+                
+                // If we get a 404, try the next endpoint
+                if (error.response?.status === 404) {
+                    continue;
+                }
+                
+                // If we get auth error, still try other endpoints
+                if (error.response?.status === 401 || error.response?.status === 403) {
+                    console.warn(`⚠️ Authentication/authorization issue with ${endpoint}, trying next endpoint`);
+                    continue;
+                }
+                
+                // For other errors, log but continue
+                console.warn(`⚠️ Error from ${endpoint}:`, error.message);
+            }
+        }
+
+        console.warn('⚠️ All user endpoints failed, using fallback data');
+        return fallbackUsers;
     },
 
     // Get dashboard statistics
