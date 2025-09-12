@@ -494,6 +494,14 @@ export const BlankLayoutRouter = [
         path: 'pages-comingsoon',
         element: <CommingSoon />,
       },
+      {
+        path: 'privacy-policy',
+        element: <PrivacyPolicy />,
+      },
+      {
+        path: 'terms-of-use',
+        element: <TermsOfService />,
+      },
     ],
   },
 ];

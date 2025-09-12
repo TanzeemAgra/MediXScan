@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { Navbar, Nav, Container, Button } from "react-bootstrap";
 import landingPageConfig from "@config/landingPageConfig.js";
+import { getLogoPath, getResponsiveLogo } from "@config/logoConfig.js";
+import { injectNavigationVariables } from "@utils/heroLayoutUtils.js";
 
 const LandingNavigation = ({ onCTAClick }) => {
   const [scrolled, setScrolled] = useState(false);
   const { brand, navigation } = landingPageConfig;
 
   useEffect(() => {
+    // Inject navigation CSS variables
+    injectNavigationVariables(navigation.spacing);
+
     const handleScroll = () => {
       const isScrolled = window.scrollY > 50;
       setScrolled(isScrolled);
@@ -14,7 +19,7 @@ const LandingNavigation = ({ onCTAClick }) => {
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [navigation.spacing]);
 
   const handleNavClick = (item) => {
     if (item.type === 'scroll') {
@@ -31,25 +36,30 @@ const LandingNavigation = ({ onCTAClick }) => {
     }
   };
 
+  // Professional Navigation Styling - Soft Coded
   const navbarStyle = {
     position: navigation.position,
     top: 0,
     width: '100%',
     zIndex: 1050,
+    height: navigation.spacing?.height || '70px',
     background: scrolled ? navigation.scrollBackground : navigation.background,
     backdropFilter: scrolled ? 'blur(10px)' : 'none',
     borderBottom: scrolled ? '1px solid rgba(0,0,0,0.1)' : 'none',
     transition: 'all 0.3s ease',
-    padding: '0.5rem 0'
+    padding: `${navigation.spacing?.padding?.vertical || '1rem'} 0`,
+    marginBottom: navigation.spacing?.marginBottom || '20px',
+    boxShadow: scrolled ? '0 2px 20px rgba(0,0,0,0.1)' : 'none'
   };
 
   const navLinkStyle = {
     color: scrolled ? navigation.scrollTextColor : navigation.textColor,
     fontWeight: '500',
-    marginRight: '2rem',
+    marginRight: navigation.spacing?.itemSpacing || '2rem',
     transition: 'all 0.3s ease',
     textDecoration: 'none',
-    fontSize: '1rem'
+    fontSize: '1rem',
+    padding: '0.5rem 0'
   };
 
   const brandStyle = {
@@ -78,9 +88,19 @@ const LandingNavigation = ({ onCTAClick }) => {
         >
           {navigation.logo.type === 'image' || navigation.logo.type === 'both' ? (
             <img
-              src={scrolled ? brand.logo : brand.logoWhite}
+              src={scrolled ? getLogoPath('white') : getLogoPath('main')}
               alt={brand.name}
-              style={{ maxHeight: navigation.logo.maxHeight, marginRight: '0.5rem' }}
+              style={{ 
+                maxHeight: navigation.logo.maxHeight, 
+                marginRight: navigation.logo.spacing?.marginRight || navigation.spacing?.logoSpacing || '1rem',
+                transition: 'all 0.3s ease',
+                filter: scrolled ? 'none' : 'brightness(1.1)',
+                padding: '0.25rem 0'
+              }}
+              onError={(e) => {
+                // Fallback to legacy logos if new ones fail to load
+                e.target.src = scrolled ? brand.logoWhite : brand.logo;
+              }}
             />
           ) : null}
           {(navigation.logo.type === 'text' || navigation.logo.type === 'both') && navigation.logo.showBrand ? (

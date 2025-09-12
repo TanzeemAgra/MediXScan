@@ -1,12 +1,45 @@
 // Landing Page Configuration - Soft Coded for Easy Customization
 const landingPageConfig = {
-  // Brand Configuration
+  // Brand Configuration - Advanced Professional Logos
   brand: {
-    name: "MediXscan AI",
+    name: "MediXScan AI",
     tagline: "Advanced Radiology Intelligence",
     subtitle: "Revolutionizing Medical Diagnostics with AI",
-    logo: "/assets/images/logo-full2.png",
-    logoWhite: "/assets/images/logo-white.png",
+    
+    // Professional Logo Suite - Soft Coded for Easy Updates
+    logo: "/assets/images/medixscan-logo-main.png",           // Main colored logo for light backgrounds
+    logoWhite: "/assets/images/medixscan-logo-white.png",     // White background logo for dark themes
+    logoIcon: "/assets/images/medixscan-icon-512.png",        // App icon/favicon
+    heroBackground: "/assets/images/medixscan-hero-1600x900.png", // Professional hero background
+    
+    // Logo Configuration
+    logoConfig: {
+      main: {
+        width: 800,
+        height: 200,
+        aspectRatio: "4:1",
+        usageContext: "headers, navigation, general branding"
+      },
+      white: {
+        width: 800,
+        height: 200,
+        aspectRatio: "4:1", 
+        usageContext: "dark backgrounds, overlays"
+      },
+      icon: {
+        width: 512,
+        height: 512,
+        aspectRatio: "1:1",
+        usageContext: "app icons, favicons, social media"
+      },
+      hero: {
+        width: 1600,
+        height: 900,
+        aspectRatio: "16:9",
+        usageContext: "hero sections, landing page backgrounds"
+      }
+    },
+    
     description: "Cutting-edge AI-powered radiology analysis platform designed for modern healthcare professionals. Enhance diagnostic accuracy, streamline workflows, and deliver superior patient care.",
     compliance: {
       hipaa: true,
@@ -17,17 +50,34 @@ const landingPageConfig = {
     }
   },
 
-  // Navigation Configuration
+  // Navigation Configuration - Professional Spacing Control
   navigation: {
     position: "fixed", // fixed, sticky, static
     background: "transparent", // transparent, solid, gradient
     scrollBackground: "rgba(255, 255, 255, 0.95)", // Background when scrolled
     textColor: "#ffffff",
     scrollTextColor: "#333333",
+    
+    // Professional Spacing Configuration - Soft Coded
+    spacing: {
+      height: "70px",           // Navigation bar height
+      padding: {
+        vertical: "1rem",       // Top and bottom padding inside navbar
+        horizontal: "1.5rem"    // Left and right padding inside navbar
+      },
+      marginBottom: "20px",     // Space between navbar and hero content
+      logoSpacing: "1rem",      // Space between logo and navigation items
+      itemSpacing: "2rem"       // Space between navigation menu items
+    },
+    
+    // Logo Configuration
     logo: {
       type: "image", // image, text, both
       showBrand: true,
-      maxHeight: "40px"
+      maxHeight: "45px",        // Slightly larger for better visual balance
+      spacing: {
+        marginRight: "1rem"     // Space between logo and brand text
+      }
     },
     menuItems: [
       {
@@ -86,11 +136,62 @@ const landingPageConfig = {
     mobileBreakpoint: "lg" // Collapse on screens smaller than lg
   },
 
-  // Enhanced Hero Section Configuration
+  // Enhanced Hero Section Configuration - Soft Coded Layout Control
   hero: {
     title: "AI-Powered Radiology Excellence",
     subtitle: "Revolutionary Medical Diagnostics with Advanced Intelligence",
     description: "Transform healthcare delivery with cutting-edge AI that enhances diagnostic precision, accelerates analysis workflows, and elevates patient care standards.",
+    
+    // Layout Configuration - Soft Coded for Easy Sizing Control
+    layout: {
+      // Vertical Height Control - Professional Sizing
+      height: {
+        desktop: "70vh",        // 70% viewport height on desktop (was min-vh-100)
+        tablet: "75vh",         // 75% viewport height on tablet
+        mobile: "80vh",         // 80% viewport height on mobile
+        minimum: "500px",       // Minimum height fallback
+        maximum: "800px"        // Maximum height to prevent overlap
+      },
+      
+      // Content Positioning
+      contentAlignment: {
+        vertical: "center",     // top, center, bottom
+        horizontal: "left",     // left, center, right
+        textAlign: "left"       // left, center, right
+      },
+      
+      // Professional Spacing Configuration - Soft Coded
+      spacing: {
+        // Navigation-aware spacing
+        top: "110px",          // Increased space for navigation bar + professional gap
+        navigationGap: "30px", // Additional gap between navigation and hero content
+        bottom: "80px",        // Increased spacing before next section for professional look
+        sectionGap: "60px",    // Larger gap between sections to prevent overlap
+        contentPadding: "2.5rem", // Increased internal content padding
+        
+        // Responsive spacing adjustments
+        mobile: {
+          top: "90px",         // Smaller navigation on mobile
+          navigationGap: "20px",
+          bottom: "50px",
+          contentPadding: "1.5rem"
+        },
+        tablet: {
+          top: "100px",        // Medium spacing for tablet
+          navigationGap: "25px",
+          bottom: "60px", 
+          contentPadding: "2rem"
+        }
+      },
+      
+      // Responsive Breakpoints
+      breakpoints: {
+        mobile: "768px",
+        tablet: "1024px",
+        desktop: "1200px"
+      }
+    },
+    
     ctaButtons: [
       {
         text: "Start Free Trial",
@@ -106,14 +207,48 @@ const landingPageConfig = {
       }
     ],
     design: {
-      backgroundType: "gradient", // gradient, image, video
+      // Background Configuration - Soft Coded for Easy Customization
+      backgroundType: "image", // gradient, image, video, professional
+      
+      // Clean Professional Background Options (No Text Overlays)
+      backgroundImage: "/assets/images/medixscan-hero-clean-1600x900.png", // Clean professional background
+      alternativeBackgrounds: {
+        minimal: "/assets/images/medixscan-hero-minimal-1600x900.png",     // Minimal pattern option
+        gradient: "/assets/images/medixscan-hero-gradient-1600x900.png",   // Pure gradient option
+        original: "/assets/images/medixscan-hero-1600x900.png"            // Original with branding (avoid)
+      },
+      fallbackBackground: "/assets/images/bg-03.jpg",                      // Legacy fallback
+      
+      // Gradient Options (fallback/alternative)
       primaryGradient: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
       overlayGradient: "linear-gradient(135deg, rgba(102,126,234,0.85) 0%, rgba(118,75,162,0.85) 100%)",
+      
+      // Professional Design System
       textColor: "#ffffff",
       accentColor: "#1EBCB7",
-      backgroundImage: "/assets/images/bg-03.jpg",
-      particles: false, // Reduced animation
-      animation: "fadeIn" // Simplified animation
+      
+      // Background Properties - Optimized for Clean Text Display
+      backgroundProperties: {
+        size: "cover",               // cover, contain, auto
+        position: "center",          // center, top, bottom, left, right
+        repeat: "no-repeat",         // no-repeat, repeat, repeat-x, repeat-y
+        attachment: "fixed",         // fixed, scroll, local
+        overlay: "rgba(0,0,0,0.1)",  // Minimal overlay since background is already optimized
+        textArea: {
+          overlay: "rgba(0,0,0,0.3)", // Darker overlay specifically behind text
+          backdrop: "blur(2px)",       // Subtle blur effect for text readability
+          padding: "2rem"              // Padding around text content
+        }
+      },
+      
+      // Animation Configuration
+      particles: false,          // Reduced animation for professional look
+      animation: "fadeIn",       // Simplified animation
+      parallax: false,           // Professional static design
+      
+      // Responsive Behavior
+      mobileBackground: "/assets/images/medixscan-hero-1600x900.png", // Same professional bg on mobile
+      tabletBackground: "/assets/images/medixscan-hero-1600x900.png"  // Consistent across devices
     },
     videoUrl: "https://example.com/demo-video.mp4"
   },
@@ -509,11 +644,35 @@ const landingPageConfig = {
         title: "Lead Radiologist",
         organization: "Regional Medical Center",
         image: "/assets/images/user/user-4.jpg",
-        quote: "The seamless integration with our existing systems and the intuitive interface made adoption effortless. The AI catches details we might have missed.",
+        quote: "The seamless integration with our existing systems and intuitive interface made adoption effortless. The AI catches subtle details we might have missed, enhancing our diagnostic confidence.",
         rating: 5,
         specialization: "Abdominal Imaging",
         years: "18+ years experience",
         background: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)"
+      },
+      {
+        id: 5,
+        name: "Dr. Amanda Foster",
+        title: "Chief of Imaging",
+        organization: "University Medical Center",
+        image: "/assets/images/user/user-5.jpg",
+        quote: "MediXscan AI has become an indispensable tool in our radiology department. The speed and precision of the AI analysis allows us to provide faster, more accurate diagnoses to our patients.",
+        rating: 5,
+        specialization: "Cardiac Imaging",
+        years: "22+ years experience",
+        background: "linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)"
+      },
+      {
+        id: 6,
+        name: "Dr. James Patterson",
+        title: "Interventional Radiologist",
+        organization: "Specialty Imaging Associates",
+        image: "/assets/images/user/user-6.jpg",
+        quote: "The real-time AI assistance during procedures has significantly improved our workflow efficiency. The system's ability to provide instant feedback is remarkable and has reduced our procedure times by 15%.",
+        rating: 5,
+        specialization: "Interventional Radiology",
+        years: "14+ years experience",
+        background: "linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)"
       }
     ]
   },

@@ -2,19 +2,34 @@ import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Card, Button, Badge, Modal, Carousel } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import landingPageConfig from "@config/landingPageConfig.js";
+import { getCurrentTheme } from "@config/backgroundThemes.js";
+import { getLogoPath } from "@config/logoConfig.js";
 import LandingNavigation from "../components/LandingNavigation.jsx";
 import ComplianceTrustBadges from "../components/ComplianceTrustBadges.jsx";
 import CookieConsentBanner from "../components/CookieConsentBanner.jsx";
+import { injectHeroLayoutVariables } from "../utils/heroLayoutUtils.js";
+import "../assets/scss/custom/hero-responsive.scss";
 
 const LandingPage = () => {
   const [showVideoModal, setShowVideoModal] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [activeSlide, setActiveSlide] = useState(0);
   const { brand, hero, features, statistics, testimonials, radiologyShowcase, contact, compliance, theme } = landingPageConfig;
+  
+  // Get current background theme for clean text display
+  const currentTheme = getCurrentTheme();
 
   useEffect(() => {
     setIsVisible(true);
-  }, []);
+    
+    // Inject hero layout CSS variables for responsive design
+    injectHeroLayoutVariables(hero);
+    
+    console.log('🎨 Hero layout variables injected:', {
+      height: hero.layout?.height,
+      spacing: hero.layout?.spacing
+    });
+  }, [hero]);
 
   const handleCTAClick = (action) => {
     if (action === 'trial' || action === 'register') {
@@ -32,32 +47,59 @@ const LandingPage = () => {
       {/* Top Primary Navigation */}
       <LandingNavigation onCTAClick={handleCTAClick} />
 
-      {/* Clean Hero Section with Minimal Animation */}
+      {/* Professional Hero Section - Soft Coded Layout Control */}
       <section 
         id="home"
-        className="hero-section d-flex align-items-center min-vh-100 position-relative"
+        className={`hero-section d-flex position-relative`}
         style={{
-          background: hero.design?.backgroundType === 'gradient' 
-            ? hero.design.primaryGradient 
-            : `linear-gradient(${hero.design?.overlayGradient || 'rgba(0,0,0,0.3), rgba(0,0,0,0.3)'}), url(${hero.backgroundImage})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          paddingTop: '80px' // Account for fixed navbar
+          // Soft-Coded Height Configuration (No More min-vh-100)
+          height: hero.layout?.height?.desktop || '70vh',
+          minHeight: hero.layout?.height?.minimum || '500px',
+          maxHeight: hero.layout?.height?.maximum || '800px',
+          
+          // Flexible Alignment Based on Configuration
+          alignItems: hero.layout?.contentAlignment?.vertical || 'center',
+          justifyContent: hero.layout?.contentAlignment?.horizontal || 'flex-start',
+          
+          // Clean Professional Background - No Text Conflicts
+          background: `url(${currentTheme.backgroundImage})`,
+          backgroundSize: hero.design?.backgroundProperties?.size || 'cover',
+          backgroundPosition: hero.design?.backgroundProperties?.position || 'center',
+          backgroundRepeat: hero.design?.backgroundProperties?.repeat || 'no-repeat',
+          backgroundAttachment: hero.design?.backgroundProperties?.attachment || 'fixed',
+          
+          // Professional Navigation-Aware Spacing - Soft Coded
+          paddingTop: `calc(${hero.layout?.spacing?.top || '110px'} + ${hero.layout?.spacing?.navigationGap || '30px'})`,
+          paddingBottom: hero.layout?.spacing?.bottom || '80px',
+          marginBottom: hero.layout?.spacing?.sectionGap || '60px'
         }}
       >
-        {/* Subtle Background Effect */}
+        {/* Minimal Global Overlay (background is already optimized) */}
         <div 
           className="position-absolute w-100 h-100"
           style={{
-            background: hero.design?.overlayGradient || 'linear-gradient(135deg, rgba(102,126,234,0.85) 0%, rgba(118,75,162,0.85) 100%)',
+            background: currentTheme.overlay,
             zIndex: 1
           }}
         ></div>
 
         <Container className="position-relative" style={{ zIndex: 2 }}>
-          <Row className="align-items-center">
+          <Row className="align-items-center h-100">
             <Col lg={8} className="text-white">
-              <div className={`hero-content ${isVisible ? 'fade-in' : ''}`}>
+              {/* Enhanced Text Readability Container - Soft Coded */}
+              <div 
+                className={`hero-content ${isVisible ? 'fade-in' : ''}`}
+                style={{
+                  background: currentTheme.textOverlay,
+                  backdropFilter: 'blur(10px)',
+                  borderRadius: '20px',
+                  padding: hero.layout?.spacing?.contentPadding || '2.5rem',
+                  border: '1px solid rgba(255,255,255,0.15)',
+                  boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+                  maxWidth: '100%',
+                  textAlign: hero.layout?.contentAlignment?.textAlign || 'left'
+                }}
+              >
                 {/* Clean Badge */}
                 <Badge 
                   className="mb-4 px-4 py-2 fw-semibold"
@@ -585,92 +627,161 @@ const LandingPage = () => {
             controls={testimonials.showNavigation}
             className="testimonials-carousel"
           >
-            {testimonials.items.map((testimonial, index) => (
-              <Carousel.Item key={testimonial.id}>
-                <Container>
-                  <Row className="justify-content-center">
-                    <Col lg={10}>
-                      <Card 
-                        className="border-0 shadow-lg testimonial-card"
-                        style={{
-                          borderRadius: '20px',
-                          background: 'rgba(255, 255, 255, 0.95)',
-                          backdropFilter: 'blur(10px)',
-                          padding: '20px'
-                        }}
-                      >
-                        <Card.Body className="p-5">
-                          <Row className="align-items-center">
-                            <Col lg={4} className="text-center mb-4 mb-lg-0">
-                              <div className="position-relative d-inline-block">
-                                <div 
-                                  className="profile-bg"
+            {testimonials.items.reduce((slides, testimonial, index) => {
+              if (index % 2 === 0) {
+                const nextTestimonial = testimonials.items[index + 1];
+                slides.push(
+                  <Carousel.Item key={`slide-${Math.floor(index / 2)}`}>
+                    <Container>
+                      <Row className="justify-content-center">
+                        <Col lg={12}>
+                          <Row className="g-4">
+                            {/* First Testimonial */}
+                            <Col lg={6}>
+                              <Card 
+                                className="border-0 shadow-lg testimonial-card h-100"
+                                style={{
+                                  borderRadius: '20px',
+                                  background: 'rgba(255, 255, 255, 0.95)',
+                                  backdropFilter: 'blur(10px)',
+                                  padding: '15px'
+                                }}
+                              >
+                                <Card.Body className="p-4">
+                                  <div className="text-center mb-4">
+                                    <div className="position-relative d-inline-block">
+                                      <div 
+                                        className="profile-bg"
+                                        style={{
+                                          width: '120px',
+                                          height: '120px',
+                                          background: testimonial.background,
+                                          borderRadius: '50%',
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                          margin: '0 auto',
+                                          position: 'relative'
+                                        }}
+                                      >
+                                        <img
+                                          src={testimonial.image || '/assets/images/user/default-doctor.jpg'}
+                                          alt={testimonial.name}
+                                          className="rounded-circle border-4 border-white shadow"
+                                          style={{ 
+                                            width: '100px', 
+                                            height: '100px', 
+                                            objectFit: 'cover',
+                                            position: 'absolute'
+                                          }}
+                                        />
+                                      </div>
+                                    </div>
+                                    
+                                    <div className="mt-3">
+                                      <h6 className="fw-bold mb-1">{testimonial.name}</h6>
+                                      <p className="text-primary fw-semibold mb-1 small">{testimonial.title}</p>
+                                      <p className="text-muted small mb-2">{testimonial.organization}</p>
+                                      <Badge bg="secondary" className="mb-2 small">{testimonial.specialization}</Badge>
+                                    </div>
+                                  </div>
+                                  
+                                  <div className="testimonial-content">
+                                    <div className="mb-3 text-center">
+                                      {[...Array(testimonial.rating)].map((_, i) => (
+                                        <i key={i} className="fas fa-star text-warning me-1" style={{ fontSize: '1rem' }}></i>
+                                      ))}
+                                    </div>
+                                    
+                                    <blockquote className="blockquote mb-0">
+                                      <i className="fas fa-quote-left text-primary me-2" style={{ fontSize: '1.5rem', opacity: '0.3' }}></i>
+                                      <p className="fst-italic mb-0" style={{ fontSize: '0.95rem', lineHeight: '1.5' }}>
+                                        {testimonial.quote}
+                                      </p>
+                                    </blockquote>
+                                  </div>
+                                </Card.Body>
+                              </Card>
+                            </Col>
+
+                            {/* Second Testimonial (if exists) */}
+                            {nextTestimonial && (
+                              <Col lg={6}>
+                                <Card 
+                                  className="border-0 shadow-lg testimonial-card h-100"
                                   style={{
-                                    width: '180px',
-                                    height: '180px',
-                                    background: testimonial.background,
-                                    borderRadius: '50%',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    margin: '0 auto',
-                                    position: 'relative'
+                                    borderRadius: '20px',
+                                    background: 'rgba(255, 255, 255, 0.95)',
+                                    backdropFilter: 'blur(10px)',
+                                    padding: '15px'
                                   }}
                                 >
-                                  <img
-                                    src={testimonial.image || '/assets/images/user/default-doctor.jpg'}
-                                    alt={testimonial.name}
-                                    className="rounded-circle border-4 border-white shadow"
-                                    style={{ 
-                                      width: '150px', 
-                                      height: '150px', 
-                                      objectFit: 'cover',
-                                      position: 'absolute'
-                                    }}
-                                  />
-                                </div>
-                              </div>
-                              
-                              <div className="mt-3">
-                                <h5 className="fw-bold mb-1">{testimonial.name}</h5>
-                                <p className="text-primary fw-semibold mb-1">{testimonial.title}</p>
-                                <p className="text-muted small mb-2">{testimonial.organization}</p>
-                                <Badge bg="secondary" className="mb-2">{testimonial.specialization}</Badge>
-                                <div className="text-muted small">{testimonial.years}</div>
-                              </div>
-                            </Col>
-                            
-                            <Col lg={8}>
-                              <div className="testimonial-content">
-                                <div className="mb-3">
-                                  {[...Array(testimonial.rating)].map((_, i) => (
-                                    <i key={i} className="fas fa-star text-warning me-1" style={{ fontSize: '1.2rem' }}></i>
-                                  ))}
-                                </div>
-                                
-                                <blockquote className="blockquote mb-4">
-                                  <i className="fas fa-quote-left text-primary me-2" style={{ fontSize: '2rem', opacity: '0.3' }}></i>
-                                  <p className="lead fst-italic mb-0" style={{ fontSize: '1.1rem', lineHeight: '1.6' }}>
-                                    {testimonial.quote}
-                                  </p>
-                                </blockquote>
-                                
-                                <div className="d-flex align-items-center">
-                                  <div className="me-3">
-                                    <i className="fas fa-shield-alt text-success me-2"></i>
-                                    <span className="small text-muted">Verified Healthcare Professional</span>
-                                  </div>
-                                </div>
-                              </div>
-                            </Col>
+                                  <Card.Body className="p-4">
+                                    <div className="text-center mb-4">
+                                      <div className="position-relative d-inline-block">
+                                        <div 
+                                          className="profile-bg"
+                                          style={{
+                                            width: '120px',
+                                            height: '120px',
+                                            background: nextTestimonial.background,
+                                            borderRadius: '50%',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            margin: '0 auto',
+                                            position: 'relative'
+                                          }}
+                                        >
+                                          <img
+                                            src={nextTestimonial.image || '/assets/images/user/default-doctor.jpg'}
+                                            alt={nextTestimonial.name}
+                                            className="rounded-circle border-4 border-white shadow"
+                                            style={{ 
+                                              width: '100px', 
+                                              height: '100px', 
+                                              objectFit: 'cover',
+                                              position: 'absolute'
+                                            }}
+                                          />
+                                        </div>
+                                      </div>
+                                      
+                                      <div className="mt-3">
+                                        <h6 className="fw-bold mb-1">{nextTestimonial.name}</h6>
+                                        <p className="text-primary fw-semibold mb-1 small">{nextTestimonial.title}</p>
+                                        <p className="text-muted small mb-2">{nextTestimonial.organization}</p>
+                                        <Badge bg="secondary" className="mb-2 small">{nextTestimonial.specialization}</Badge>
+                                      </div>
+                                    </div>
+                                    
+                                    <div className="testimonial-content">
+                                      <div className="mb-3 text-center">
+                                        {[...Array(nextTestimonial.rating)].map((_, i) => (
+                                          <i key={i} className="fas fa-star text-warning me-1" style={{ fontSize: '1rem' }}></i>
+                                        ))}
+                                      </div>
+                                      
+                                      <blockquote className="blockquote mb-0">
+                                        <i className="fas fa-quote-left text-primary me-2" style={{ fontSize: '1.5rem', opacity: '0.3' }}></i>
+                                        <p className="fst-italic mb-0" style={{ fontSize: '0.95rem', lineHeight: '1.5' }}>
+                                          {nextTestimonial.quote}
+                                        </p>
+                                      </blockquote>
+                                    </div>
+                                  </Card.Body>
+                                </Card>
+                              </Col>
+                            )}
                           </Row>
-                        </Card.Body>
-                      </Card>
-                    </Col>
-                  </Row>
-                </Container>
-              </Carousel.Item>
-            ))}
+                        </Col>
+                      </Row>
+                    </Container>
+                  </Carousel.Item>
+                );
+              }
+              return slides;
+            }, [])}
           </Carousel>
         </Container>
       </section>
@@ -759,42 +870,297 @@ const LandingPage = () => {
         </Container>
       </section>
 
-      {/* CTA Section */}
-      <section id="contact" className="py-5" style={{ background: theme.darkColor }}>
-        <Container>
-          <Row className="text-center">
-            <Col lg={8} className="mx-auto">
-              <h2 className="display-5 fw-bold text-white mb-3">{contact.title}</h2>
-              <p className="lead text-white opacity-75 mb-4">{contact.subtitle}</p>
-              
-              <div className="d-flex flex-wrap justify-content-center gap-3">
-                <Button
-                  size="lg"
-                  className="px-4 py-3"
-                  style={{
-                    background: theme.gradient,
-                    border: 'none',
-                    borderRadius: theme.borderRadius
-                  }}
-                >
-                  <i className="fas fa-rocket me-2"></i>
-                  Start Free Trial
-                </Button>
+      {/* Advanced CTA Section */}
+      <section id="contact" className="py-5 position-relative overflow-hidden" style={{ 
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #1EBCB7 100%)',
+        backgroundSize: '400% 400%',
+        animation: 'gradientShift 15s ease infinite'
+      }}>
+        {/* Animated Background Elements */}
+        <div className="position-absolute top-0 start-0 w-100 h-100">
+          <div className="floating-elements">
+            <div className="floating-circle" style={{
+              position: 'absolute',
+              top: '10%',
+              left: '10%',
+              width: '60px',
+              height: '60px',
+              background: 'rgba(255, 255, 255, 0.1)',
+              borderRadius: '50%',
+              animation: 'float 6s ease-in-out infinite'
+            }}></div>
+            <div className="floating-circle" style={{
+              position: 'absolute',
+              top: '20%',
+              right: '15%',
+              width: '40px',
+              height: '40px',
+              background: 'rgba(255, 255, 255, 0.08)',
+              borderRadius: '50%',
+              animation: 'float 8s ease-in-out infinite reverse'
+            }}></div>
+            <div className="floating-circle" style={{
+              position: 'absolute',
+              bottom: '20%',
+              left: '20%',
+              width: '80px',
+              height: '80px',
+              background: 'rgba(255, 255, 255, 0.05)',
+              borderRadius: '50%',
+              animation: 'float 10s ease-in-out infinite'
+            }}></div>
+          </div>
+        </div>
+
+        <Container className="position-relative">
+          <Row className="text-center mb-5">
+            <Col lg={10} className="mx-auto">
+              <div className="cta-content">
+                <h2 className="display-4 fw-bold text-white mb-4" style={{
+                  textShadow: '0 4px 20px rgba(0,0,0,0.3)',
+                  letterSpacing: '-0.5px'
+                }}>
+                  {contact.title}
+                </h2>
+                <p className="lead text-white opacity-90 mb-5" style={{
+                  fontSize: '1.3rem',
+                  maxWidth: '600px',
+                  margin: '0 auto',
+                  lineHeight: '1.6'
+                }}>
+                  {contact.subtitle}
+                </p>
                 
-                <Button
-                  variant="outline-light"
-                  size="lg"
-                  className="px-4 py-3"
-                  style={{ borderRadius: theme.borderRadius }}
-                >
-                  <i className="fas fa-phone me-2"></i>
-                  Schedule Demo
-                </Button>
+                <div className="cta-buttons d-flex flex-wrap justify-content-center gap-4 mb-5">
+                  <Button
+                    size="lg"
+                    className="px-5 py-3 fw-semibold cta-button-primary"
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.15)',
+                      backdropFilter: 'blur(10px)',
+                      border: '2px solid rgba(255, 255, 255, 0.3)',
+                      borderRadius: '50px',
+                      fontSize: '1.1rem',
+                      transition: 'all 0.3s ease',
+                      boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+                    }}
+                  >
+                    <i className="fas fa-rocket me-2"></i>
+                    Start Free Trial
+                  </Button>
+                  
+                  <Button
+                    variant="outline-light"
+                    size="lg"
+                    className="px-5 py-3 fw-semibold cta-button-secondary"
+                    style={{
+                      borderRadius: '50px',
+                      fontSize: '1.1rem',
+                      border: '2px solid rgba(255, 255, 255, 0.8)',
+                      transition: 'all 0.3s ease'
+                    }}
+                  >
+                    <i className="fas fa-calendar-alt me-2"></i>
+                    Schedule Demo
+                  </Button>
+                  
+                  <Button
+                    variant="link"
+                    size="lg"
+                    className="px-4 py-3 text-white fw-semibold"
+                    style={{
+                      fontSize: '1.1rem',
+                      textDecoration: 'none',
+                      transition: 'all 0.3s ease'
+                    }}
+                  >
+                    <i className="fas fa-play-circle me-2"></i>
+                    Watch Demo Video
+                  </Button>
+                </div>
+
+                {/* Trust Indicators */}
+                <div className="trust-indicators">
+                  <Row className="align-items-center justify-content-center">
+                    <Col lg={3} md={6} className="mb-3">
+                      <div className="trust-item text-white">
+                        <i className="fas fa-shield-alt mb-2" style={{ fontSize: '2rem', opacity: '0.8' }}></i>
+                        <div className="fw-bold">HIPAA Compliant</div>
+                        <small className="opacity-75">Enterprise Security</small>
+                      </div>
+                    </Col>
+                    <Col lg={3} md={6} className="mb-3">
+                      <div className="trust-item text-white">
+                        <i className="fas fa-users mb-2" style={{ fontSize: '2rem', opacity: '0.8' }}></i>
+                        <div className="fw-bold">10,000+ Users</div>
+                        <small className="opacity-75">Healthcare Professionals</small>
+                      </div>
+                    </Col>
+                    <Col lg={3} md={6} className="mb-3">
+                      <div className="trust-item text-white">
+                        <i className="fas fa-hospital mb-2" style={{ fontSize: '2rem', opacity: '0.8' }}></i>
+                        <div className="fw-bold">500+ Hospitals</div>
+                        <small className="opacity-75">Worldwide Trust</small>
+                      </div>
+                    </Col>
+                    <Col lg={3} md={6} className="mb-3">
+                      <div className="trust-item text-white">
+                        <i className="fas fa-award mb-2" style={{ fontSize: '2rem', opacity: '0.8' }}></i>
+                        <div className="fw-bold">99.9% Uptime</div>
+                        <small className="opacity-75">Guaranteed Reliability</small>
+                      </div>
+                    </Col>
+                  </Row>
+                </div>
               </div>
             </Col>
           </Row>
         </Container>
       </section>
+
+      {/* Advanced Footer */}
+      <footer className="advanced-footer" style={{
+        background: 'linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f1419 100%)',
+        position: 'relative',
+        overflow: 'hidden'
+      }}>
+        {/* Footer Background Pattern */}
+        <div className="position-absolute top-0 start-0 w-100 h-100" style={{
+          backgroundImage: `
+            radial-gradient(circle at 25% 25%, rgba(30, 188, 183, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 75% 75%, rgba(102, 126, 234, 0.1) 0%, transparent 50%)
+          `,
+          opacity: '0.6'
+        }}></div>
+
+        <Container className="position-relative">
+          {/* Main Footer Content */}
+          <div className="py-5">
+            <Row>
+              {/* Brand Section */}
+              <Col lg={4} md={6} className="mb-4">
+                <div className="footer-brand">
+                  <div className="d-flex align-items-center mb-3">
+                    <img 
+                      src={getLogoPath('white')} 
+                      alt="MediXScan AI" 
+                      style={{ height: '40px', marginRight: '12px' }}
+                    />
+                    <div>
+                      <h5 className="text-white mb-0 fw-bold">{brand.name}</h5>
+                      <small className="text-light opacity-75">{brand.tagline}</small>
+                    </div>
+                  </div>
+                  <p className="text-light opacity-75 mb-4" style={{ lineHeight: '1.6' }}>
+                    Revolutionizing medical diagnostics with cutting-edge AI technology. 
+                    Trusted by healthcare professionals worldwide for accurate, fast, and reliable radiology analysis.
+                  </p>
+                  
+                  {/* Social Media Links */}
+                  <div className="social-links d-flex gap-3">
+                    <a href={contact.socialMedia.linkedin} className="social-link">
+                      <i className="fab fa-linkedin-in"></i>
+                    </a>
+                    <a href={contact.socialMedia.twitter} className="social-link">
+                      <i className="fab fa-twitter"></i>
+                    </a>
+                    <a href={contact.socialMedia.facebook} className="social-link">
+                      <i className="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="#" className="social-link">
+                      <i className="fab fa-youtube"></i>
+                    </a>
+                  </div>
+                </div>
+              </Col>
+
+              {/* Quick Links */}
+              <Col lg={2} md={6} className="mb-4">
+                <h6 className="text-white fw-bold mb-3">Platform</h6>
+                <ul className="footer-links list-unstyled">
+                  <li><a href="#features" className="text-light opacity-75">Features</a></li>
+                  <li><a href="#pricing" className="text-light opacity-75">Pricing</a></li>
+                  <li><a href="#security" className="text-light opacity-75">Security</a></li>
+                  <li><a href="#integrations" className="text-light opacity-75">Integrations</a></li>
+                  <li><a href="#api" className="text-light opacity-75">API Documentation</a></li>
+                </ul>
+              </Col>
+
+              {/* Resources */}
+              <Col lg={2} md={6} className="mb-4">
+                <h6 className="text-white fw-bold mb-3">Resources</h6>
+                <ul className="footer-links list-unstyled">
+                  <li><a href="#" className="text-light opacity-75">Documentation</a></li>
+                  <li><a href="#" className="text-light opacity-75">Help Center</a></li>
+                  <li><a href="#" className="text-light opacity-75">Training</a></li>
+                  <li><a href="#" className="text-light opacity-75">Webinars</a></li>
+                  <li><a href="#" className="text-light opacity-75">Case Studies</a></li>
+                </ul>
+              </Col>
+
+              {/* Contact Info */}
+              <Col lg={4} md={6} className="mb-4">
+                <h6 className="text-white fw-bold mb-3">Get in Touch</h6>
+                <div className="contact-info">
+                  <div className="contact-item d-flex align-items-center mb-3">
+                    <div className="contact-icon me-3">
+                      <i className="fas fa-envelope"></i>
+                    </div>
+                    <div>
+                      <div className="text-white fw-semibold">Email</div>
+                      <a href={`mailto:${contact.email}`} className="text-light opacity-75">{contact.email}</a>
+                    </div>
+                  </div>
+                  
+                  <div className="contact-item d-flex align-items-center mb-3">
+                    <div className="contact-icon me-3">
+                      <i className="fas fa-phone"></i>
+                    </div>
+                    <div>
+                      <div className="text-white fw-semibold">Phone</div>
+                      <a href={`tel:${contact.phone}`} className="text-light opacity-75">{contact.phone}</a>
+                    </div>
+                  </div>
+                  
+                  <div className="contact-item d-flex align-items-start mb-3">
+                    <div className="contact-icon me-3">
+                      <i className="fas fa-map-marker-alt"></i>
+                    </div>
+                    <div>
+                      <div className="text-white fw-semibold">Address</div>
+                      <div className="text-light opacity-75">{contact.address}</div>
+                    </div>
+                  </div>
+                </div>
+              </Col>
+            </Row>
+          </div>
+
+          {/* Footer Bottom */}
+          <div className="footer-bottom py-4 border-top" style={{ borderColor: 'rgba(255, 255, 255, 0.1) !important' }}>
+            <Row className="align-items-center">
+              <Col md={6} className="mb-3 mb-md-0">
+                <div className="d-flex flex-wrap gap-4">
+                  <a href="#" className="text-light opacity-75 small">Privacy Policy</a>
+                  <a href="#" className="text-light opacity-75 small">Terms of Service</a>
+                  <a href="#" className="text-light opacity-75 small">Cookie Policy</a>
+                  <a href="#" className="text-light opacity-75 small">GDPR</a>
+                </div>
+              </Col>
+              <Col md={6} className="text-md-end">
+                <div className="d-flex flex-column">
+                  <div className="text-light opacity-75 small">
+                    © 2025 {brand.name}. All rights reserved.
+                  </div>
+                  <div className="text-light opacity-50 small mt-1">
+                    Built with ❤️ for healthcare professionals
+                  </div>
+                </div>
+              </Col>
+            </Row>
+          </div>
+        </Container>
+      </footer>
 
       {/* Video Modal */}
       <Modal show={showVideoModal} onHide={() => setShowVideoModal(false)} size="lg" centered>
@@ -1141,29 +1507,38 @@ const LandingPage = () => {
         /* Testimonials Carousel Styles */
         .testimonials-carousel .carousel-control-prev,
         .testimonials-carousel .carousel-control-next {
-          width: 50px;
-          height: 50px;
-          background: rgba(255, 255, 255, 0.9);
+          width: 60px;
+          height: 60px;
+          background: rgba(255, 255, 255, 0.95);
           border-radius: 50%;
           top: 50%;
           transform: translateY(-50%);
           color: #333;
           border: none;
-          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+          box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+          z-index: 10;
+          transition: all 0.3s ease;
         }
 
         .testimonials-carousel .carousel-control-prev {
-          left: -25px;
+          left: -80px;
         }
 
         .testimonials-carousel .carousel-control-next {
-          right: -25px;
+          right: -80px;
         }
 
         .testimonials-carousel .carousel-control-prev:hover,
         .testimonials-carousel .carousel-control-next:hover {
           background: white;
-          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+          transform: translateY(-50%) scale(1.1);
+        }
+
+        .testimonials-carousel .carousel-control-prev-icon,
+        .testimonials-carousel .carousel-control-next-icon {
+          width: 24px;
+          height: 24px;
         }
 
         .testimonials-carousel .carousel-indicators {
@@ -1324,7 +1699,186 @@ const LandingPage = () => {
 
           .testimonials-carousel .carousel-control-prev,
           .testimonials-carousel .carousel-control-next {
+            width: 45px;
+            height: 45px;
+          }
+
+          .testimonials-carousel .carousel-control-prev {
+            left: -60px;
+          }
+
+          .testimonials-carousel .carousel-control-next {
+            right: -60px;
+          }
+        }
+
+        @media (max-width: 576px) {
+          .testimonials-carousel .carousel-control-prev,
+          .testimonials-carousel .carousel-control-next {
+            width: 40px;
+            height: 40px;
+          }
+
+          .testimonials-carousel .carousel-control-prev {
+            left: -50px;
+          }
+
+          .testimonials-carousel .carousel-control-next {
+            right: -50px;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .testimonials-carousel .carousel-control-prev,
+          .testimonials-carousel .carousel-control-next {
             display: none;
+          }
+        }
+
+        /* Advanced Footer Styles */
+        @keyframes gradientShift {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-20px); }
+        }
+
+        .cta-button-primary:hover {
+          background: rgba(255, 255, 255, 0.25) !important;
+          transform: translateY(-2px);
+          box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2) !important;
+        }
+
+        .cta-button-secondary:hover {
+          background: rgba(255, 255, 255, 0.1);
+          border-color: rgba(255, 255, 255, 1) !important;
+          transform: translateY(-2px);
+        }
+
+        .trust-item {
+          transition: all 0.3s ease;
+        }
+
+        .trust-item:hover {
+          transform: translateY(-5px);
+        }
+
+        .advanced-footer {
+          position: relative;
+        }
+
+        .advanced-footer::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 1px;
+          background: linear-gradient(90deg, transparent, rgba(30, 188, 183, 0.5), transparent);
+        }
+
+        .footer-links li {
+          margin-bottom: 8px;
+          transition: all 0.3s ease;
+        }
+
+        .footer-links a {
+          text-decoration: none;
+          transition: all 0.3s ease;
+          position: relative;
+        }
+
+        .footer-links a:hover {
+          opacity: 1 !important;
+          color: #1EBCB7 !important;
+          padding-left: 5px;
+        }
+
+        .footer-links a::before {
+          content: '';
+          position: absolute;
+          left: -15px;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 0;
+          height: 2px;
+          background: #1EBCB7;
+          transition: width 0.3s ease;
+        }
+
+        .footer-links a:hover::before {
+          width: 10px;
+        }
+
+        .social-link {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 45px;
+          height: 45px;
+          background: rgba(255, 255, 255, 0.1);
+          border-radius: 50%;
+          color: rgba(255, 255, 255, 0.7);
+          text-decoration: none;
+          transition: all 0.3s ease;
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .social-link:hover {
+          background: rgba(30, 188, 183, 0.8);
+          color: white;
+          transform: translateY(-3px);
+          box-shadow: 0 8px 25px rgba(30, 188, 183, 0.3);
+        }
+
+        .contact-icon {
+          width: 45px;
+          height: 45px;
+          background: linear-gradient(135deg, #1EBCB7, #667eea);
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          flex-shrink: 0;
+        }
+
+        .contact-item {
+          transition: all 0.3s ease;
+        }
+
+        .contact-item:hover {
+          transform: translateX(5px);
+        }
+
+        .footer-bottom {
+          background: rgba(0, 0, 0, 0.2);
+          backdrop-filter: blur(10px);
+        }
+
+        /* Responsive Footer */
+        @media (max-width: 768px) {
+          .cta-buttons {
+            flex-direction: column;
+            align-items: center;
+          }
+          
+          .cta-buttons .btn {
+            width: 100%;
+            max-width: 300px;
+          }
+          
+          .trust-indicators .row {
+            justify-content: center;
+          }
+          
+          .social-links {
+            justify-content: center;
           }
         }
       `}</style>
