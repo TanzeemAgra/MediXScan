@@ -5,6 +5,16 @@ import {
   ProgressBar, Tab, Tabs, Modal, Tooltip, OverlayTrigger,
   ButtonGroup, Dropdown, ListGroup, Accordion
 } from 'react-bootstrap';
+import UltraSafeRenderer, { withUltraSafeRendering } from '../utilities/UltraSafeRenderer.jsx';
+import EmergencyObjectRenderingBoundary from './EmergencyObjectRenderingBoundary.jsx';
+
+// Emergency object safety function
+const safeRender = (value) => {
+  if (value === null || value === undefined) return '';
+  if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') return value;
+  if (typeof value === 'object') return JSON.stringify(value);
+  return String(value);
+};
 
 // Simple mock translation function
 const t = (key) => {
@@ -554,15 +564,17 @@ const AdvancedAIReportCorrection = ({
               <Tab 
                 eventKey={modelId} 
                 title={
-                  <span>
-                    <i className="ri-robot-line me-1"></i>
-                    {result.modelUsed || modelId}
-                    {result.overallConfidence && (
-                      <Badge bg="success" className="ms-2">
-                        {Math.round(result.overallConfidence)}%
-                      </Badge>
-                    )}
-                  </span>
+                  <UltraSafeRenderer.SafeWrapper>
+                    <span>
+                      <i className="ri-robot-line me-1"></i>
+                      {UltraSafeRenderer.toSafeText(result.modelUsed || modelId)}
+                      {result.overallConfidence && (
+                        <Badge bg="success" className="ms-2">
+                          {Math.round(result.overallConfidence)}%
+                        </Badge>
+                      )}
+                    </span>
+                  </UltraSafeRenderer.SafeWrapper>
                 }
                 key={modelId}
               >
@@ -572,7 +584,8 @@ const AdvancedAIReportCorrection = ({
                     {result.error}
                   </Alert>
                 ) : (
-                  <div>
+                  <UltraSafeRenderer.SafeWrapper fallback={<Alert variant="warning">Results could not be displayed safely</Alert>}>
+                    <div>
                     {/* Summary Cards */}
                     <Row className="mb-4">
                       <Col md={3}>
@@ -614,11 +627,12 @@ const AdvancedAIReportCorrection = ({
                     <ListGroup className="mb-4">
                       {result.corrections?.map((correction, index) => (
                         <ListGroup.Item key={index} className="d-flex justify-content-between align-items-start">
-                          <div className="ms-2 me-auto">
-                            <div className="fw-bold">{correction.type.replace('_', ' ')}</div>
-                            <small className="text-muted">
-                              "{correction.original}" → "{correction.suggested}"
-                            </small>
+                          <UltraSafeRenderer.SafeWrapper>
+                            <div className="ms-2 me-auto">
+                              <div className="fw-bold">{UltraSafeRenderer.toSafeText(correction.type?.replace('_', ' '))}</div>
+                              <small className="text-muted">
+                                "{UltraSafeRenderer.toSafeText(correction.original)}" → "{UltraSafeRenderer.toSafeText(correction.suggested)}"
+                              </small>
                             <div className="mt-1">
                               <small className="text-info">{correction.explanation}</small>
                             </div>
@@ -638,6 +652,7 @@ const AdvancedAIReportCorrection = ({
                               </Badge>
                             </div>
                           </div>
+                          </UltraSafeRenderer.SafeWrapper>
                         </ListGroup.Item>
                       ))}
                     </ListGroup>
@@ -649,14 +664,17 @@ const AdvancedAIReportCorrection = ({
                         <ul className="list-unstyled">
                           {result.insights.map((insight, index) => (
                             <li key={index} className="mb-2">
-                              <i className="ri-lightbulb-line text-warning me-2"></i>
-                              {insight}
+                              <UltraSafeRenderer.SafeWrapper>
+                                <i className="ri-lightbulb-line text-warning me-2"></i>
+                                {UltraSafeRenderer.toSafeText(insight)}
+                              </UltraSafeRenderer.SafeWrapper>
                             </li>
                           ))}
                         </ul>
                       </div>
                     )}
                   </div>
+                  </UltraSafeRenderer.SafeWrapper>
                 )}
               </Tab>
             ))}
@@ -667,6 +685,7 @@ const AdvancedAIReportCorrection = ({
   };
 
   return (
+    <EmergencyObjectRenderingBoundary>
     <div className="advanced-ai-correction">
       <style jsx>{`
         .model-card {
@@ -836,7 +855,8 @@ const AdvancedAIReportCorrection = ({
         </Col>
       </Row>
     </div>
+    </EmergencyObjectRenderingBoundary>
   );
 };
 
-export default AdvancedAIReportCorrection;
+export default withUltraSafeRendering(AdvancedAIReportCorrection);

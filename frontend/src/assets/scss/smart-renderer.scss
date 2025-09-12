@@ -1,0 +1,167 @@
+/* AI-Powered Smart Object Renderer Styles */
+.smart-object-render {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.medical-analysis {
+  background: linear-gradient(135deg, #f8f9ff 0%, #e8f4fd 100%);
+  border: 1px solid #d1ecf1;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.medical-analysis .badge {
+  font-size: 0.75rem;
+  margin-left: 0.5rem;
+}
+
+.corrections-list {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.correction-item {
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.correction-item:hover {
+  background: rgba(255, 255, 255, 0.9);
+  transform: translateX(2px);
+}
+
+.object-summary {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  padding: 0.75rem;
+}
+
+.detailed-object {
+  border-left: 3px solid #007bff;
+  padding-left: 1rem;
+  margin-left: 0.5rem;
+}
+
+.array-compact, .object-compact {
+  font-family: 'Courier New', monospace;
+  font-size: 0.85rem;
+  color: #6c757d;
+  background: #f8f9fa;
+  padding: 0.25rem 0.5rem;
+  border-radius: 3px;
+  border: 1px solid #e9ecef;
+}
+
+.safe-object-display {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from { 
+    opacity: 0; 
+    transform: translateY(10px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+/* Smart Error Boundary Styles */
+.smart-error-boundary {
+  border-left: 4px solid #ffc107;
+  background: linear-gradient(135deg, #fff3cd 0%, #fef9e7 100%);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.smart-error-boundary .btn {
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  transition: all 0.2s ease;
+}
+
+.smart-error-boundary .btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+/* AI Analysis Display Enhancements */
+.ai-analysis-display {
+  animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .corrections-list {
+    max-height: 200px;
+  }
+  
+  .medical-analysis {
+    padding: 0.75rem;
+  }
+  
+  .detailed-object {
+    margin-left: 0.25rem;
+    padding-left: 0.75rem;
+  }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .medical-analysis {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border-color: #374151;
+    color: #e5e7eb;
+  }
+  
+  .object-summary {
+    background: #374151;
+    border-color: #4b5563;
+    color: #e5e7eb;
+  }
+  
+  .array-compact, .object-compact {
+    background: #374151;
+    border-color: #4b5563;
+    color: #9ca3af;
+  }
+  
+  .correction-item {
+    background: rgba(55, 65, 81, 0.7);
+    color: #e5e7eb;
+  }
+  
+  .correction-item:hover {
+    background: rgba(55, 65, 81, 0.9);
+  }
+}
+
+/* Print Styles */
+@media print {
+  .smart-error-boundary {
+    border: 1px solid #666;
+    background: white !important;
+  }
+  
+  .ai-analysis-display {
+    break-inside: avoid;
+  }
+  
+  .corrections-list {
+    max-height: none;
+  }
+}

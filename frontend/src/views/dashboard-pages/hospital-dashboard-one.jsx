@@ -3,8 +3,14 @@ import { Row, Col, Card, Form, Button, Alert, Spinner, Badge, Tab, Tabs } from '
 import { analyzeReport, getUserHistory, saveReport, getVocabulary, analyzeReportWithRAG } from '../../services/api';
 import Chart from 'react-apexcharts';
 import { useLanguage } from '../../context/LanguageContext.jsx';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+// import { safeToast } from '../../utilities/SafeImport.js'; // Temporarily commented for simplicity
+import '../../assets/scss/smart-renderer.scss';
 import AdvancedAIReportCorrection from '../../components/AdvancedAIReportCorrection.jsx';
 import RAGEnhancedAnalysis from '../../components/RAGEnhancedAnalysis.jsx';
+import { SmartObjectRenderer, SafeObjectDisplay } from '../../utilities/SmartObjectRenderer.jsx';
+import SmartRenderingErrorBoundary, { SafeComponent } from '../../components/SmartRenderingErrorBoundary.jsx';
 
 const HospitalDashboardOne = () => {
   const { t } = useLanguage();
@@ -355,28 +361,75 @@ const HospitalDashboardOne = () => {
                       </div>
                     </div>
 
-                    <AdvancedAIReportCorrection 
-                      reportText={reportText}
-                      onCorrectionComplete={(correctedReport) => {
-                        setResult(prev => ({
-                          ...prev,
-                          final_corrected_report: correctedReport
-                        }));
-                      }}
-                      onAnalysisUpdate={(newText) => {
-                        // Update the report text when changed in Advanced AI component
-                        if (typeof newText === 'string') {
-                          setReportText(newText);
-                        } else {
-                          // Handle analytics data updates
-                          setAnalyticsData(prev => ({
+                    <SafeComponent 
+                      title="Advanced AI Analysis Error"
+                      onError={(error) => console.error('Advanced AI component error:', error)}
+                    >
+                      <AdvancedAIReportCorrection 
+                        reportText={reportText}
+                        onCorrectionComplete={(correctedReport) => {
+                          setResult(prev => ({
                             ...prev,
-                            currentReportStats: newText.stats || prev.currentReportStats
+                            final_corrected_report: correctedReport
                           }));
+                        }}
+                      onAnalysisUpdate={(analysisResult) => {
+                        // AI-powered soft coding for handling complex analysis objects
+                        try {
+                          if (typeof analysisResult === 'string') {
+                            // Simple string update
+                            setReportText(analysisResult);
+                          } else if (analysisResult && typeof analysisResult === 'object') {
+                            // Handle complex AI analysis object with intelligent processing
+                            
+                            // Update result state with AI analysis object for display
+                            setResult(prev => ({
+                              ...prev,
+                              aiAnalysis: analysisResult,
+                              // Preserve existing analysis data
+                              summary: analysisResult.summary?.totalCorrections ? 
+                                `AI Analysis Complete: ${analysisResult.summary.totalCorrections} corrections found with ${Math.round(analysisResult.overallConfidence || 0)}% confidence` :
+                                prev?.summary || 'AI analysis completed',
+                              // Extract corrections if available
+                              corrections: analysisResult.corrections || prev?.corrections || [],
+                              // Update model information
+                              modelInfo: {
+                                model: analysisResult.modelUsed || 'Unknown',
+                                confidence: analysisResult.overallConfidence || 0,
+                                processingTime: analysisResult.processingTime || 0
+                              }
+                            }));
+
+                            // Update analytics with intelligent data extraction
+                            if (analysisResult.summary) {
+                              setAnalyticsData(prev => ({
+                                ...prev,
+                                currentReportStats: {
+                                  totalCorrections: analysisResult.summary.totalCorrections || 0,
+                                  highConfidence: analysisResult.summary.highConfidence || 0,
+                                  medicalTerms: analysisResult.summary.medicalTerms || 0,
+                                  clinicalIssues: analysisResult.summary.clinicalIssues || 0,
+                                  overallConfidence: analysisResult.overallConfidence || 0
+                                }
+                              }));
+                            }
+
+                            // Show success toast with intelligent summary
+                            const modelName = analysisResult.modelUsed || 'AI Model';
+                            const confidence = Math.round(analysisResult.overallConfidence || 0);
+                            toast.success(`${modelName} analysis complete! Confidence: ${confidence}%`);
+                            
+                          } else {
+                            console.warn('Unexpected analysis result type:', typeof analysisResult, analysisResult);
+                          }
+                        } catch (error) {
+                          console.error('Error processing analysis update:', error);
+                          toast.error('Error processing AI analysis result');
                         }
                       }}
                       existingResult={result}
                     />
+                    </SafeComponent>
                   </Tab>
 
                   {/* Legacy Analysis Tab */}
@@ -576,6 +629,62 @@ const HospitalDashboardOne = () => {
                             {item}
                           </p>
                         ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* AI-Powered Advanced Analysis Results Display */}
+                  {result.aiAnalysis && (
+                    <div className='mb-3'>
+                      <h6 style={{ fontSize: '20px', marginBottom: '10px' }}>
+                        <i className="ri-robot-line me-2"></i>
+                        Advanced AI Analysis Results
+                      </h6>
+                      <div className='p-3 bg-gradient-light rounded border'>
+                        <SafeObjectDisplay 
+                          object={result.aiAnalysis}
+                          strategy="medical-analysis"
+                          className="ai-analysis-display"
+                          maxDepth={3}
+                          arrayLimit={10}
+                          showKeys={true}
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Model Performance Information */}
+                  {result.modelInfo && (
+                    <div className='mb-3'>
+                      <h6 style={{ fontSize: '18px', marginBottom: '10px' }}>
+                        <i className="ri-settings-3-line me-2"></i>
+                        Model Performance
+                      </h6>
+                      <div className="row">
+                        <div className="col-md-4">
+                          <div className="card bg-primary text-white h-100">
+                            <div className="card-body text-center">
+                              <h5 className="card-title">AI Model</h5>
+                              <p className="card-text">{result.modelInfo.model}</p>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="card bg-success text-white h-100">
+                            <div className="card-body text-center">
+                              <h5 className="card-title">Confidence</h5>
+                              <p className="card-text">{Math.round(result.modelInfo.confidence)}%</p>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="card bg-info text-white h-100">
+                            <div className="card-body text-center">
+                              <h5 className="card-title">Processing Time</h5>
+                              <p className="card-text">{result.modelInfo.processingTime}ms</p>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   )}
