@@ -496,7 +496,18 @@ const EnhancedRBACUserManagement = () => {
                 password_confirm: advancedUserForm.confirmPassword || advancedUserForm.password, // Django registration API needs this
                 roles: Array.isArray(advancedUserForm.roles) ? advancedUserForm.roles : []
             };
-            delete userData.confirmPassword; // Remove frontend field name
+            
+            // Soft coding: Ensure both field names are available for different API endpoints
+            userData.confirmPassword = advancedUserForm.confirmPassword; // Keep for some APIs
+            
+            console.log('🔍 User data prepared for creation:', {
+                username: userData.username,
+                email: userData.email,
+                has_password: !!userData.password,
+                has_password_confirm: !!userData.password_confirm,
+                has_confirmPassword: !!userData.confirmPassword,
+                password_match: userData.password === userData.password_confirm
+            });
             
             // Ensure required fields are properly named for Django API
             if (!userData.password_confirm) {
@@ -511,23 +522,84 @@ const EnhancedRBACUserManagement = () => {
             console.log('📊 User data to create:', JSON.stringify(userData, null, 2));
             
             try {
-                // Soft coding technique: Check if the function exists before calling
+                // Soft coding technique: Try real API service first, then fallback to mock service
                 if (typeof rbacService?.createAdvancedUser === 'function') {
-                    console.log('🔄 Attempting user creation via rbacService...');
+                    console.log('🔄 Attempting user creation via rbacApiService (real API)...');
                     result = await rbacService.createAdvancedUser(userData);
-                    console.log('✅ User creation via rbacService successful:', result);
+                    console.log('✅ User creation via real API successful:', result);
                 } else {
-                    console.warn('⚠️ rbacService.createAdvancedUser is not available, simulating creation');
-                    // Fallback user creation simulation
+                    console.warn('⚠️ rbacService.createAdvancedUser is not available, trying fallback creation');
+                    
+                    // Soft coding fallback: Direct API call to registration endpoint
+                    console.log('🔄 Attempting direct API registration...');
+                    
+                    // Clean up the data for registration endpoint - only send required fields
+                    const registrationData = {
+                        username: userData.username,
+                        email: userData.email,
+                        password: userData.password,
+                        password_confirm: userData.password, // Always use password as confirm for registration
+                        first_name: userData.first_name,
+                        last_name: userData.last_name
+                    };
+                    
+                    // Ensure password_confirm is set correctly
+                    if (userData.confirmPassword) {
+                        registrationData.password_confirm = userData.confirmPassword;
+                    } else if (userData.password_confirm) {
+                        registrationData.password_confirm = userData.password_confirm;
+                    }
+                    
+                    console.log('📤 Sending clean registration data:', registrationData);
+                    
+                    const response = await fetch('http://localhost:8000/api/auth/register/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(registrationData)
+                    });
+                    
+                    if (!response.ok) {
+                        let errorText = '';
+                        let errorDetails = {};
+                        
+                        try {
+                            const contentType = response.headers.get('content-type');
+                            if (contentType && contentType.includes('application/json')) {
+                                errorDetails = await response.json();
+                                errorText = JSON.stringify(errorDetails, null, 2);
+                            } else {
+                                errorText = await response.text();
+                            }
+                        } catch (parseError) {
+                            errorText = 'Could not parse error response';
+                        }
+                        
+                        console.error('❌ Registration failed:', response.status, response.statusText);
+                        console.error('📋 Error details:', errorDetails);
+                        console.error('📄 Raw error:', errorText);
+                        
+                        // Create user-friendly error message
+                        let userMessage = `Failed to create user. HTTP ${response.status}: ${response.statusText}`;
+                        if (errorDetails.error) {
+                            userMessage = errorDetails.error;
+                        } else if (errorDetails.message) {
+                            userMessage = errorDetails.message;
+                        } else if (errorDetails.detail) {
+                            userMessage = errorDetails.detail;
+                        }
+                        
+                        throw new Error(userMessage);
+                    }
+                    
+                    const responseData = await response.json();
+                    console.log('✅ Direct registration successful:', responseData);
+                    
                     result = {
                         success: true,
-                        user: {
-                            id: Date.now(),
-                            ...userData,
-                            created_at: new Date().toISOString(),
-                            is_active: true
-                        },
-                        message: 'User created successfully (simulated)'
+                        user: responseData.user,
+                        message: responseData.message || 'User created successfully'
                     };
                 }
                 
@@ -705,6 +777,12 @@ const EnhancedRBACUserManagement = () => {
                 // 5. Soft coding: Also refresh dashboard stats
                 console.log('🔄 Refreshing dashboard stats...');
                 await loadDashboardData();
+                
+                // 6. Soft coding: Force UI state refresh
+                console.log('🔄 Forcing UI refresh...');
+                setCurrentPage(1); // Reset to first page
+                setSearchTerm(''); // Clear search to show all users
+                setUserFilter('all'); // Reset filters
                 
                 console.log('✅ Interface refreshed successfully');
                 
@@ -1018,14 +1096,38 @@ const EnhancedRBACUserManagement = () => {
                                         Export
                                     </Button>
                                 </ButtonGroup>
-                                <Button
-                                    variant={autoRefresh ? "warning" : "outline-secondary"}
-                                    size="sm"
-                                    onClick={() => setAutoRefresh(!autoRefresh)}
-                                >
-                                    <i className={`fas fa-sync-alt ${autoRefresh ? 'fa-spin' : ''} me-1`}></i>
-                                    Auto-Refresh
-                                </Button>
+                                <ButtonGroup className="me-2">
+                                    <Button
+                                        variant="primary"
+                                        size="sm"
+                                        onClick={async () => {
+                                            console.log('🔄 Manual refresh triggered...');
+                                            setLoading(true);
+                                            try {
+                                                await loadUsers(true);
+                                                await loadDashboardData();
+                                                addToast('success', 'Refreshed', 'User list and dashboard updated successfully');
+                                            } catch (error) {
+                                                console.error('❌ Manual refresh failed:', error);
+                                                addToast('error', 'Refresh Failed', 'Could not refresh data. Please try again.');
+                                            } finally {
+                                                setLoading(false);
+                                            }
+                                        }}
+                                        disabled={loading}
+                                    >
+                                        <i className={`fas fa-sync ${loading ? 'fa-spin' : ''} me-1`}></i>
+                                        {loading ? 'Refreshing...' : 'Refresh Now'}
+                                    </Button>
+                                    <Button
+                                        variant={autoRefresh ? "warning" : "outline-secondary"}
+                                        size="sm"
+                                        onClick={() => setAutoRefresh(!autoRefresh)}
+                                    >
+                                        <i className={`fas fa-sync-alt ${autoRefresh ? 'fa-spin' : ''} me-1`}></i>
+                                        Auto-Refresh
+                                    </Button>
+                                </ButtonGroup>
                             </div>
                         </div>
                     </Col>

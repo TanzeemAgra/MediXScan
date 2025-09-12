@@ -220,10 +220,18 @@ const rbacApiService = {
 
         console.log('🔄 Attempting user creation with data:', userData);
 
-        // Ensure password_confirm is included for Django registration
+        // Soft coding: Ensure password_confirm is included for Django registration
         if (userData.password && !userData.password_confirm) {
-            userData.password_confirm = userData.password;
+            // Try different field names that might contain the confirm password
+            userData.password_confirm = userData.confirmPassword || userData.password;
         }
+        
+        console.log('🔍 Password field mapping:', {
+            has_password: !!userData.password,
+            has_password_confirm: !!userData.password_confirm,
+            has_confirmPassword: !!userData.confirmPassword,
+            passwords_match: userData.password === (userData.password_confirm || userData.confirmPassword)
+        });
 
         for (const endpoint of possibleEndpoints) {
             try {
