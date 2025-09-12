@@ -67,9 +67,33 @@ const getErrorMessage = (error) => {
 // Add request interceptor
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    // Soft-coded: accept multiple token storage keys for compatibility
+    const tokenKeys = [
+      (SECURITY_CONFIG && SECURITY_CONFIG.TOKEN && SECURITY_CONFIG.TOKEN.key) || 'auth_token',
+      'authToken',
+      'auth_token',
+      'token',
+      'access',
+      'accessToken'
+    ];
+
+    let token = null;
+    for (const key of tokenKeys) {
+      try {
+        const t = localStorage.getItem(key);
+        if (t) {
+          token = t;
+          break;
+        }
+      } catch (err) {
+        // ignore storage access errors
+      }
+    }
+
     if (token) {
-      config.headers.Authorization = `Token ${token}`;
+      // If token looks like a JWT (contains a dot), prefer Bearer; otherwise use Token prefix for Django TokenAuth
+      const authPrefix = token.includes('.') ? 'Bearer' : 'Token';
+      config.headers.Authorization = `${authPrefix} ${token}`;
     }
     return config;
   },

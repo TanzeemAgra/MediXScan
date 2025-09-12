@@ -2,8 +2,10 @@
 // Soft coding implementation with fallback to mock data
 
 import { api } from './api';
+import { ENV_CONFIG, ConfigHelpers } from '../config/appConfig.js';
 
-const API_BASE_URL = 'http://localhost:8000/api/rbac';
+// Use soft-coded API base URL from configuration
+const API_BASE_URL = ENV_CONFIG?.API_BASE_URL ? `${ENV_CONFIG.API_BASE_URL}/rbac` : 'http://localhost:8000/api/rbac';
 
 // Soft coding utility function to handle API calls with fallbacks
 const safeApiCall = async (apiCall, fallbackData = null, operation = 'API call') => {
@@ -26,9 +28,20 @@ const safeApiCall = async (apiCall, fallbackData = null, operation = 'API call')
 const rbacApiService = {
     // Get all users from Django backend with soft coding fallback
     async getUsers() {
-        // Get the auth token for API calls
-        const token = localStorage.getItem('authToken') || localStorage.getItem('token');
-        const headers = token ? { Authorization: `Token ${token}` } : {};
+        // Get the auth token for API calls - accept multiple storage keys and log which is used
+        const tokenKeys = ['auth_token', (ENV_CONFIG && ENV_CONFIG.SECURITY && ENV_CONFIG.SECURITY.TOKEN && ENV_CONFIG.SECURITY.TOKEN.key) || 'auth_token', 'authToken', 'token', 'access', 'accessToken'];
+        let token = null;
+        let tokenKeyUsed = null;
+        for (const k of tokenKeys) {
+            try {
+                const t = localStorage.getItem(k);
+                if (t) { token = t; tokenKeyUsed = k; break; }
+            } catch (e) {
+                // ignore storage access errors
+            }
+        }
+        const headers = token ? { Authorization: token.includes('.') ? `Bearer ${token}` : `Token ${token}` } : {};
+        console.log('🔑 rbacApiService.getUsers using tokenKey:', tokenKeyUsed, 'tokenPresent:', !!token);
         
         const fallbackUsers = [
             {
@@ -51,17 +64,18 @@ const rbacApiService = {
         ];
 
         // Soft coding: Try multiple potential user endpoints
+        // Build possible endpoints using soft-coded API base where needed
         const possibleEndpoints = [
             `${API_BASE_URL}/users/advanced/`,
-            '/api/auth/users/', // Alternative endpoint - requires admin permissions
-            '/api/accounts/users/', // Another potential endpoint
+            ConfigHelpers.getApiUrl('/auth/users/'), // Alternative endpoint - requires admin permissions
+            ConfigHelpers.getApiUrl('/accounts/users/'), // Another potential endpoint
             `${API_BASE_URL}/users/`, // Standard REST endpoint
-            '/api/auth/profile/' // Current user profile - fallback for non-admin users
+            ConfigHelpers.getApiUrl('/auth/profile/') // Current user profile - fallback for non-admin users
         ];
 
         console.log('🔄 Fetching users from database...');
 
-        for (const endpoint of possibleEndpoints) {
+    for (const endpoint of possibleEndpoints) {
             try {
                 console.log(`🔄 Trying users endpoint: ${endpoint}`);
                 const response = await api.get(endpoint, { headers });
@@ -83,6 +97,7 @@ const rbacApiService = {
                 
             } catch (error) {
                 console.warn(`⚠️ Users endpoint ${endpoint} failed:`, error.response?.status, error.response?.statusText);
+                console.warn('📄 Error body:', error.response?.data || error.message || error);
                 
                 // If we get a 404, try the next endpoint
                 if (error.response?.status === 404) {
@@ -107,6 +122,31 @@ const rbacApiService = {
                 // For other errors, log but continue
                 console.warn(`⚠️ Error from ${endpoint}:`, error.message);
             }
+        }
+
+        // Final fallback: try a raw fetch using the backend base URL in case axios/baseURL config caused issues
+        try {
+            const backendBase = (ENV_CONFIG && ENV_CONFIG.BACKEND_URL) || (ENV_CONFIG && ENV_CONFIG.API_BASE_URL) || 'http://localhost:8000';
+            const finalUrl = `${backendBase.replace(/\/$/, '')}/api/auth/users/`;
+            console.log('🔍 Final fetch fallback to URL:', finalUrl);
+            const fetchHeaders = { 'Content-Type': 'application/json' };
+            if (token) fetchHeaders.Authorization = headers.Authorization;
+            const resp = await fetch(finalUrl, { method: 'GET', headers: fetchHeaders });
+            if (resp.ok) {
+                const data = await resp.json();
+                if (Array.isArray(data)) {
+                    console.log('✅ Final fetch fallback succeeded, users count:', data.length);
+                    setUsers(data);
+                    return data;
+                } else if (Array.isArray(data.results)) {
+                    setUsers(data.results);
+                    return data.results;
+                }
+            } else {
+                console.warn('⚠️ Final fetch fallback returned non-ok status:', resp.status, resp.statusText);
+            }
+        } catch (finalErr) {
+            console.warn('⚠️ Final fetch fallback failed:', finalErr);
         }
 
         console.warn('⚠️ All user endpoints failed, using fallback data');

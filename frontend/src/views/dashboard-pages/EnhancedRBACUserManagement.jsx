@@ -341,7 +341,7 @@ const EnhancedRBACUserManagement = () => {
                 if (Array.isArray(data)) {
                     setUsers(data);
                     console.log('✅ User list updated successfully');
-                    
+
                     // Also update dashboard stats after loading users
                     setDashboardStats(prev => ({
                         ...prev,
@@ -349,14 +349,19 @@ const EnhancedRBACUserManagement = () => {
                         active_users: data.filter(user => user.is_active).length,
                         inactive_users: data.filter(user => !user.is_active).length
                     }));
+
+                    // Return the loaded users so callers (e.g., manual refresh) can act on them
+                    return data;
                 } else {
                     console.warn('⚠️ Invalid users data format, using empty array');
                     setUsers([]);
+                    return [];
                 }
             } else {
                 console.warn('⚠️ rbacService.getUsers is not available, using fallback');
                 // Use empty array as fallback if service is not available
                 setUsers([]);
+                return [];
             }
         } catch (error) {
             console.error('❌ Error loading users:', error);
@@ -368,6 +373,7 @@ const EnhancedRBACUserManagement = () => {
             
             // Soft coding: Even if loading fails, don't break the UI
             setUsers([]);
+            return [];
         } finally {
             if (showLoading) {
                 setLoading(false);
@@ -1111,19 +1117,31 @@ const EnhancedRBACUserManagement = () => {
                                         variant="primary"
                                         size="sm"
                                         onClick={async () => {
-                                            console.log('🔄 Manual refresh triggered...');
-                                            setLoading(true);
-                                            try {
-                                                await loadUsers(true);
-                                                await loadDashboardData();
-                                                addToast('success', 'Refreshed', 'User list and dashboard updated successfully');
-                                            } catch (error) {
-                                                console.error('❌ Manual refresh failed:', error);
-                                                addToast('error', 'Refresh Failed', 'Could not refresh data. Please try again.');
-                                            } finally {
-                                                setLoading(false);
-                                            }
-                                        }}
+                                                console.log('🔄 Manual refresh triggered...');
+                                                // Reset UI state to ensure new entries are visible
+                                                setCurrentPage(1);
+                                                setSearchTerm('');
+                                                setUserFilter('all');
+
+                                                setLoading(true);
+                                                try {
+                                                    const users = await loadUsers(true);
+                                                    await loadDashboardData();
+
+                                                    // If new users were returned, ensure UI shows them
+                                                    if (Array.isArray(users) && users.length > 0) {
+                                                        // Force table re-render by updating users state (already done in loadUsers)
+                                                        addToast('success', 'Refreshed', 'User list and dashboard updated successfully');
+                                                    } else {
+                                                        addToast('info', 'Refreshed', 'No users found');
+                                                    }
+                                                } catch (error) {
+                                                    console.error('❌ Manual refresh failed:', error);
+                                                    addToast('error', 'Refresh Failed', 'Could not refresh data. Please try again.');
+                                                } finally {
+                                                    setLoading(false);
+                                                }
+                                            }}
                                         disabled={loading}
                                     >
                                         <i className={`fas fa-sync ${loading ? 'fa-spin' : ''} me-1`}></i>
