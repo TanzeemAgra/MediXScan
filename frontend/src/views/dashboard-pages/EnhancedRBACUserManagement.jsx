@@ -621,7 +621,17 @@ const EnhancedRBACUserManagement = () => {
                         'http://localhost:8000/api/accounts/register/'
                     ];
                     
-                    const requestBody = JSON.stringify(userData);
+                    // Soft coding: Always send a cleaned payload to registration endpoints
+                    const cleanRegistrationPayload = JSON.stringify({
+                        username: userData.username,
+                        email: userData.email,
+                        password: userData.password,
+                        // Backend expects `password_confirm` (Django); accept confirmPassword as alias
+                        password_confirm: userData.password_confirm || userData.confirmPassword || userData.password,
+                        first_name: userData.first_name || '',
+                        last_name: userData.last_name || ''
+                    });
+                    const requestBody = cleanRegistrationPayload;
                     const authToken = localStorage.getItem('token') || localStorage.getItem('auth_token') || 'mock-token';
                     
                     console.log('📦 Request body:', requestBody);
@@ -673,25 +683,25 @@ const EnhancedRBACUserManagement = () => {
                     console.log('📋 API Response content-type:', response.headers.get('content-type'));
                     
                     if (!response.ok) {
-                        const contentType = response.headers.get('content-type');
-                        let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
-                        
-                        if (contentType && contentType.includes('application/json')) {
-                            try {
-                                const errorData = await response.json();
-                                errorMessage = errorData.error || errorData.message || errorMessage;
-                                console.error('📄 API Error (JSON):', errorData);
-                            } catch (parseError) {
-                                console.error('🚫 Failed to parse error JSON:', parseError);
+                        // Try to parse and log server validation errors so user sees precise message
+                        let serverError = null;
+                        try {
+                            const ct = response.headers.get('content-type') || '';
+                            if (ct.includes('application/json')) {
+                                serverError = await response.json();
+                                console.error('📄 Server validation error (parsed JSON):', serverError);
+                            } else {
+                                const text = await response.text();
+                                console.error('📄 Server validation error (text):', text.substring(0, 1000));
+                                serverError = { detail: text };
                             }
-                        } else {
-                            // Handle HTML error responses
-                            const textResponse = await response.text();
-                            console.error('📄 API Error (HTML/Text):', textResponse.substring(0, 500));
-                            errorMessage = `Server returned ${contentType || 'unknown'} instead of JSON (Status: ${response.status})`;
+                        } catch (parseErr) {
+                            console.error('🚫 Could not parse server error body:', parseErr);
                         }
-                        
-                        throw new Error(errorMessage);
+
+                        // Bubble up a helpful message (backend's message preferred)
+                        const messageFromServer = serverError && (serverError.error || serverError.message || serverError.detail || JSON.stringify(serverError));
+                        throw new Error(messageFromServer || `HTTP ${response.status}: ${response.statusText}`);
                     }
                     
                     // Parse successful response
