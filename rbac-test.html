@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RBAC API Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-result { padding: 10px; margin: 10px 0; border-radius: 4px; }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 4px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🔧 RBAC API Testing Tool</h1>
+    <p>This tool helps test the RBAC API endpoints and diagnose issues.</p>
+
+    <div>
+        <button onclick="testLogin()">🔑 Test Login</button>
+        <button onclick="testGetUsers()">👥 Test Get Users</button>
+        <button onclick="testDashboardStats()">📊 Test Dashboard Stats</button>
+        <button onclick="testCreateUser()">👤 Test Create User</button>
+    </div>
+
+    <div id="results"></div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000/api';
+        
+        function addResult(type, title, content) {
+            const resultsDiv = document.getElementById('results');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `test-result ${type}`;
+            resultDiv.innerHTML = `<h3>${title}</h3><pre>${content}</pre>`;
+            resultsDiv.appendChild(resultDiv);
+        }
+
+        async function testLogin() {
+            try {
+                addResult('info', '🔄 Testing Login', 'Attempting login with admin credentials...');
+                
+                const response = await fetch(`${API_BASE}/auth/login/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: 'admin',
+                        password: 'admin123'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    localStorage.setItem('auth_token', data.token);
+                    addResult('success', '✅ Login Test Successful', JSON.stringify(data, null, 2));
+                } else {
+                    addResult('error', '❌ Login Test Failed', JSON.stringify(data, null, 2));
+                }
+            } catch (error) {
+                addResult('error', '❌ Login Test Error', error.message);
+            }
+        }
+
+        async function testGetUsers() {
+            try {
+                addResult('info', '🔄 Testing Get Users', 'Fetching users from API...');
+                
+                const token = localStorage.getItem('auth_token') || 'mock-token';
+                const response = await fetch(`${API_BASE}/rbac/users/advanced/`, {
+                    method: 'GET',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    addResult('success', '✅ Get Users Test Successful', 
+                        `Found ${data.users ? data.users.length : 'unknown'} users:\n${JSON.stringify(data, null, 2)}`);
+                } else {
+                    addResult('error', '❌ Get Users Test Failed', JSON.stringify(data, null, 2));
+                }
+            } catch (error) {
+                addResult('error', '❌ Get Users Test Error', error.message);
+            }
+        }
+
+        async function testDashboardStats() {
+            try {
+                addResult('info', '🔄 Testing Dashboard Stats', 'Fetching dashboard statistics...');
+                
+                const token = localStorage.getItem('auth_token') || 'mock-token';
+                const response = await fetch(`${API_BASE}/rbac/dashboard-stats/`, {
+                    method: 'GET',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    addResult('success', '✅ Dashboard Stats Test Successful', JSON.stringify(data, null, 2));
+                } else {
+                    addResult('error', '❌ Dashboard Stats Test Failed', JSON.stringify(data, null, 2));
+                }
+            } catch (error) {
+                addResult('error', '❌ Dashboard Stats Test Error', error.message);
+            }
+        }
+
+        async function testCreateUser() {
+            try {
+                addResult('info', '🔄 Testing Create User', 'Creating a test user...');
+                
+                const token = localStorage.getItem('auth_token') || 'mock-token';
+                const testUser = {
+                    username: `testuser_${Date.now()}`,
+                    email: `test${Date.now()}@example.com`,
+                    first_name: 'Test',
+                    last_name: 'User',
+                    password: 'testpass123',
+                    roles: ['doctor'],
+                    department: 'Test Department'
+                };
+
+                const response = await fetch(`${API_BASE}/rbac/users/create-advanced/`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(testUser)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    addResult('success', '✅ Create User Test Successful', JSON.stringify(data, null, 2));
+                } else {
+                    addResult('error', '❌ Create User Test Failed', JSON.stringify(data, null, 2));
+                }
+            } catch (error) {
+                addResult('error', '❌ Create User Test Error', error.message);
+            }
+        }
+
+        // Auto-run basic tests on page load
+        window.onload = function() {
+            addResult('info', '🚀 RBAC API Testing Tool Ready', 
+                'Click the buttons above to test different API endpoints.\n\n' +
+                'Expected API Server: http://localhost:8000\n' +
+                'Frontend Server: http://localhost:5175\n\n' +
+                'Default Login Credentials:\n' +
+                '- Username: admin\n' +
+                '- Password: admin123\n\n' +
+                'OR\n\n' +
+                '- Username: tanzeem.agra@rugrel.com\n' +
+                '- Password: Tanzilla@tanzeem786'
+            );
+        };
+    </script>
+</body>
+</html>

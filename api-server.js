@@ -5,7 +5,7 @@ const cors = require('cors');
 const app = express();
 const PORT = 8000;
 
-// Mock database
+// Mock database - Single Super Admin User Only
 let mockUsers = [
   {
     id: 1,
@@ -14,22 +14,17 @@ let mockUsers = [
     password: 'Tanzilla@tanzeem786', // In real app, this would be hashed
     first_name: 'Tanzeem',
     last_name: 'Agra',
+    department: 'Administration',
+    employee_id: 'SA001',
+    phone_number: '+1-555-0100',
     is_active: true,
     is_approved: true,
+    is_superuser: true,
+    is_staff: true,
     roles: ['super_admin'],
-    created_at: new Date().toISOString()
-  },
-  {
-    id: 2,
-    username: 'admin',
-    email: 'admin@example.com',
-    password: 'admin123', // In real app, this would be hashed
-    first_name: 'Super',
-    last_name: 'Admin',
-    is_active: true,
-    is_approved: true,
-    roles: ['super_admin'],
-    created_at: new Date().toISOString()
+    permissions: ['all'],
+    created_at: new Date().toISOString(),
+    last_login: null
   }
 ];
 
@@ -48,7 +43,13 @@ app.use((req, res, next) => {
 
 // Test endpoint
 app.get('/api/test', (req, res) => {
-  res.json({ message: 'Complete backend server is running!' });
+  console.log('🧪 Test endpoint hit - api-server.js');
+  res.json({ 
+    message: 'Complete backend server is running!',
+    server: 'api-server.js',
+    timestamp: new Date().toISOString(),
+    superAdminExists: mockUsers.length > 0 ? mockUsers[0].is_superuser : false
+  });
 });
 
 // ==================== AUTHENTICATION ENDPOINTS ====================
@@ -75,7 +76,13 @@ app.post('/api/auth/login/', (req, res) => {
         first_name: user.first_name,
         last_name: user.last_name,
         roles: user.roles,
-        is_active: user.is_active
+        is_active: user.is_active,
+        is_superuser: user.is_superuser,
+        is_staff: user.is_staff,
+        department: user.department,
+        employee_id: user.employee_id,
+        phone_number: user.phone_number,
+        permissions: user.permissions
       },
       token: 'mock-jwt-token-' + Date.now(),
       access: 'mock-access-token',
@@ -110,7 +117,13 @@ app.post('/api/auth/emergency-login/', (req, res) => {
         first_name: user.first_name,
         last_name: user.last_name,
         roles: user.roles,
-        is_active: user.is_active
+        is_active: user.is_active,
+        is_superuser: user.is_superuser,
+        is_staff: user.is_staff,
+        department: user.department,
+        employee_id: user.employee_id,
+        phone_number: user.phone_number,
+        permissions: user.permissions
       },
       token: 'emergency-jwt-token-' + Date.now()
     });
@@ -142,7 +155,14 @@ app.post('/api/auth/simple-login/', (req, res) => {
           email: user.email,
           first_name: user.first_name,
           last_name: user.last_name,
-          roles: user.roles
+          roles: user.roles,
+          is_active: user.is_active,
+          is_superuser: user.is_superuser,
+          is_staff: user.is_staff,
+          department: user.department,
+          employee_id: user.employee_id,
+          phone_number: user.phone_number,
+          permissions: user.permissions
         },
         token: 'simple-jwt-token-' + Date.now()
       });
@@ -176,6 +196,37 @@ app.post('/api/auth/verify-token/', (req, res) => {
       success: false,
       valid: false,
       error: 'Invalid token'
+    });
+  }
+});
+
+// User profile endpoint
+app.get('/api/auth/profile/', (req, res) => {
+  console.log('👤 Profile request');
+  
+  // In a real app, you'd verify the JWT token here
+  // For now, just return the super admin user
+  const superAdmin = mockUsers.find(u => u.email === 'tanzeem.agra@rugrel.com');
+  
+  if (superAdmin) {
+    res.json({
+      id: superAdmin.id,
+      username: superAdmin.username,
+      email: superAdmin.email,
+      first_name: superAdmin.first_name,
+      last_name: superAdmin.last_name,
+      roles: superAdmin.roles,
+      is_active: superAdmin.is_active,
+      is_superuser: superAdmin.is_superuser,
+      is_staff: superAdmin.is_staff,
+      department: superAdmin.department,
+      employee_id: superAdmin.employee_id,
+      phone_number: superAdmin.phone_number,
+      permissions: superAdmin.permissions
+    });
+  } else {
+    res.status(404).json({
+      error: 'User profile not found'
     });
   }
 });
@@ -369,6 +420,7 @@ app.listen(PORT, () => {
   console.log('  - POST /api/auth/login/');
   console.log('  - POST /api/auth/emergency-login/');
   console.log('  - POST /api/auth/simple-login/');
+  console.log('  - GET  /api/auth/profile/');
   console.log('  - POST /api/auth/verify-token/');
   console.log('  - POST /api/auth/logout/');
   console.log('  - GET  /api/auth/user/');
@@ -381,9 +433,9 @@ app.listen(PORT, () => {
   console.log('  ==================== TEST ====================');
   console.log('  - GET  /api/test');
   console.log('');
-  console.log('🔐 Default login credentials:');
-  console.log('  Username: admin');
-  console.log('  Password: admin123');
+  console.log('🔐 Super Admin Login Credentials:');
+  console.log('  Username: tanzeem.agra@rugrel.com');
+  console.log('  Password: Tanzilla@tanzeem786');
   console.log('');
   console.log('📋 Mock Users Database:');
   mockUsers.forEach(user => {

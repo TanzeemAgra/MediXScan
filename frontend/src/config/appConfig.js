@@ -114,6 +114,33 @@ export const API_ENDPOINTS = {
     REGISTER: '/auth/register/',
     REFRESH: '/auth/refresh/',
     VERIFY: '/auth/verify/',
+    USER_PROFILE: '/auth/user/',
+    EMERGENCY_LOGIN: '/auth/emergency-login/',
+    SIMPLE_LOGIN: '/auth/simple-login/',
+  },
+  
+  // RBAC (Role-Based Access Control)
+  RBAC: {
+    USERS: {
+      LIST: '/rbac/users/advanced/',
+      CREATE: '/rbac/users/create-advanced/',
+      UPDATE: '/rbac/users/update/',
+      DELETE: '/rbac/users/delete/',
+      BULK_ACTIONS: '/rbac/users/bulk/',
+    },
+    ROLES: {
+      LIST: '/rbac/roles/',
+      CREATE: '/rbac/roles/create/',
+      UPDATE: '/rbac/roles/update/',
+      DELETE: '/rbac/roles/delete/',
+      PERMISSIONS: '/rbac/roles/permissions/',
+    },
+    DASHBOARD: {
+      STATS: '/rbac/dashboard-stats/',
+      ACTIVITY: '/rbac/activity/',
+      SESSIONS: '/rbac/sessions/',
+      SECURITY_ALERTS: '/rbac/security-alerts/',
+    },
   },
   
   // Core API
