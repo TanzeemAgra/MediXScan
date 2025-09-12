@@ -1,0 +1,91 @@
+/* Registration Page Styles */
+.registration-page {
+  min-height: 100vh;
+  background: #f8f9fa;
+}
+
+.registration-card {
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  border: none;
+}
+
+.step-indicator {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.step-indicator.active {
+  background: #1EBCB7;
+  color: white;
+}
+
+.step-indicator.inactive {
+  background: #e9ecef;
+  color: #6c757d;
+}
+
+.form-control:focus {
+  border-color: #1EBCB7;
+  box-shadow: 0 0 0 0.2rem rgba(30, 188, 183, 0.25);
+}
+
+.btn-primary {
+  background-color: #1EBCB7;
+  border-color: #1EBCB7;
+}
+
+.btn-primary:hover {
+  background-color: #16a1a1;
+  border-color: #16a1a1;
+}
+
+.progress-bar {
+  background-color: #1EBCB7;
+}
+
+.feature-icon {
+  width: 50px;
+  height: 50px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.left-panel {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+}
+
+.registration-form {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .left-panel {
+    display: none !important;
+  }
+  
+  .registration-form {
+    margin: 1rem;
+    padding: 1.5rem;
+  }
+  
+  .step-indicator {
+    width: 35px;
+    height: 35px;
+    font-size: 0.8rem;
+  }
+}

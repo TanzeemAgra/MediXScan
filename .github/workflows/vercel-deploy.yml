@@ -1,0 +1,38 @@
+name: Deploy to Vercel
+
+on:
+  push:
+    branches: [main, version_1]
+  pull_request:
+    branches: [main, version_1]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          
+      - name: Install dependencies
+        working-directory: ./frontend
+        run: npm install --legacy-peer-deps
+        
+      - name: Build project
+        working-directory: ./frontend
+        run: npm run build
+        env:
+          VITE_BACKEND_URL: https://jubilant-charisma-production.up.railway.app
+          
+      - name: Deploy to Vercel
+        working-directory: ./frontend
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" || "${{ github.ref }}" == "refs/heads/version_1" ]]; then
+            npx vercel --prod --token=${{ secrets.VERCEL_TOKEN }} --yes
+          else
+            npx vercel --token=${{ secrets.VERCEL_TOKEN }} --yes
+          fi

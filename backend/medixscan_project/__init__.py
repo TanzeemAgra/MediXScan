@@ -1,0 +1,1 @@
+# MediXscan Django Project
