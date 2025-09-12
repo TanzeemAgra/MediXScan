@@ -20,6 +20,8 @@ export const ENV_CONFIG = {
     enableCompliance: import.meta.env.VITE_ENABLE_COMPLIANCE !== 'false',
     enableDebugMode: import.meta.env.VITE_DEBUG_MODE === 'true' || import.meta.env.DEV,
     enableMockData: import.meta.env.VITE_ENABLE_MOCK_DATA === 'true',
+    gracefulDegradation: import.meta.env.VITE_GRACEFUL_DEGRADATION !== 'false', // Enable by default
+    defaultMedicalQuery: import.meta.env.VITE_DEFAULT_MEDICAL_QUERY || 'lung',
   }
 };
 
@@ -30,6 +32,8 @@ export const API_CONFIG = {
     default: parseInt(import.meta.env.VITE_API_TIMEOUT) || 10000,
     upload: parseInt(import.meta.env.VITE_UPLOAD_TIMEOUT) || 30000,
     download: parseInt(import.meta.env.VITE_DOWNLOAD_TIMEOUT) || 60000,
+    medical: parseInt(import.meta.env.VITE_MEDICAL_API_TIMEOUT) || 8000,
+    fast: parseInt(import.meta.env.VITE_FAST_API_TIMEOUT) || 5000,
   },
   
   // Retry Configuration
@@ -257,7 +261,7 @@ export const ERROR_CONFIG = {
   
   // Fallback Configuration
   FALLBACK: {
-    enableMockAuth: import.meta.env.VITE_ENABLE_MOCK_AUTH !== 'false', // Enable by default in dev
+    enableMockAuth: import.meta.env.VITE_ENABLE_MOCK_AUTH === 'true', // Disabled by default - only enable if explicitly set
     enableMockAPI: import.meta.env.VITE_ENABLE_MOCK_API !== 'false',
     mockCredentials: {
       username: 'admin',

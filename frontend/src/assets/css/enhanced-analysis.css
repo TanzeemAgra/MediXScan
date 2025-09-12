@@ -1,0 +1,165 @@
+/* Enhanced Analysis Results Styling */
+.enhanced-analysis-results {
+  margin-top: 1rem;
+}
+
+.enhanced-analysis-results .clinical-summary {
+  line-height: 1.6;
+}
+
+.enhanced-analysis-results .clinical-summary h6 {
+  color: #495057;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.enhanced-analysis-results .clinical-summary p {
+  margin-bottom: 0.75rem;
+}
+
+.enhanced-analysis-results .clinical-summary ul {
+  padding-left: 0;
+}
+
+.enhanced-analysis-results .clinical-summary li {
+  padding: 0.25rem 0;
+  display: flex;
+  align-items: flex-start;
+}
+
+.enhanced-analysis-results .clinical-summary li i {
+  margin-top: 0.125rem;
+  flex-shrink: 0;
+}
+
+/* Discrepancy Cards */
+.enhanced-analysis-results .discrepancies-list .card {
+  transition: box-shadow 0.2s ease;
+}
+
+.enhanced-analysis-results .discrepancies-list .card:hover {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.enhanced-analysis-results .discrepancies-list .badge {
+  font-size: 0.75rem;
+}
+
+/* Corrected Report */
+.enhanced-analysis-results .corrected-report-container .corrected-text {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 0.375rem;
+  padding: 1rem;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+/* Highlighted Report */
+.enhanced-analysis-results .highlighted-report-container .highlighted-text {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 0.375rem;
+  padding: 1rem;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.enhanced-analysis-results .highlighted-text mark {
+  border-radius: 3px;
+  padding: 2px 4px;
+  font-weight: 500;
+  cursor: help;
+  transition: all 0.2s ease;
+}
+
+.enhanced-analysis-results .highlighted-text mark:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Quality Metrics */
+.enhanced-analysis-results .progress {
+  background-color: #e9ecef;
+  border-radius: 0.25rem;
+  overflow: hidden;
+}
+
+.enhanced-analysis-results .progress-bar {
+  transition: width 0.6s ease;
+}
+
+/* Save Button Group */
+.enhanced-analysis-results .btn-group .btn {
+  font-size: 0.875rem;
+  padding: 0.375rem 0.75rem;
+}
+
+.enhanced-analysis-results .btn-group .btn i {
+  font-size: 0.75rem;
+}
+
+/* Priority Badges */
+.enhanced-analysis-results .badge {
+  font-size: 0.75rem;
+  padding: 0.35em 0.65em;
+}
+
+/* Accordion Styling */
+.enhanced-analysis-results .accordion-button {
+  background-color: #f8f9fa;
+  border: none;
+  padding: 1rem 1.25rem;
+}
+
+.enhanced-analysis-results .accordion-button:not(.collapsed) {
+  background-color: #e7f3ff;
+  color: #0066cc;
+}
+
+.enhanced-analysis-results .accordion-button:focus {
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.enhanced-analysis-results .accordion-body {
+  padding: 1.25rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .enhanced-analysis-results .d-flex.justify-content-between {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .enhanced-analysis-results .btn-group {
+    align-self: stretch;
+  }
+  
+  .enhanced-analysis-results .btn-group .btn {
+    flex: 1;
+  }
+  
+  .enhanced-analysis-results .corrected-text,
+  .enhanced-analysis-results .highlighted-text {
+    font-size: 0.875rem;
+    padding: 0.75rem;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .enhanced-analysis-results .btn-group,
+  .enhanced-analysis-results .accordion-button {
+    display: none !important;
+  }
+  
+  .enhanced-analysis-results .accordion-collapse {
+    display: block !important;
+  }
+  
+  .enhanced-analysis-results .highlighted-text mark {
+    background-color: #f0f0f0 !important;
+    color: #000 !important;
+  }
+}

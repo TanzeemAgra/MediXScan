@@ -230,6 +230,10 @@ const AdvancedAIReportCorrection = ({
       const selectedModelConfig = availableModels.find(m => m.id === selectedModel);
       const mode = processingModes[processingMode.toUpperCase()];
       
+      if (!selectedModelConfig) {
+        throw new Error(`Model configuration not found for: ${selectedModel}`);
+      }
+      
       // Simulate API call with realistic delay
       const processingTime = AIModelHelpers.estimateProcessingTime(selectedModel, reportText.length);
       
@@ -315,9 +319,9 @@ const AdvancedAIReportCorrection = ({
     ];
 
     return {
-      modelUsed: modelConfig.name,
-      modelId: modelConfig.id,
-      processingMode: mode.name,
+      modelUsed: modelConfig?.name || 'Unknown Model',
+      modelId: modelConfig?.id || 'unknown',
+      processingMode: mode?.name || 'Unknown Mode',
       ragUsed: ragEnabled,
       timestamp: new Date().toISOString(),
       overallConfidence: 94 + Math.random() * 5,

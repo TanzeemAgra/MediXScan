@@ -323,21 +323,20 @@ export const login = async (loginId, password) => {
     }
     
     // Enhanced fallback logic: check if we should use mock authentication
-    const shouldUseMockAuth = ERROR_CONFIG.FALLBACK.enableMockAuth || (
-      // Network issues
+    // Only use mock auth when backend is truly unreachable, not for auth failures
+    const shouldUseMockAuth = ERROR_CONFIG.FALLBACK.enableMockAuth && (
+      // Network issues only
       lastError.code === 'ERR_NETWORK' || 
       lastError.message.includes('Network Error') ||
       !lastError.response ||
       
-      // Server issues
+      // Server completely down (404 means endpoint not found, 5xx means server error)
       lastError.response?.status === 404 ||
       lastError.response?.status === 500 ||
       lastError.response?.status === 502 ||
-      lastError.response?.status === 503 ||
+      lastError.response?.status === 503
       
-      // Authentication issues (when all endpoints fail) - ALWAYS try mock for failed login
-      lastError.response?.status === 401 ||
-      lastError.response?.status === 400
+      // DO NOT fallback to mock for 400/401 - these are real auth responses we should show
     );
     
     console.log('🔍 Should use mock auth:', shouldUseMockAuth);
@@ -589,21 +588,50 @@ export const getUserHistory = async () => {
   }
 };
 
-// Save Report
-export const saveReport = async (reportText) => {
+// Save Report (Enhanced for comprehensive analysis data)
+export const saveReport = async (reportData) => {
   try {
-    const formData = new FormData();
-    formData.append('report_text', reportText);
+    // Handle both legacy string format and new comprehensive object format
+    const isLegacyFormat = typeof reportData === 'string';
+    
+    if (isLegacyFormat) {
+      // Legacy format - simple text save
+      const formData = new FormData();
+      formData.append('report_text', reportData);
 
-    const response = await api.post('/save_report', formData, {
+      const response = await api.post('/save_report', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
+    } else {
+      // New comprehensive format - enhanced analysis save
+      const response = await api.post('/save_analysis', reportData, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      return response.data;
+    }
+  } catch (error) {
+    console.error('Failed to save report:', error);
+    throw { detail: error.response?.data?.detail || 'Failed to save report' };
+  }
+};
+
+// Save Enhanced Analysis (specific function for comprehensive data)
+export const saveEnhancedAnalysis = async (analysisData) => {
+  try {
+    const response = await api.post('/analysis/save', analysisData, {
       headers: {
-        'Content-Type': 'multipart/form-data',
+        'Content-Type': 'application/json',
       },
     });
     return response.data;
   } catch (error) {
-    console.error('Failed to save report:', error);
-    throw { detail: error.response?.data?.detail || 'Failed to save report' };
+    console.error('Failed to save enhanced analysis:', error);
+    throw { detail: error.response?.data?.detail || 'Failed to save enhanced analysis' };
   }
 };
 
@@ -651,21 +679,181 @@ export const updateRAGContent = async () => {
   }
 };
 
-export const analyzeReportWithRAG = async (reportText) => {
+export const analyzeReportWithRAG = async (reportText, file = null) => {
   try {
+    console.log('Starting RAG analysis for report:', reportText.substring(0, 100) + '...');
+    
     const formData = new FormData();
     formData.append('report_text', reportText);
     formData.append('use_rag', 'true');
+    
+    if (file) {
+      formData.append('file', file);
+    }
 
     const response = await api.post('/reports/analyze/', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
+      timeout: 60000, // 60 second timeout for RAG analysis
+    });
+    
+    console.log('RAG analysis completed successfully:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('RAG analysis failed:', error);
+    
+    // Provide more detailed error information
+    if (error.code === 'ECONNABORTED') {
+      throw { detail: 'RAG analysis timed out. The advanced medical analysis is taking longer than expected. Please try again.' };
+    } else if (error.response?.status === 500) {
+      throw { detail: 'Server error during RAG analysis. The advanced medical knowledge system encountered an issue.' };
+    } else if (error.response?.status === 401) {
+      throw { detail: 'Authentication required for RAG analysis. Please log in again.' };
+    } else {
+      throw { detail: error.response?.data?.detail || error.response?.data?.error || 'Failed to analyze report with RAG. Please try again.' };
+    }
+  }
+};
+
+// Test RAG System
+export const testRAGSystem = async (reportText) => {
+  try {
+    const response = await api.post('/reports/test-rag/', {
+      report_text: reportText
     });
     return response.data;
   } catch (error) {
-    console.error('Failed to analyze report with RAG:', error);
-    throw { detail: error.response?.data?.detail || 'Failed to analyze report with RAG' };
+    console.error('RAG system test failed:', error);
+    throw { detail: error.response?.data?.detail || 'RAG system test failed' };
+  }
+};
+
+// Test Free Medical Terminology Service (Soft-coded error handling)
+export const testFreeMedicalTerminology = async (query = 'lung') => {
+  const defaultFallback = {
+    status: 'fallback',
+    total_results: 0,
+    sources_searched: ['built-in'],
+    message: 'Using fallback mode - service temporarily unavailable',
+    query: query,
+    results: [],
+    search_time: 0
+  };
+
+  try {
+    // Validate input with soft defaults
+    const searchQuery = query || ENV_CONFIG.FEATURES.defaultMedicalQuery || 'lung';
+    
+    const response = await api.post('/reports/test-free-terminology/', {
+      query: searchQuery
+    }, {
+      timeout: API_CONFIG.TIMEOUT.medical || 10000
+    });
+    
+    return response.data;
+  } catch (error) {
+    console.error('Free medical terminology test failed:', error);
+    
+    // Soft-coded error handling based on error type
+    if (error.code === 'ECONNABORTED') {
+      return { ...defaultFallback, message: 'Service timeout - using fallback mode' };
+    }
+    
+    if (error.response?.status >= 500) {
+      return { ...defaultFallback, message: 'Server error - using fallback mode' };
+    }
+    
+    // For client-side errors, still provide fallback but log the issue
+    const errorDetail = error.response?.data?.error || error.message || 'Free medical terminology test failed';
+    
+    if (ENV_CONFIG.FEATURES.gracefulDegradation) {
+      return { ...defaultFallback, message: `Graceful fallback: ${errorDetail}` };
+    }
+    
+    throw { detail: errorDetail };
+  }
+};
+
+// Get Available Medical Terminology Sources (Soft-coded with fallback)
+export const getAvailableTerminologySources = async () => {
+  const defaultFallback = {
+    status: 'fallback',
+    total_sources: 1,
+    free_sources: 1,
+    premium_sources: 0,
+    available_sources: [{
+      name: 'Built-in Medical Vocabulary',
+      type: 'built-in',
+      description: 'Comprehensive built-in medical terminology database',
+      status: 'active',
+      free: true
+    }],
+    message: 'Using built-in sources - external services temporarily unavailable'
+  };
+
+  try {
+    const response = await api.get('/reports/list-sources/', {
+      timeout: API_CONFIG.TIMEOUT.medical || 8000
+    });
+    
+    return response.data;
+  } catch (error) {
+    console.error('Failed to get terminology sources:', error);
+    
+    // Soft-coded graceful degradation
+    if (ENV_CONFIG.FEATURES.gracefulDegradation) {
+      console.warn('Using fallback medical terminology sources');
+      return defaultFallback;
+    }
+    
+    const errorDetail = error.response?.data?.error || error.message || 'Failed to get terminology sources';
+    throw { detail: errorDetail };
+  }
+};
+
+// Get Free Medical Terminology Service Status (Fixed endpoint and soft-coded)
+export const getFreeMedicalTerminologyStatus = async () => {
+  const defaultStatus = {
+    status: 'fallback',
+    service_health: 'limited',
+    available_sources: 1,
+    total_terms: 5000,
+    message: 'Service running in fallback mode with built-in vocabulary',
+    uptime: 'N/A',
+    last_updated: new Date().toISOString()
+  };
+
+  try {
+    // Use the correct endpoint for getting status - should be different from test endpoint
+    // If no specific status endpoint exists, use the list-sources endpoint as a health check
+    const response = await api.get('/reports/list-sources/', {
+      timeout: API_CONFIG.TIMEOUT.fast || 5000
+    });
+    
+    // Transform the sources response into a status response
+    const sourcesData = response.data;
+    return {
+      status: 'operational',
+      service_health: 'good',
+      available_sources: sourcesData.total_sources || 1,
+      free_sources: sourcesData.free_sources || 1,
+      premium_sources: sourcesData.premium_sources || 0,
+      message: 'Free medical terminology service is operational',
+      uptime: 'Active',
+      last_updated: new Date().toISOString(),
+      sources: sourcesData.available_sources || []
+    };
+  } catch (error) {
+    console.error('Failed to get service status:', error);
+    
+    // Always provide a status response for service monitoring
+    if (ENV_CONFIG.FEATURES.gracefulDegradation) {
+      console.warn('Service status check failed, returning fallback status');
+      return defaultStatus;
+    }
+    
+    throw { detail: error.response?.data?.error || error.message || 'Failed to get service status' };
   }
 };
 
