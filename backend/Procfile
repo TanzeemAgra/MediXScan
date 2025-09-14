@@ -1,2 +1,2 @@
-# Back to working pure WSGI for debugging
-web: gunicorn simple_wsgi:application --bind 0.0.0.0:$PORT --workers=1 --log-level=debug
+# Production Django application with Railway PostgreSQL
+web: gunicorn medixscan_project.wsgi:application --bind 0.0.0.0:$PORT --workers=2 --log-level=info
