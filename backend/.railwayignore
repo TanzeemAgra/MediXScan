@@ -1,0 +1,19 @@
+# Railway ignore file to prevent Docker detection
+# This ensures Railway uses nixpacks instead of Docker
+
+# Ignore Docker files
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Ignore development files
+.env.development
+.vscode/
+__pycache__/
+*.pyc
+*.pyo
+*.log
+
+# Ignore testing files
+test_*.py
+*_test.py
