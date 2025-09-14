@@ -19,8 +19,11 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from test_endpoint import test_endpoint
+from health_check import health_check, simple_home
 
 urlpatterns = [
+    path('', simple_home, name='home'),  # Root endpoint
+    path('health/', health_check, name='health'),  # Health check
     path('admin/', admin.site.urls),
     path('test/', test_endpoint, name='test'),
     path('api/auth/', include('accounts.urls')),
