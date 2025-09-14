@@ -1,2 +1,0 @@
-# This file forces Railway to use nixpacks instead of Docker detection
-# Railway prioritizes nixpacks when this file is present
