@@ -1,2 +1,2 @@
-# Procfile for Railway deployment - Simplified for better compatibility
-web: gunicorn medixscan_project.wsgi:application --bind 0.0.0.0:$PORT --workers=2 --log-level=info
+# Temporary debug Procfile - using minimal WSGI to test
+web: gunicorn debug_wsgi:application --bind 0.0.0.0:$PORT --workers=1 --log-level=debug

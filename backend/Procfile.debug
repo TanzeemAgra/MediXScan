@@ -1,0 +1,2 @@
+# Alternative Procfile for debugging - uses minimal WSGI app
+web: gunicorn debug_wsgi:application --bind 0.0.0.0:$PORT --workers=1 --log-level=debug
