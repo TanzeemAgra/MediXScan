@@ -1,2 +1,2 @@
-# Temporary debug Procfile - using minimal WSGI to test
-web: gunicorn debug_wsgi:application --bind 0.0.0.0:$PORT --workers=1 --log-level=debug
+# Ultra-simple WSGI test - no Django dependencies
+web: gunicorn simple_wsgi:application --bind 0.0.0.0:$PORT --workers=1 --log-level=debug --timeout=60
