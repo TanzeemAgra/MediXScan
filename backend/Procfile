@@ -1,2 +1,2 @@
-# Ultra-simple WSGI test - no Django dependencies
-web: gunicorn simple_wsgi:application --bind 0.0.0.0:$PORT --workers=1 --log-level=debug --timeout=60
+# Minimal Django WSGI test - basic Django with in-memory database
+web: gunicorn minimal_django_wsgi:application --bind 0.0.0.0:$PORT --workers=1 --log-level=debug --timeout=60
