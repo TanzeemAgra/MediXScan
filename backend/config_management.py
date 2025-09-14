@@ -79,10 +79,11 @@ class EnvironmentConfig:
             'SECRET_KEY': os.getenv('SECRET_KEY', self.generate_secret_key()),
             'DEBUG': not is_production,
             'ALLOWED_HOSTS': self.get_allowed_hosts(),
-            'SECURE_SSL_REDIRECT': is_production,
-            'SECURE_HSTS_SECONDS': 31536000 if is_production else 0,
-            'SECURE_HSTS_INCLUDE_SUBDOMAINS': is_production,
-            'SECURE_HSTS_PRELOAD': is_production,
+            'SECURE_SSL_REDIRECT': False,  # Railway handles SSL termination
+            'SECURE_PROXY_SSL_HEADER': ('HTTP_X_FORWARDED_PROTO', 'https') if self.environment == 'railway_production' else None,
+            'SECURE_HSTS_SECONDS': 31536000 if is_production and self.environment != 'railway_production' else 0,
+            'SECURE_HSTS_INCLUDE_SUBDOMAINS': is_production and self.environment != 'railway_production',
+            'SECURE_HSTS_PRELOAD': is_production and self.environment != 'railway_production',
             'SESSION_COOKIE_SECURE': is_production,
             'CSRF_COOKIE_SECURE': is_production,
         }
