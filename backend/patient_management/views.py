@@ -108,11 +108,69 @@ class PatientViewSet(viewsets.ModelViewSet):
                 request=self.request
             )
     
+    def destroy(self, request, *args, **kwargs):
+        """
+        Enhanced delete with proper response and configuration
+        """
+        try:
+            instance = self.get_object()
+            patient_name = f"{instance.first_name} {instance.last_name}"
+            patient_id = instance.patient_id
+            
+            # Get deletion configuration from request or use default
+            deletion_type = request.data.get('deletion_type', 'soft') if hasattr(request, 'data') else 'soft'
+            reason = request.data.get('reason', 'User requested deletion') if hasattr(request, 'data') else 'User requested deletion'
+            
+            # Perform the deletion based on type
+            if deletion_type == 'hard':
+                # Hard delete (permanent removal)
+                instance.delete()
+                message = f"Patient {patient_name} has been permanently deleted from the system."
+            else:
+                # Soft delete (set is_active = False)
+                instance.is_active = False
+                instance.status = 'DELETED'
+                instance.save()
+                message = f"Patient {patient_name} has been successfully deactivated."
+            
+            # Log deletion if audit is enabled
+            if PatientConfig.is_audit_enabled():
+                AuditLogger.log_action(
+                    patient=instance if deletion_type != 'hard' else None,
+                    user=self.request.user,
+                    action='DELETE',
+                    changes={
+                        'deletion_type': deletion_type,
+                        'reason': reason,
+                        'patient_name': patient_name,
+                        'patient_id': patient_id
+                    },
+                    request=self.request
+                )
+            
+            return Response({
+                'success': True,
+                'message': message,
+                'patient_id': patient_id,
+                'patient_name': patient_name,
+                'deletion_type': deletion_type,
+                'timestamp': timezone.now().isoformat()
+            }, status=status.HTTP_200_OK)
+            
+        except Exception as e:
+            return Response({
+                'success': False,
+                'error': str(e),
+                'message': 'Failed to delete patient'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
     def perform_destroy(self, instance):
         """
+        Legacy method - kept for compatibility
         Soft delete patient with audit logging
         """
         instance.is_active = False
+        instance.status = 'DELETED'
         instance.save()
         
         # Log deletion if audit is enabled

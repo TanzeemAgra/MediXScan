@@ -263,6 +263,77 @@ export const PATIENT_MANAGEMENT_CONFIG = {
     }
   },
 
+  // Delete Configuration - Soft Coded Settings
+  DELETE_CONFIG: {
+    CONFIRMATION_REQUIRED: true,
+    SOFT_DELETE_ENABLED: true,
+    AUDIT_LOGGING: true,
+    AUTO_REFRESH_UI: true,
+    BACKUP_BEFORE_DELETE: false,
+    
+    DELETION_TYPES: {
+      SOFT: 'soft', // Set is_active = false (recommended for medical records)
+      HARD: 'hard', // Permanently remove from database (use with caution)
+      ARCHIVE: 'archive' // Move to archive table (future feature)
+    },
+    
+    CONFIRMATION_MESSAGES: {
+      SINGLE: {
+        title: 'Delete Patient Confirmation',
+        message: 'Are you sure you want to delete patient "{patientName}"?',
+        details: 'This action will deactivate the patient record and preserve all medical history for compliance.',
+        warning: 'This action can be reversed by reactivating the patient.',
+        confirmText: 'Delete Patient',
+        cancelText: 'Cancel',
+        variant: 'danger'
+      },
+      BULK: {
+        title: 'Bulk Delete Confirmation',
+        message: 'Are you sure you want to delete {count} selected patients?',
+        details: 'This action will deactivate all selected patient records.',
+        warning: 'This action can be reversed by reactivating the patients individually.',
+        confirmText: 'Delete All Selected',
+        cancelText: 'Cancel',
+        variant: 'danger'
+      }
+    },
+    
+    SUCCESS_MESSAGES: {
+      SINGLE: 'Patient "{patientName}" has been successfully deleted.',
+      BULK: '{count} patients have been successfully deleted.',
+      RESTORED: 'Patient "{patientName}" has been restored successfully.'
+    },
+    
+    ERROR_MESSAGES: {
+      NETWORK_ERROR: 'Network error occurred. Please check your connection and try again.',
+      UNAUTHORIZED: 'You do not have permission to delete patients.',
+      NOT_FOUND: 'Patient not found. It may have been already deleted.',
+      DATABASE_ERROR: 'Database error occurred. Please contact system administrator.',
+      UNKNOWN_ERROR: 'An unexpected error occurred. Please try again.',
+      VALIDATION_ERROR: 'Patient data validation failed during deletion.',
+      DEPENDENCY_ERROR: 'Cannot delete patient due to existing dependencies (appointments, reports, etc.).'
+    },
+    
+    // Security and compliance settings
+    SECURITY: {
+      REQUIRE_REASON: true,
+      MAX_REASON_LENGTH: 500,
+      LOG_USER_INFO: true,
+      LOG_IP_ADDRESS: true,
+      REQUIRE_MANAGER_APPROVAL: false, // Future feature
+      COOL_DOWN_PERIOD: 0 // Time in minutes before deletion is actually performed
+    },
+    
+    // UI Settings for delete operations
+    UI_SETTINGS: {
+      SHOW_RECOVERY_OPTION: true,
+      ANIMATE_REMOVAL: true,
+      CONFIRM_BUTTON_DELAY: 2, // Seconds to enable confirm button
+      AUTO_CLOSE_SUCCESS: 3000, // Auto close success message after 3 seconds
+      BULK_PROGRESS_INDICATOR: true
+    }
+  },
+
   // Form Configuration
   PATIENT_FORM: {
     personal_info: {

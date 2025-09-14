@@ -142,15 +142,15 @@ const landingPageConfig = {
     subtitle: "Revolutionary Medical Diagnostics with Advanced Intelligence",
     description: "Transform healthcare delivery with cutting-edge AI that enhances diagnostic precision, accelerates analysis workflows, and elevates patient care standards.",
     
-    // Layout Configuration - Soft Coded for Easy Sizing Control
+    // Layout Configuration - Intelligent Balanced Spacing System
     layout: {
-      // Vertical Height Control - Professional Sizing
+      // Vertical Height Control - Smart Dynamic Sizing
       height: {
-        desktop: "70vh",        // 70% viewport height on desktop (was min-vh-100)
-        tablet: "75vh",         // 75% viewport height on tablet
-        mobile: "80vh",         // 80% viewport height on mobile
-        minimum: "500px",       // Minimum height fallback
-        maximum: "800px"        // Maximum height to prevent overlap
+        desktop: "calc(100vh - 60px)",  // Full viewport minus safe margin for dynamic spacing
+        tablet: "calc(100vh - 40px)",   // Adjusted for tablet with smaller margins
+        mobile: "calc(100vh - 20px)",   // Optimized for mobile with minimal margins
+        minimum: "600px",               // Increased minimum for better content accommodation
+        maximum: "900px"                // Increased maximum for better spacing distribution
       },
       
       // Content Positioning
@@ -160,27 +160,80 @@ const landingPageConfig = {
         textAlign: "left"       // left, center, right
       },
       
-      // Professional Spacing Configuration - Soft Coded
+      // Intelligent Balanced Spacing System - Mathematical Distribution
       spacing: {
-        // Navigation-aware spacing
-        top: "110px",          // Increased space for navigation bar + professional gap
-        navigationGap: "30px", // Additional gap between navigation and hero content
-        bottom: "80px",        // Increased spacing before next section for professional look
-        sectionGap: "60px",    // Larger gap between sections to prevent overlap
-        contentPadding: "2.5rem", // Increased internal content padding
+        // Smart Navigation Clearance - Calculated for optimal balance
+        navigationHeight: "70px",     // Fixed navigation height for calculations
+        navigationBuffer: "20px",     // Safe buffer above navigation
+        contentAreaTop: "30px",       // Space between navigation and content start
         
-        // Responsive spacing adjustments
+        // Content Area Distribution - Percentage-based for balance
+        contentDistribution: {
+          topArea: "15%",             // 15% for badge and title spacing
+          middleArea: "60%",          // 60% for main content (title, subtitle, description)
+          bottomArea: "25%"           // 25% for CTA buttons and bottom spacing
+        },
+        
+        // Internal Content Spacing - Proportional to container
+        internal: {
+          elementSpacing: "1.5rem",   // Standard spacing between elements
+          titleSpacing: "2rem",       // Spacing around title
+          descriptionSpacing: "2.5rem", // Spacing around description
+          ctaAreaSpacing: "2rem"      // Dedicated CTA area spacing
+        },
+        
+        // External Section Spacing - Fixed for consistency
+        external: {
+          sectionGap: "4rem",         // Gap between hero and next section
+          bottomMargin: "2rem"        // Bottom margin for clean separation
+        },
+        
+        // Responsive Balanced Spacing - Proportional Adjustments
         mobile: {
-          top: "90px",         // Smaller navigation on mobile
-          navigationGap: "20px",
-          bottom: "50px",
-          contentPadding: "1.5rem"
+          navigationHeight: "60px",   // Smaller navigation on mobile
+          navigationBuffer: "15px",   // Reduced buffer for mobile
+          contentAreaTop: "20px",     // Tighter spacing on mobile
+          
+          contentDistribution: {
+            topArea: "12%",           // Reduced for mobile efficiency
+            middleArea: "65%",        // Increased for better content display
+            bottomArea: "23%"         // Slightly reduced for mobile
+          },
+          
+          internal: {
+            elementSpacing: "1rem",   // Tighter internal spacing
+            titleSpacing: "1.5rem",   // Reduced title spacing
+            descriptionSpacing: "2rem", // Optimized description spacing
+            ctaAreaSpacing: "1.5rem"  // Compact CTA area
+          },
+          
+          external: {
+            sectionGap: "2.5rem",     // Smaller section gaps
+            bottomMargin: "1rem"      // Minimal bottom margin
+          }
         },
         tablet: {
-          top: "100px",        // Medium spacing for tablet
-          navigationGap: "25px",
-          bottom: "60px", 
-          contentPadding: "2rem"
+          navigationHeight: "65px",   // Medium navigation for tablet
+          navigationBuffer: "18px",   // Medium buffer
+          contentAreaTop: "25px",     // Balanced spacing
+          
+          contentDistribution: {
+            topArea: "13%",           // Balanced for tablet
+            middleArea: "62%",        // Optimal content area
+            bottomArea: "25%"         // Standard bottom area
+          },
+          
+          internal: {
+            elementSpacing: "1.25rem", // Medium internal spacing
+            titleSpacing: "1.75rem",  // Balanced title spacing
+            descriptionSpacing: "2.25rem", // Good description spacing
+            ctaAreaSpacing: "1.75rem" // Balanced CTA area
+          },
+          
+          external: {
+            sectionGap: "3rem",       // Medium section gaps
+            bottomMargin: "1.5rem"    // Moderate bottom margin
+          }
         }
       },
       

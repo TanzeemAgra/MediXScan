@@ -23,12 +23,18 @@ dist-ssr
 *.sln
 *.sw?
 
-# Environment variables
+# Environment variables - CRITICAL FOR SECURITY
 .env
 .env.local
 .env.production
+.env.development
 **/.env
 **/.env.local
+**/.env.production
+**/.env.development
+.env.backup
+.env.original
+*.env
 
 # Python
 __pycache__/
@@ -67,9 +73,22 @@ frontend/.env
 frontend/node_modules/
 **/temp_test_openai.py
 
-# API keys
+# API keys and sensitive files - CRITICAL FOR SECURITY
 **/*_key.sh
 af.pem
+*.pem
+*.key
+*.p12
+*.pfx
+credentials.json
+service-account-key.json
+auth.json
+secrets.json
+config.ini
+settings.ini
+*.secret
+.secrets/
+credentials/
 
 # Deployment
 .vercel

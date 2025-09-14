@@ -52,10 +52,10 @@ const LandingPage = () => {
         id="home"
         className={`hero-section d-flex position-relative`}
         style={{
-          // Soft-Coded Height Configuration (No More min-vh-100)
-          height: hero.layout?.height?.desktop || '70vh',
-          minHeight: hero.layout?.height?.minimum || '500px',
-          maxHeight: hero.layout?.height?.maximum || '800px',
+          // Intelligent Dynamic Height - Balanced for Content
+          height: hero.layout?.height?.desktop || 'calc(100vh - 60px)',
+          minHeight: hero.layout?.height?.minimum || '600px',
+          maxHeight: hero.layout?.height?.maximum || '900px',
           
           // Flexible Alignment Based on Configuration
           alignItems: hero.layout?.contentAlignment?.vertical || 'center',
@@ -68,10 +68,10 @@ const LandingPage = () => {
           backgroundRepeat: hero.design?.backgroundProperties?.repeat || 'no-repeat',
           backgroundAttachment: hero.design?.backgroundProperties?.attachment || 'fixed',
           
-          // Professional Navigation-Aware Spacing - Soft Coded
-          paddingTop: `calc(${hero.layout?.spacing?.top || '110px'} + ${hero.layout?.spacing?.navigationGap || '30px'})`,
-          paddingBottom: hero.layout?.spacing?.bottom || '80px',
-          marginBottom: hero.layout?.spacing?.sectionGap || '60px'
+          // Intelligent Navigation Clearance - Calculated Balance
+          paddingTop: 'var(--nav-clearance, calc(70px + 20px + 30px))',
+          paddingBottom: 'var(--bottom-margin, 2rem)',
+          marginBottom: 'var(--section-gap, 4rem)'
         }}
       >
         {/* Minimal Global Overlay (background is already optimized) */}
@@ -86,77 +86,128 @@ const LandingPage = () => {
         <Container className="position-relative" style={{ zIndex: 2 }}>
           <Row className="align-items-center h-100">
             <Col lg={8} className="text-white">
-              {/* Enhanced Text Readability Container - Soft Coded */}
+              {/* Intelligent Content Container - Balanced Distribution */}
               <div 
                 className={`hero-content ${isVisible ? 'fade-in' : ''}`}
                 style={{
                   background: currentTheme.textOverlay,
                   backdropFilter: 'blur(10px)',
                   borderRadius: '20px',
-                  padding: hero.layout?.spacing?.contentPadding || '2.5rem',
+                  padding: 'var(--element-spacing, 1.5rem)',
                   border: '1px solid rgba(255,255,255,0.15)',
                   boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
                   maxWidth: '100%',
-                  textAlign: hero.layout?.contentAlignment?.textAlign || 'left'
+                  textAlign: hero.layout?.contentAlignment?.textAlign || 'left',
+                  
+                  // Intelligent Content Distribution
+                  height: 'fit-content',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  minHeight: '400px' // Minimum height for proper distribution
                 }}
               >
-                {/* Clean Badge */}
-                <Badge 
-                  className="mb-4 px-4 py-2 fw-semibold"
-                  style={{ 
-                    background: 'rgba(255, 255, 255, 0.15)',
-                    border: `1px solid ${hero.design?.accentColor || '#1EBCB7'}`,
-                    borderRadius: '30px',
-                    color: 'white',
-                    fontSize: '0.9rem',
-                    backdropFilter: 'blur(10px)'
-                  }}
-                >
-                  <i className="fas fa-robot me-2"></i>
-                  AI-Powered Healthcare Innovation
-                </Badge>
-                
-                {/* Clean Title */}
-                <h1 
-                  className="display-3 fw-bold mb-4"
-                  style={{ 
-                    fontSize: 'clamp(2.5rem, 5vw, 4rem)',
-                    lineHeight: '1.2',
-                    color: '#ffffff',
-                    textShadow: '2px 2px 8px rgba(0,0,0,0.3)'
-                  }}
-                >
-                  {hero.title}
-                </h1>
-                
-                {/* Clean Subtitle */}
-                <h2 
-                  className="h4 mb-4"
+                {/* Top Content Area - 15% Distribution */}
+                <div 
+                  className="hero-top-area"
                   style={{
-                    color: 'rgba(255, 255, 255, 0.95)',
-                    fontWeight: '400',
-                    textShadow: '1px 1px 4px rgba(0,0,0,0.2)'
+                    height: 'var(--content-top-area, 15%)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'flex-start',
+                    marginBottom: 'var(--element-spacing, 1.5rem)'
                   }}
                 >
-                  {hero.subtitle}
-                </h2>
-                
-                {/* Clean Description */}
-                <p 
-                  className="lead mb-5" 
-                  style={{ 
-                    maxWidth: '600px',
-                    color: 'rgba(255, 255, 255, 0.9)',
-                    fontSize: '1.1rem',
-                    lineHeight: '1.6',
-                    textShadow: '1px 1px 4px rgba(0,0,0,0.2)'
-                  }}
-                >
-                  {hero.description}
-                </p>
+                  {/* Clean Badge */}
+                  <Badge 
+                    className="px-4 py-2 fw-semibold"
+                    style={{ 
+                      background: 'rgba(255, 255, 255, 0.15)',
+                      border: `1px solid ${hero.design?.accentColor || '#1EBCB7'}`,
+                      borderRadius: '30px',
+                      color: 'white',
+                      fontSize: '0.9rem',
+                      backdropFilter: 'blur(10px)',
+                      alignSelf: 'flex-start'
+                    }}
+                  >
+                    <i className="fas fa-robot me-2"></i>
+                    AI-Powered Healthcare Innovation
+                  </Badge>
+                </div>
 
-                {/* Simple CTA Buttons */}
-                <div className="d-flex flex-wrap gap-3">
+                {/* Middle Content Area - 60% Distribution */}
+                <div 
+                  className="hero-middle-area"
+                  style={{
+                    height: 'var(--content-middle-area, 60%)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    marginBottom: 'var(--element-spacing, 1.5rem)'
+                  }}
+                >
+                  {/* Clean Title */}
+                  <h1 
+                    className="display-3 fw-bold"
+                    style={{ 
+                      fontSize: 'clamp(2.5rem, 5vw, 4rem)',
+                      lineHeight: '1.2',
+                      color: '#ffffff',
+                      textShadow: '2px 2px 8px rgba(0,0,0,0.3)',
+                      marginBottom: 'var(--title-spacing, 2rem)'
+                    }}
+                  >
+                    {hero.title}
+                  </h1>
+                  
+                  {/* Clean Subtitle */}
+                  <h2 
+                    className="h4"
+                    style={{
+                      color: 'rgba(255, 255, 255, 0.95)',
+                      fontWeight: '400',
+                      textShadow: '1px 1px 4px rgba(0,0,0,0.2)',
+                      marginBottom: 'var(--element-spacing, 1.5rem)'
+                    }}
+                  >
+                    {hero.subtitle}
+                  </h2>
+                  
+                  {/* Clean Description */}
+                  <p 
+                    className="lead" 
+                    style={{ 
+                      maxWidth: '600px',
+                      color: 'rgba(255, 255, 255, 0.9)',
+                      fontSize: '1.1rem',
+                      lineHeight: '1.6',
+                      textShadow: '1px 1px 4px rgba(0,0,0,0.2)',
+                      marginBottom: 'var(--description-spacing, 2.5rem)'
+                    }}
+                  >
+                    {hero.description}
+                  </p>
+                </div>
+
+                {/* Bottom Content Area - 25% Distribution */}
+                <div 
+                  className="hero-bottom-area"
+                  style={{
+                    height: 'var(--content-bottom-area, 25%)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center'
+                  }}
+                >
+                  {/* Balanced CTA Buttons */}
+                  <div 
+                    className="d-flex flex-wrap gap-3"
+                    style={{
+                      gap: 'var(--element-spacing, 1.5rem)',
+                      marginBottom: 'var(--cta-area-spacing, 2rem)'
+                    }}
+                  >
                   {hero.ctaButtons.map((button, index) => (
                     <Button
                       key={index}
@@ -167,6 +218,7 @@ const LandingPage = () => {
                         borderRadius: '8px',
                         fontSize: '1rem',
                         border: 'none',
+                        marginBottom: '0.5rem', // Additional spacing between buttons when they wrap
                         background: button.type === 'primary' 
                           ? hero.design?.accentColor || '#1EBCB7'
                           : 'rgba(255, 255, 255, 0.2)',
@@ -189,6 +241,7 @@ const LandingPage = () => {
                       {button.text}
                     </Button>
                   ))}
+                  </div>
                 </div>
               </div>
             </Col>

@@ -22,27 +22,62 @@
   transition: all 0.3s ease;
 }
 
-/* Desktop Styles (Default) - Navigation Aware */
+/* Desktop Styles - Intelligent Balanced Spacing System */
 .hero-section {
-  height: var(--hero-height-desktop, 70vh);
-  min-height: var(--hero-min-height, 500px);
-  max-height: var(--hero-max-height, 800px);
-  padding-top: calc(var(--nav-height, 70px) + var(--nav-gap, 30px) + var(--hero-spacing-top, 30px));
+  height: var(--hero-height-desktop, calc(100vh - 60px));
+  min-height: var(--hero-min-height, 600px);
+  max-height: var(--hero-max-height, 900px);
+  /* Intelligent navigation clearance calculation */
+  padding-top: var(--nav-clearance, calc(70px + 20px + 30px));
 }
 
-/* Tablet Responsive */
+/* Content Area Distribution - Desktop */
+.hero-content {
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: 400px !important;
+}
+
+.hero-top-area {
+  height: var(--content-top-area, 15%) !important;
+}
+
+.hero-middle-area {
+  height: var(--content-middle-area, 60%) !important;
+}
+
+.hero-bottom-area {
+  height: var(--content-bottom-area, 25%) !important;
+}
+
+/* Tablet Responsive - Balanced Spacing System */
 @media (max-width: 1024px) {
   .hero-section {
-    height: var(--hero-height-tablet, 75vh);
-    min-height: var(--hero-min-height, 500px);
-    max-height: var(--hero-max-height, 700px);
-    padding-top: var(--hero-spacing-top, 80px);
-    padding-bottom: var(--hero-spacing-bottom, 40px);
+    height: var(--hero-height-tablet, calc(100vh - 40px));
+    min-height: var(--hero-min-height, 600px);
+    max-height: var(--hero-max-height, 900px);
+    /* Tablet navigation clearance */
+    padding-top: var(--nav-clearance-tablet, calc(65px + 18px + 25px));
+    padding-bottom: var(--bottom-margin, 2rem);
   }
   
   .hero-content {
-    padding: var(--hero-content-padding, 2rem) !important;
+    padding: var(--element-spacing-tablet, 1.25rem) !important;
     border-radius: 15px !important;
+    min-height: 350px !important;
+  }
+  
+  /* Tablet Content Distribution */
+  .hero-top-area {
+    height: var(--content-top-area-tablet, 13%) !important;
+  }
+
+  .hero-middle-area {
+    height: var(--content-middle-area-tablet, 62%) !important;
+  }
+
+  .hero-bottom-area {
+    height: var(--content-bottom-area-tablet, 25%) !important;
   }
   
   .hero-section .container {
@@ -51,22 +86,37 @@
   }
 }
 
-/* Mobile Responsive */
+/* Mobile Responsive - Intelligent Balanced System */
 @media (max-width: 768px) {
   .hero-section {
-    height: var(--hero-height-mobile, 80vh);
-    min-height: var(--hero-min-height, 500px);
-    max-height: var(--hero-max-height, 600px);
-    padding-top: var(--hero-spacing-top, 80px);
-    padding-bottom: var(--hero-spacing-bottom, 30px);
-    margin-bottom: var(--hero-section-gap, 20px);
+    height: var(--hero-height-mobile, calc(100vh - 20px));
+    min-height: var(--hero-min-height, 600px);
+    max-height: var(--hero-max-height, 900px);
+    /* Mobile navigation clearance */
+    padding-top: var(--nav-clearance-mobile, calc(60px + 15px + 20px));
+    padding-bottom: var(--bottom-margin, 2rem);
+    margin-bottom: var(--section-gap, 4rem);
     background-attachment: scroll !important; /* Fixed attachment causes issues on mobile */
   }
   
   .hero-content {
-    padding: var(--hero-content-padding, 1.5rem) !important;
+    padding: var(--element-spacing-mobile, 1rem) !important;
     border-radius: 12px !important;
     backdrop-filter: blur(8px) !important;
+    min-height: 300px !important;
+  }
+  
+  /* Mobile Content Distribution */
+  .hero-top-area {
+    height: var(--content-top-area-mobile, 12%) !important;
+  }
+
+  .hero-middle-area {
+    height: var(--content-middle-area-mobile, 65%) !important;
+  }
+
+  .hero-bottom-area {
+    height: var(--content-bottom-area-mobile, 23%) !important;
   }
   
   .hero-section h1 {

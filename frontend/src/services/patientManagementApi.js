@@ -115,16 +115,155 @@ class PatientManagementAPI {
   // Delete a patient
   async deletePatient(patientId) {
     try {
-      await api.delete(`${this.baseURL}/${patientId}/`);
+      const response = await api.delete(`${this.baseURL}/${patientId}/`);
       return {
         success: true,
-        message: 'Patient deleted successfully'
+        message: 'Patient deleted successfully',
+        data: response.data
       };
     } catch (error) {
       console.error(`Failed to delete patient ${patientId}:`, error);
       return {
         success: false,
-        error: error.response?.data?.message || 'Failed to delete patient'
+        error: error.response?.data?.message || error.response?.data?.detail || 'Failed to delete patient',
+        status: error.response?.status
+      };
+    }
+  }
+
+  // Enhanced delete patient with additional options
+  async deletePatientEnhanced(patientId, options = {}) {
+    try {
+      console.log(`🔄 Enhanced delete request for patient: ${patientId}`, options);
+      
+      // Ensure authentication first
+      const authCheck = await this.checkAuthStatus();
+      if (!authCheck.authenticated) {
+        console.log('🔐 Not authenticated, attempting auto-login...');
+        const loginResult = await this.autoLoginForDev();
+        if (!loginResult.success) {
+          throw new Error('Authentication required for deletion');
+        }
+      }
+
+      const requestData = {
+        deletion_type: options.deletionType || 'soft',
+        reason: options.reason || 'User requested deletion',
+        audit_log: options.auditLog !== false
+      };
+
+      const response = await api.delete(`${this.baseURL}/${patientId}/`, {
+        data: requestData,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      console.log(`✅ Patient deletion successful:`, response.data);
+
+      return {
+        success: true,
+        message: response.data?.message || 'Patient deleted successfully',
+        data: response.data,
+        deletionType: requestData.deletion_type
+      };
+    } catch (error) {
+      console.error(`❌ Enhanced delete failed for patient ${patientId}:`, error);
+      
+      // Enhanced error handling
+      let errorMessage = 'Failed to delete patient';
+      let errorDetails = {};
+
+      if (error.response) {
+        const status = error.response.status;
+        const data = error.response.data;
+        
+        switch (status) {
+          case 400:
+            errorMessage = data?.message || data?.detail || 'Invalid request for patient deletion';
+            break;
+          case 401:
+            errorMessage = 'Authentication required for patient deletion';
+            break;
+          case 403:
+            errorMessage = 'You do not have permission to delete this patient';
+            break;
+          case 404:
+            errorMessage = 'Patient not found or already deleted';
+            break;
+          case 409:
+            errorMessage = 'Patient cannot be deleted due to conflicts (e.g., active appointments)';
+            break;
+          case 500:
+            errorMessage = 'Server error occurred during deletion';
+            break;
+          default:
+            errorMessage = data?.message || data?.detail || `Deletion failed with status ${status}`;
+        }
+        
+        errorDetails = {
+          status: status,
+          data: data,
+          type: 'api_error'
+        };
+      } else if (error.request) {
+        errorMessage = 'Network error: Unable to reach the server';
+        errorDetails = { type: 'network_error' };
+      } else {
+        errorMessage = error.message || 'Unknown error during patient deletion';
+        errorDetails = { type: 'unknown_error' };
+      }
+
+      return {
+        success: false,
+        error: errorMessage,
+        details: errorDetails
+      };
+    }
+  }
+
+  // Check authentication status
+  async checkAuthStatus() {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        return { authenticated: false, reason: 'no_token' };
+      }
+
+      // Try a simple API call to check if token is valid
+      const response = await api.get(`${this.baseURL}/me/`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      return { 
+        authenticated: true, 
+        user: response.data 
+      };
+    } catch (error) {
+      console.log('Authentication check failed:', error.response?.status);
+      return { 
+        authenticated: false, 
+        reason: 'invalid_token',
+        status: error.response?.status 
+      };
+    }
+  }
+
+  // Log audit action
+  async logAuditAction(auditData) {
+    try {
+      const response = await api.post(`${this.baseURL}/audit-log/`, auditData);
+      return {
+        success: true,
+        data: response.data
+      };
+    } catch (error) {
+      console.warn('Failed to log audit action:', error);
+      return {
+        success: false,
+        error: error.message
       };
     }
   }

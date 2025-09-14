@@ -1,0 +1,339 @@
+{
+  "timestamp": "2025-09-14T12:58:05.818883+00:00",
+  "target_super_admin": "tanzeem.agra@rugrel.com",
+  "total_users": 19,
+  "active_users": 19,
+  "inactive_users": 0,
+  "django_superusers": [
+    {
+      "id": "2",
+      "username": "admin",
+      "email": "admin@radiology.com",
+      "full_name": null,
+      "is_active": true,
+      "is_staff": true,
+      "is_approved": true,
+      "roles": [],
+      "last_login": null,
+      "created_at": "2025-09-09T07:07:33.985974+00:00"
+    },
+    {
+      "id": "4",
+      "username": "superuser",
+      "email": "tanzeem.agra@rugrel.com",
+      "full_name": "Tanzeem Agra",
+      "is_active": true,
+      "is_staff": true,
+      "is_approved": true,
+      "roles": [
+        "SUPERUSER"
+      ],
+      "last_login": null,
+      "created_at": "2025-09-10T17:54:23.740307+00:00"
+    }
+  ],
+  "role_based_superusers": [
+    {
+      "id": "4",
+      "username": "superuser",
+      "email": "tanzeem.agra@rugrel.com",
+      "full_name": "Tanzeem Agra",
+      "is_active": true,
+      "is_staff": true,
+      "is_superuser": true,
+      "roles": [
+        "SUPERUSER"
+      ],
+      "created_at": "2025-09-10T17:54:23.740307+00:00"
+    }
+  ],
+  "target_admin_status": {
+    "exists": true,
+    "id": "4",
+    "username": "superuser",
+    "email": "tanzeem.agra@rugrel.com",
+    "full_name": "Tanzeem Agra",
+    "is_active": true,
+    "is_staff": true,
+    "is_superuser": true,
+    "is_approved": true,
+    "roles": [
+      "SUPERUSER"
+    ],
+    "permissions_count": 22,
+    "has_superuser_role": true,
+    "last_login": null,
+    "created_at": "2025-09-10T17:54:23.740307+00:00",
+    "profile_complete": true
+  },
+  "other_users": [
+    {
+      "id": "11",
+      "username": "testuser_1757665389",
+      "email": "test_1757665389@example.com",
+      "full_name": null,
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "roles": [],
+      "created_at": "2025-09-12T08:23:11.982083+00:00",
+      "should_be_deleted": true
+    },
+    {
+      "id": "12",
+      "username": "testuser_1757665425",
+      "email": "test_1757665425@example.com",
+      "full_name": null,
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "roles": [],
+      "created_at": "2025-09-12T08:23:48.618917+00:00",
+      "should_be_deleted": true
+    },
+    {
+      "id": "5",
+      "username": "dr_smith",
+      "email": "dr.smith@radiology.com",
+      "full_name": "Dr. John Smith",
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "roles": [
+        "DOCTOR"
+      ],
+      "created_at": "2025-09-10T17:54:24.264410+00:00",
+      "should_be_deleted": true
+    },
+    {
+      "id": "6",
+      "username": "dr_johnson",
+      "email": "dr.johnson@radiology.com",
+      "full_name": "Dr. Sarah Johnson",
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "roles": [
+        "DOCTOR"
+      ],
+      "created_at": "2025-09-10T17:54:24.747228+00:00",
+      "should_be_deleted": true
+    },
+    {
+      "id": "14",
+      "username": "demo_user_1757665961",
+      "email": "demo_1757665961@medixscan.com",
+      "full_name": null,
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "roles": [],
+      "created_at": "2025-09-12T08:32:44.560890+00:00",
+      "should_be_deleted": true
+    },
+    {
+      "id": "2",
+      "username": "admin",
+      "email": "admin@radiology.com",
+      "full_name": null,
+      "is_active": true,
+      "is_staff": true,
+      "is_superuser": true,
+      "roles": [],
+      "created_at": "2025-09-09T07:07:33.985974+00:00",
+      "should_be_deleted": true
+    },
+    {
+      "id": "15",
+      "username": "testuser123",
+      "email": "test123@example.com",
+      "full_name": null,
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "roles": [],
+      "created_at": "2025-09-12T08:39:39.546097+00:00",
+      "should_be_deleted": true
+    },
+    {
+      "id": "1",
+      "username": "drnajeeb",
+      "email": "drnajeeb@gmail.com",
+      "full_name": null,
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "roles": [],
+      "created_at": "2025-09-09T07:07:33.400919+00:00",
+      "should_be_deleted": true
+    },
+    {
+      "id": "16",
+      "username": "testuser_clean",
+      "email": "testclean@example.com",
+      "full_name": null,
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "roles": [],
+      "created_at": "2025-09-12T08:42:40.773408+00:00",
+      "should_be_deleted": true
+    },
+    {
+      "id": "17",
+      "username": "testuser_full",
+      "email": "testfull@example.com",
+      "full_name": null,
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "roles": [],
+      "created_at": "2025-09-12T08:42:43.935552+00:00",
+      "should_be_deleted": true
+    },
+    {
+      "id": "18",
+      "username": "fixeduser_test",
+      "email": "fixedtest@example.com",
+      "full_name": null,
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "roles": [],
+      "created_at": "2025-09-12T08:45:01.047366+00:00",
+      "should_be_deleted": true
+    },
+    {
+      "id": "19",
+      "username": "frontenduser_sim",
+      "email": "frontendsim@example.com",
+      "full_name": null,
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "roles": [],
+      "created_at": "2025-09-12T08:45:03.763435+00:00",
+      "should_be_deleted": true
+    },
+    {
+      "id": "8",
+      "username": "testuser2",
+      "email": "test2@example.com",
+      "full_name": null,
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "roles": [],
+      "created_at": "2025-09-12T07:15:18.862191+00:00",
+      "should_be_deleted": true
+    },
+    {
+      "id": "9",
+      "username": "xyz",
+      "email": "xyz@gmail.com",
+      "full_name": null,
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "roles": [],
+      "created_at": "2025-09-12T07:17:00.702930+00:00",
+      "should_be_deleted": true
+    },
+    {
+      "id": "20",
+      "username": "quickuser_1757667151",
+      "email": "quick_1757667151@example.com",
+      "full_name": null,
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "roles": [],
+      "created_at": "2025-09-12T08:52:34.441999+00:00",
+      "should_be_deleted": true
+    },
+    {
+      "id": "10",
+      "username": "testuser3",
+      "email": "test3@example.com",
+      "full_name": null,
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "roles": [],
+      "created_at": "2025-09-12T07:23:25.956374+00:00",
+      "should_be_deleted": true
+    },
+    {
+      "id": "21",
+      "username": "awesome",
+      "email": "awesome@gmail.com",
+      "full_name": null,
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "roles": [],
+      "created_at": "2025-09-12T08:55:51.613582+00:00",
+      "should_be_deleted": true
+    },
+    {
+      "id": "22",
+      "username": "hello",
+      "email": "hello@gmail.com",
+      "full_name": null,
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "roles": [],
+      "created_at": "2025-09-12T09:05:52.977767+00:00",
+      "should_be_deleted": true
+    }
+  ],
+  "user_roles_distribution": {
+    "ADMIN": {
+      "display_name": "Administrator",
+      "user_count": 0,
+      "description": "System administrator with management capabilities",
+      "created_at": "2025-09-10T17:54:23.571294+00:00"
+    },
+    "DOCTOR": {
+      "display_name": "Doctor",
+      "user_count": 2,
+      "description": "Medical professional with scan and report access",
+      "created_at": "2025-09-10T17:54:23.567291+00:00"
+    },
+    "PATIENT": {
+      "display_name": "Patient",
+      "user_count": 0,
+      "description": "Patient with access to their own records",
+      "created_at": "2025-09-10T17:54:23.570326+00:00"
+    },
+    "SUPERUSER": {
+      "display_name": "Super User",
+      "user_count": 1,
+      "description": "Full system access with all permissions",
+      "created_at": "2025-09-10T17:54:23.558578+00:00"
+    },
+    "TECHNICIAN": {
+      "display_name": "Technician",
+      "user_count": 0,
+      "description": "Technical staff with limited system access",
+      "created_at": "2025-09-10T17:54:23.568291+00:00"
+    }
+  },
+  "orphaned_roles": [],
+  "database_integrity": {
+    "orphaned_user_roles": 0,
+    "orphaned_user_permissions": 0,
+    "inactive_roles_with_users": 0,
+    "users_without_roles": 16,
+    "duplicate_emails": 0,
+    "issues": [
+      "Found 16 users without any roles"
+    ],
+    "recommendations": [
+      "Consider running database cleanup to resolve integrity issues",
+      "Ensure proper foreign key constraints are in place",
+      "Regular integrity checks recommended"
+    ]
+  }
+}

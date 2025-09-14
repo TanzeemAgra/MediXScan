@@ -1,2 +1,2 @@
-# Railway-specific file to specify Python version
-3.11
+# Railway Python runtime specification
+python-3.11.0

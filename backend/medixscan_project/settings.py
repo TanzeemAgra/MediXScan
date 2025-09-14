@@ -86,22 +86,51 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'medixscan_project.wsgi.application'
 
-# Database
+# Database - Using Soft-Coded Configuration Management
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': env('DB_NAME', default='medixscan_db'),
-        'USER': env('DB_USER', default='postgres'),
-        'PASSWORD': env('DB_PASSWORD', default='password'),
-        'HOST': env('DB_HOST', default='localhost'),
-        'PORT': env('DB_PORT', default='5432'),
-        'OPTIONS': {
-            'sslmode': env('DB_SSLMODE', default='prefer'),
-        },
+# Import soft-coded configuration
+import sys
+sys.path.append(str(BASE_DIR))
+
+try:
+    from config_management import (
+        DATABASE_CONFIG, SECURITY_CONFIG, CORS_CONFIG, 
+        EMAIL_CONFIG, LOGGING_CONFIG, config
+    )
+    
+    # Use Railway-aware database configuration
+    DATABASES = {'default': DATABASE_CONFIG}
+    
+    # Update security settings
+    SECRET_KEY = SECURITY_CONFIG['SECRET_KEY']
+    DEBUG = SECURITY_CONFIG['DEBUG']
+    ALLOWED_HOSTS = SECURITY_CONFIG['ALLOWED_HOSTS']
+    
+    # Production security settings
+    if not DEBUG:
+        SECURE_SSL_REDIRECT = SECURITY_CONFIG['SECURE_SSL_REDIRECT']
+        SECURE_HSTS_SECONDS = SECURITY_CONFIG['SECURE_HSTS_SECONDS']
+        SECURE_HSTS_INCLUDE_SUBDOMAINS = SECURITY_CONFIG['SECURE_HSTS_INCLUDE_SUBDOMAINS']
+        SECURE_HSTS_PRELOAD = SECURITY_CONFIG['SECURE_HSTS_PRELOAD']
+        SESSION_COOKIE_SECURE = SECURITY_CONFIG['SESSION_COOKIE_SECURE']
+        CSRF_COOKIE_SECURE = SECURITY_CONFIG['CSRF_COOKIE_SECURE']
+    
+except ImportError:
+    # Fallback configuration for Railway deployment
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.getenv('PGDATABASE', env('DB_NAME', default='medixscan_db')),
+            'USER': os.getenv('PGUSER', env('DB_USER', default='postgres')),
+            'PASSWORD': os.getenv('PGPASSWORD', env('DB_PASSWORD', default='password')),
+            'HOST': os.getenv('PGHOST', env('DB_HOST', default='localhost')),
+            'PORT': os.getenv('PGPORT', env('DB_PORT', default='5432')),
+            'OPTIONS': {
+                'sslmode': 'require' if os.getenv('RAILWAY_ENVIRONMENT') else env('DB_SSLMODE', default='prefer'),
+            },
+        }
     }
-}
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -166,22 +195,28 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 20,
 }
 
-# CORS settings - Soft Coding Configuration
-CORS_ALLOW_ALL_ORIGINS = DEBUG  # Only in development
-CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS', default=[
-    "http://localhost:3000",
-    "http://localhost:5173",
-    "http://localhost:5175",
-    "http://localhost:5176",
-    "http://localhost:5177",
-    "http://127.0.0.1:3000",
-    "http://127.0.0.1:5173",
-    "http://127.0.0.1:5175",
-    "http://127.0.0.1:5176",
-    "http://127.0.0.1:5177",
-])
-
-CORS_ALLOW_CREDENTIALS = True
+# CORS settings - Using Soft-Coded Configuration Management
+try:
+    # Use advanced CORS configuration
+    CORS_ALLOWED_ORIGINS = CORS_CONFIG['CORS_ALLOWED_ORIGINS']
+    CORS_ALLOW_CREDENTIALS = CORS_CONFIG['CORS_ALLOW_CREDENTIALS']
+    CORS_ALLOW_ALL_ORIGINS = CORS_CONFIG.get('CORS_ALLOW_ALL_ORIGINS', False)
+except (NameError, KeyError):
+    # Fallback CORS configuration
+    CORS_ALLOW_ALL_ORIGINS = DEBUG  # Only in development
+    CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS', default=[
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "http://localhost:5175",
+        "http://localhost:5176",
+        "http://localhost:5177",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:5173",
+        "http://127.0.0.1:5175",
+        "http://127.0.0.1:5176",
+        "http://127.0.0.1:5177",
+    ])
+    CORS_ALLOW_CREDENTIALS = True
 
 # Soft-coded CORS headers configuration
 CORS_ALLOW_HEADERS = env.list('CORS_ALLOW_HEADERS', default=[

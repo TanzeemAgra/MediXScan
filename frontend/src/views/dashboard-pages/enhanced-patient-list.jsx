@@ -1,24 +1,49 @@
+/**
+ * ENHANCED PATIENT LIST COMPONENT
+ * ===============================
+ * Complete patient management interface with fully functional action buttons
+ * 
+ * Features:
+ * - Working action buttons (View, Edit, Delete, Reports, Appointments)
+ * - Modal dialogs for detailed operations
+ * - Soft-coded configuration
+ * - Error handling and success feedback
+ * - Bulk operations support
+ * 
+ * Author: GitHub Copilot
+ * Date: 2025-09-14
+ */
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Container, Row, Col, Card, Table, Button, Form, 
   InputGroup, Badge, Dropdown, Modal, Spinner, Alert,
-  Pagination, OverlayTrigger, Tooltip 
+  Pagination, OverlayTrigger, Tooltip, ListGroup,
+  Nav, Tab
 } from 'react-bootstrap';
 import { 
   FaSearch, FaFilter, FaPlus, FaEye, FaEdit, FaTrash, 
   FaCalendarAlt, FaFileAlt, FaEnvelope, FaDownload,
-  FaSortUp, FaSortDown, FaSort
+  FaSortUp, FaSortDown, FaSort, FaPrint, FaUserMd,
+  FaTimes, FaCheck, FaClock, FaExclamationTriangle
 } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 import { PATIENT_MANAGEMENT_CONFIG, PatientConfigHelpers } from '../../config/patientManagementConfig';
 import { patientAPI } from '../../services/patientManagementApi';
+import { patientActionsHandler } from '../../utils/patientActionsHandler';
 import { enhancedPatientDeleteHandler } from '../../utils/enhancedPatientDeleteHandler';
 
-const PatientList = () => {
+const EnhancedPatientList = () => {
   const { t } = useLanguage();
   const navigate = useNavigate();
+  
+  // Theme and configuration
   const [currentTheme, setCurrentTheme] = useState('MEDICAL_BLUE');
+  const theme = PatientConfigHelpers.getTheme(currentTheme);
+  const config = PATIENT_MANAGEMENT_CONFIG;
+  
+  // Data states
   const [patients, setPatients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -26,7 +51,7 @@ const PatientList = () => {
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(PATIENT_MANAGEMENT_CONFIG.PAGINATION.DEFAULT_PAGE_SIZE);
+  const [itemsPerPage, setItemsPerPage] = useState(config.PAGINATION.DEFAULT_PAGE_SIZE);
   const [totalItems, setTotalItems] = useState(0);
   
   // Search and Filter state
@@ -41,24 +66,37 @@ const PatientList = () => {
   const [sortBy, setSortBy] = useState('lastName');
   const [sortOrder, setSortOrder] = useState('asc');
   
-  // Modal states
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [selectedPatient, setSelectedPatient] = useState(null);
+  // Modal states for enhanced functionality
+  const [modalState, setModalState] = useState({
+    show: false,
+    type: '',
+    title: '',
+    data: null
+  });
   
-  const theme = PatientConfigHelpers.getTheme(currentTheme);
-  const config = PATIENT_MANAGEMENT_CONFIG;
+  // Selection state for bulk operations
+  const [selectedPatients, setSelectedPatients] = useState([]);
+  const [selectAll, setSelectAll] = useState(false);
 
+  // Load patients on component mount and when filters change
   useEffect(() => {
     loadPatients();
   }, [currentPage, itemsPerPage, searchQuery, filters, sortBy, sortOrder]);
 
-  // Auto-dismiss success messages
+  // Auto-dismiss success/error messages
   useEffect(() => {
     if (success) {
       const timer = setTimeout(() => setSuccess(null), 5000);
       return () => clearTimeout(timer);
     }
   }, [success]);
+
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => setError(null), 7000);
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
 
   const loadPatients = async () => {
     setLoading(true);
@@ -77,16 +115,18 @@ const PatientList = () => {
       
       const result = await patientAPI.getMyPatients(params);
       if (result.success) {
-        setPatients(result.data.map(patient => PatientConfigHelpers.formatPatientData(patient)));
-        setTotalItems(result.count || result.data.length);
+        const formattedPatients = result.data.map(patient => PatientConfigHelpers.formatPatientData(patient));
+        setPatients(formattedPatients);
+        setTotalItems(result.total || result.data.length);
         setError(null);
       } else {
         console.log('API call failed, using sample data for development');
         // Fallback to sample data for development
         const sampleResult = await patientAPI.getSamplePatients();
         if (sampleResult.success) {
-          setPatients(sampleResult.data.map(patient => PatientConfigHelpers.formatPatientData(patient)));
-          setTotalItems(sampleResult.count);
+          const formattedPatients = sampleResult.data.map(patient => PatientConfigHelpers.formatPatientData(patient));
+          setPatients(formattedPatients);
+          setTotalItems(sampleResult.total);
         }
         setError(null);
       }
@@ -97,8 +137,9 @@ const PatientList = () => {
       try {
         const sampleResult = await patientAPI.getSamplePatients();
         if (sampleResult.success) {
-          setPatients(sampleResult.data.map(patient => PatientConfigHelpers.formatPatientData(patient)));
-          setTotalItems(sampleResult.count);
+          const formattedPatients = sampleResult.data.map(patient => PatientConfigHelpers.formatPatientData(patient));
+          setPatients(formattedPatients);
+          setTotalItems(sampleResult.total);
         }
         setError(null);
       } catch (sampleErr) {
@@ -110,58 +151,36 @@ const PatientList = () => {
     }
   };
 
-  const handleSearch = (query) => {
-    setSearchQuery(query);
-    setCurrentPage(1);
-  };
-
-  const handleFilterChange = (filterKey, value) => {
-    setFilters(prev => ({
-      ...prev,
-      [filterKey]: value
-    }));
-    setCurrentPage(1);
-  };
-
-  const handleSort = (column) => {
-    if (sortBy === column) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortBy(column);
-      setSortOrder('asc');
+  // Enhanced Action Handlers using the patientActionsHandler
+  const handleViewPatient = async (patient) => {
+    const result = await patientActionsHandler.viewPatientDetails(patient.id, navigate);
+    if (!result.success) {
+      setError(result.error);
     }
-    setCurrentPage(1);
   };
 
-  const handleDeletePatient = async (patient = selectedPatient) => {
-    if (!patient) return;
-    
+  const handleEditPatient = async (patient) => {
+    const result = await patientActionsHandler.editPatient(patient.id, navigate);
+    if (!result.success) {
+      setError(result.error);
+    }
+  };
+
+  const handleDeletePatient = async (patient) => {
     try {
-      console.log(`🗑️ Attempting to delete patient: ${patient.id} (${patient.fullName || patient.firstName + ' ' + patient.lastName})`);
+      console.log(`🗑️ Attempting to delete patient: ${patient.id} (${patient.fullName})`);
       
       const result = await enhancedPatientDeleteHandler.deletePatient(
         patient.id, 
-        patient.fullName || `${patient.firstName} ${patient.lastName}`
+        patient.fullName
       );
 
       if (result.success) {
-        // Update the patients list by removing the deleted patient
-        setPatients(prev => prev.filter(p => p.id !== patient.id));
-        setShowDeleteModal(false);
-        setSelectedPatient(null);
-        
-        // Show success message
         setSuccess(result.message);
-        setError(null);
-        
-        // Reload the patients list to get fresh data
-        loadPatients();
-        
+        loadPatients(); // Reload patients list
         console.log(`✅ Patient deletion successful: ${result.message}`);
       } else if (result.cancelled) {
         console.log('🚫 Patient deletion cancelled by user');
-        setShowDeleteModal(false);
-        setSelectedPatient(null);
       } else {
         setError(result.error);
         console.error(`❌ Patient deletion failed: ${result.error}`);
@@ -172,56 +191,199 @@ const PatientList = () => {
     }
   };
 
-  const handleExport = async (format) => {
-    try {
-      const result = await patientAPI.exportPatients(format, filters);
-      if (!result.success) {
-        setError(result.error);
-      }
-    } catch (err) {
-      setError('Failed to export patients');
+  const handleViewReports = async (patient) => {
+    await patientActionsHandler.viewMedicalReports(patient.id, patient.fullName, setModalState);
+  };
+
+  const handleViewAppointments = async (patient) => {
+    await patientActionsHandler.viewAppointments(patient.id, patient.fullName, setModalState);
+  };
+
+  const handleScheduleAppointment = async (patient) => {
+    await patientActionsHandler.scheduleAppointment(patient.id, patient.fullName, setModalState);
+  };
+
+  const handleSendEmail = async (patient) => {
+    await patientActionsHandler.sendEmail(patient.id, patient.email, patient.fullName, setModalState);
+  };
+
+  const handleExportPatient = async (patient, format = 'pdf') => {
+    const result = await patientActionsHandler.exportPatientData(patient.id, patient.fullName, format);
+    if (result.success) {
+      setSuccess(result.message);
+    } else {
+      setError(result.error);
     }
   };
 
+  const handlePrintPatient = async (patient) => {
+    const result = await patientActionsHandler.printPatientInfo(patient.id, patient.fullName);
+    if (result.success) {
+      setSuccess(result.message);
+    } else {
+      setError(result.error);
+    }
+  };
+
+  // Search and filter handlers
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+    setCurrentPage(1);
+  };
+
+  const handleFilterChange = (filterType, value) => {
+    setFilters(prev => ({
+      ...prev,
+      [filterType]: value
+    }));
+    setCurrentPage(1);
+  };
+
+  const handleSort = (columnKey) => {
+    if (sortBy === columnKey) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(columnKey);
+      setSortOrder('asc');
+    }
+  };
+
+  // Export handlers
+  const handleExport = async (format) => {
+    try {
+      const result = await patientAPI.exportPatients(format, filters);
+      if (result.success) {
+        setSuccess(`Patients exported successfully as ${format.toUpperCase()}`);
+      } else {
+        setError(result.error);
+      }
+    } catch (error) {
+      console.error('Export failed:', error);
+      setError('Export failed. Please try again.');
+    }
+  };
+
+  // Selection handlers for bulk operations
+  const handleSelectAll = () => {
+    if (selectAll) {
+      setSelectedPatients([]);
+    } else {
+      setSelectedPatients([...paginatedPatients]);
+    }
+    setSelectAll(!selectAll);
+  };
+
+  const handleSelectPatient = (patient) => {
+    const isSelected = selectedPatients.find(p => p.id === patient.id);
+    if (isSelected) {
+      setSelectedPatients(selectedPatients.filter(p => p.id !== patient.id));
+    } else {
+      setSelectedPatients([...selectedPatients, patient]);
+    }
+  };
+
+  // Bulk operations handler
+  const handleBulkOperation = async (operation) => {
+    if (selectedPatients.length === 0) {
+      setError('Please select patients to perform bulk operations');
+      return;
+    }
+
+    try {
+      if (operation === 'delete') {
+        console.log(`🗑️ Starting bulk delete for ${selectedPatients.length} patients`);
+        
+        const result = await enhancedPatientDeleteHandler.bulkDeletePatients(
+          selectedPatients,
+          {
+            continueOnError: true,
+            onProgress: (progress) => {
+              console.log(`Progress: ${progress.current}/${progress.total} - ${progress.currentPatient}`);
+            }
+          }
+        );
+
+        if (result.success) {
+          const message = result.deleted.length > 0 
+            ? `Successfully deleted ${result.deleted.length} patients` 
+            : 'No patients were deleted';
+          
+          if (result.failed.length > 0) {
+            setError(`${result.failed.length} patients could not be deleted`);
+          } else {
+            setSuccess(message);
+          }
+        } else if (result.cancelled) {
+          console.log('🚫 Bulk delete cancelled by user');
+        } else {
+          setError(result.error || 'Bulk delete operation failed');
+        }
+
+        setSelectedPatients([]);
+        setSelectAll(false);
+        loadPatients();
+      } else {
+        // Handle other bulk operations using the original handler
+        const result = await patientActionsHandler.handleBulkOperation(
+          operation,
+          selectedPatients,
+          (message) => {
+            setSuccess(message);
+            setSelectedPatients([]);
+            setSelectAll(false);
+            loadPatients();
+          },
+          (error) => setError(error)
+        );
+      }
+    } catch (error) {
+      console.error('❌ Bulk operation error:', error);
+      setError('An unexpected error occurred during the bulk operation');
+    }
+  };
+
+  // Close modal handler
+  const closeModal = () => {
+    setModalState({
+      show: false,
+      type: '',
+      title: '',
+      data: null
+    });
+  };
+
+  // Computed values for pagination and filtering
   const filteredAndSortedPatients = useMemo(() => {
-    let filtered = [...patients];
-    
-    // Apply search filter
-    if (searchQuery) {
-      filtered = filtered.filter(patient => 
+    let filtered = patients.filter(patient => {
+      const matchesSearch = !searchQuery || 
         patient.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        patient.phone.includes(searchQuery) ||
-        patient.email.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-    
-    // Apply status filter
-    if (filters.status) {
-      filtered = filtered.filter(patient => patient.status === filters.status);
-    }
-    
-    // Apply priority filter
-    if (filters.priority) {
-      filtered = filtered.filter(patient => patient.priority === filters.priority);
-    }
-    
-    // Apply gender filter
-    if (filters.gender) {
-      filtered = filtered.filter(patient => patient.gender === filters.gender);
-    }
-    
-    // Apply age range filter
-    if (filters.ageMin || filters.ageMax) {
-      filtered = filtered.filter(patient => {
-        const age = patient.age;
-        const minAge = filters.ageMin ? parseInt(filters.ageMin) : 0;
-        const maxAge = filters.ageMax ? parseInt(filters.ageMax) : 120;
-        return age >= minAge && age <= maxAge;
-      });
-    }
-    
+        patient.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        patient.phone.includes(searchQuery);
+      
+      const matchesStatus = !filters.status || patient.status === filters.status;
+      const matchesPriority = !filters.priority || patient.priority === filters.priority;
+      const matchesGender = !filters.gender || patient.gender === filters.gender;
+      
+      return matchesSearch && matchesStatus && matchesPriority && matchesGender;
+    });
+
+    // Sort patients
+    filtered.sort((a, b) => {
+      let aValue = a[sortBy];
+      let bValue = b[sortBy];
+      
+      if (typeof aValue === 'string') {
+        aValue = aValue.toLowerCase();
+        bValue = bValue.toLowerCase();
+      }
+      
+      if (aValue < bValue) return sortOrder === 'asc' ? -1 : 1;
+      if (aValue > bValue) return sortOrder === 'asc' ? 1 : -1;
+      return 0;
+    });
+
     return filtered;
-  }, [patients, searchQuery, filters]);
+  }, [patients, searchQuery, filters, sortBy, sortOrder]);
 
   const totalPages = Math.ceil(filteredAndSortedPatients.length / itemsPerPage);
   const paginatedPatients = filteredAndSortedPatients.slice(
@@ -229,6 +391,7 @@ const PatientList = () => {
     currentPage * itemsPerPage
   );
 
+  // Status Badge Component
   const StatusBadge = ({ status }) => {
     const statusConfig = PatientConfigHelpers.getStatusConfig(status);
     if (!statusConfig) return <Badge bg="secondary">{status}</Badge>;
@@ -245,6 +408,7 @@ const PatientList = () => {
     );
   };
 
+  // Priority Badge Component
   const PriorityBadge = ({ priority }) => {
     const priorityConfig = PatientConfigHelpers.getPriorityConfig(priority);
     if (!priorityConfig) return <Badge bg="secondary">{priority}</Badge>;
@@ -261,6 +425,7 @@ const PatientList = () => {
     );
   };
 
+  // Action Button Component
   const ActionButton = ({ icon, tooltip, color, onClick, size = "sm" }) => (
     <OverlayTrigger
       placement="top"
@@ -285,6 +450,70 @@ const PatientList = () => {
     </OverlayTrigger>
   );
 
+  // Modal Content Renderer
+  const renderModalContent = () => {
+    const { type, data } = modalState;
+    
+    switch (type) {
+      case 'reports':
+        return (
+          <div>
+            <p>Medical reports for <strong>{data?.patientName}</strong>:</p>
+            <ListGroup>
+              {data?.reports?.map(report => (
+                <ListGroup.Item key={report.id} className="d-flex justify-content-between align-items-center">
+                  <div>
+                    <strong>{report.title}</strong>
+                    <br />
+                    <small className="text-muted">{report.type} • {report.date} • Dr. {report.doctor}</small>
+                  </div>
+                  <div>
+                    <Badge bg={report.status === 'completed' ? 'success' : 'warning'}>
+                      {report.status === 'completed' ? 'Completed' : 'Pending Review'}
+                    </Badge>
+                  </div>
+                </ListGroup.Item>
+              ))}
+            </ListGroup>
+          </div>
+        );
+
+      case 'appointments':
+        return (
+          <div>
+            <p>Appointments for <strong>{data?.patientName}</strong>:</p>
+            <ListGroup>
+              {data?.appointments?.map(appointment => (
+                <ListGroup.Item key={appointment.id} className="d-flex justify-content-between align-items-center">
+                  <div>
+                    <strong>{appointment.type}</strong>
+                    <br />
+                    <small className="text-muted">
+                      {appointment.date} at {appointment.time} • Dr. {appointment.doctor}
+                      <br />
+                      {appointment.notes}
+                    </small>
+                  </div>
+                  <div>
+                    <Badge bg={
+                      appointment.status === 'completed' ? 'success' : 
+                      appointment.status === 'scheduled' ? 'primary' : 'warning'
+                    }>
+                      {appointment.status}
+                    </Badge>
+                  </div>
+                </ListGroup.Item>
+              ))}
+            </ListGroup>
+          </div>
+        );
+
+      default:
+        return <p>Loading...</p>;
+    }
+  };
+
+  // Loading State
   if (loading && patients.length === 0) {
     return (
       <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: '60vh' }}>
@@ -318,10 +547,41 @@ const PatientList = () => {
                 </h1>
                 <p className="text-muted mb-0">
                   Manage and view all your patients in one place
+                  {selectedPatients.length > 0 && (
+                    <span className="ms-2">
+                      <Badge bg="primary">{selectedPatients.length} selected</Badge>
+                    </span>
+                  )}
                 </p>
               </div>
               
               <div className="d-flex gap-2">
+                {selectedPatients.length > 0 && (
+                  <Dropdown>
+                    <Dropdown.Toggle variant="outline-warning">
+                      Bulk Actions ({selectedPatients.length})
+                    </Dropdown.Toggle>
+                    <Dropdown.Menu>
+                      <Dropdown.Item onClick={() => handleBulkOperation('export')}>
+                        Export Selected
+                      </Dropdown.Item>
+                      <Dropdown.Item onClick={() => handleBulkOperation('activate')}>
+                        Mark as Active
+                      </Dropdown.Item>
+                      <Dropdown.Item onClick={() => handleBulkOperation('deactivate')}>
+                        Mark as Inactive
+                      </Dropdown.Item>
+                      <Dropdown.Divider />
+                      <Dropdown.Item 
+                        onClick={() => handleBulkOperation('delete')}
+                        className="text-danger"
+                      >
+                        Delete Selected
+                      </Dropdown.Item>
+                    </Dropdown.Menu>
+                  </Dropdown>
+                )}
+                
                 <Button
                   variant="primary"
                   style={{ backgroundColor: theme.primaryColor, borderColor: theme.primaryColor }}
@@ -352,6 +612,29 @@ const PatientList = () => {
             </div>
           </Col>
         </Row>
+
+        {/* Success/Error Alerts */}
+        {success && (
+          <Row className="mb-3">
+            <Col>
+              <Alert variant="success" dismissible onClose={() => setSuccess(null)}>
+                <FaCheck className="me-2" />
+                {success}
+              </Alert>
+            </Col>
+          </Row>
+        )}
+        
+        {error && (
+          <Row className="mb-3">
+            <Col>
+              <Alert variant="danger" dismissible onClose={() => setError(null)}>
+                <FaExclamationTriangle className="me-2" />
+                {error}
+              </Alert>
+            </Col>
+          </Row>
+        )}
 
         {/* Search and Filters */}
         <Row className="mb-4">
@@ -434,30 +717,6 @@ const PatientList = () => {
           </Col>
         </Row>
 
-        {/* Success Alert */}
-        {success && (
-          <Row className="mb-3">
-            <Col>
-              <Alert variant="success" dismissible onClose={() => setSuccess(null)}>
-                <i className="ri-check-line me-2"></i>
-                {success}
-              </Alert>
-            </Col>
-          </Row>
-        )}
-
-        {/* Error Alert */}
-        {error && (
-          <Row className="mb-4">
-            <Col>
-              <Alert variant="danger" dismissible onClose={() => setError(null)}>
-                <i className="ri-error-warning-line me-2"></i>
-                {error}
-              </Alert>
-            </Col>
-          </Row>
-        )}
-
         {/* Patients Table */}
         <Row>
           <Col>
@@ -481,6 +740,13 @@ const PatientList = () => {
                   <Table className="mb-0" hover>
                     <thead style={{ backgroundColor: theme.backgroundColor }}>
                       <tr>
+                        <th>
+                          <Form.Check
+                            type="checkbox"
+                            checked={selectAll}
+                            onChange={handleSelectAll}
+                          />
+                        </th>
                         {config.PATIENT_TABLE.columns.map(column => (
                           <th 
                             key={column.key}
@@ -505,11 +771,19 @@ const PatientList = () => {
                             </div>
                           </th>
                         ))}
+                        <th style={{ width: '250px' }}>Actions</th>
                       </tr>
                     </thead>
                     <tbody>
                       {paginatedPatients.map(patient => (
                         <tr key={patient.id}>
+                          <td>
+                            <Form.Check
+                              type="checkbox"
+                              checked={selectedPatients.find(p => p.id === patient.id)}
+                              onChange={() => handleSelectPatient(patient)}
+                            />
+                          </td>
                           <td className="fw-medium">{patient.id}</td>
                           <td>
                             <div>
@@ -528,30 +802,42 @@ const PatientList = () => {
                             <PriorityBadge priority={patient.priority} />
                           </td>
                           <td>
-                            <div className="d-flex">
+                            <div className="d-flex flex-wrap">
                               <ActionButton
                                 icon={<FaEye />}
                                 tooltip="View Details"
                                 color="primary"
-                                onClick={() => navigate(`/dashboard/patients/view/${patient.id}`)}
+                                onClick={() => handleViewPatient(patient)}
                               />
                               <ActionButton
                                 icon={<FaEdit />}
                                 tooltip="Edit Patient"
                                 color="warning"
-                                onClick={() => navigate(`/dashboard/patients/edit/${patient.id}`)}
+                                onClick={() => handleEditPatient(patient)}
                               />
                               <ActionButton
                                 icon={<FaCalendarAlt />}
                                 tooltip="Appointments"
                                 color="info"
-                                onClick={() => {/* Open appointments modal */}}
+                                onClick={() => handleViewAppointments(patient)}
                               />
                               <ActionButton
                                 icon={<FaFileAlt />}
                                 tooltip="Medical Reports"
                                 color="success"
-                                onClick={() => {/* Open reports modal */}}
+                                onClick={() => handleViewReports(patient)}
+                              />
+                              <ActionButton
+                                icon={<FaEnvelope />}
+                                tooltip="Send Email"
+                                color="secondary"
+                                onClick={() => handleSendEmail(patient)}
+                              />
+                              <ActionButton
+                                icon={<FaPrint />}
+                                tooltip="Print Info"
+                                color="dark"
+                                onClick={() => handlePrintPatient(patient)}
                               />
                               <ActionButton
                                 icon={<FaTrash />}
@@ -628,30 +914,41 @@ const PatientList = () => {
         </Row>
       </Container>
 
-      {/* Delete Confirmation Modal */}
-      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
+      {/* Enhanced Modal for Various Operations */}
+      <Modal size="lg" show={modalState.show} onHide={closeModal} centered>
         <Modal.Header closeButton>
-          <Modal.Title>Confirm Delete</Modal.Title>
+          <Modal.Title>{modalState.title}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <p>
-            Are you sure you want to delete patient <strong>{selectedPatient?.fullName}</strong>?
-          </p>
-          <p className="text-danger">
-            <small>This action cannot be undone and will permanently remove all patient data.</small>
-          </p>
+          {renderModalContent()}
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
-            Cancel
+          <Button variant="secondary" onClick={closeModal}>
+            <FaTimes className="me-2" />
+            Close
           </Button>
-          <Button variant="danger" onClick={handleDeletePatient}>
-            Delete Patient
-          </Button>
+          {modalState.type === 'reports' && (
+            <Button variant="primary" onClick={() => navigate('/dashboard/patient-reports')}>
+              <FaFileAlt className="me-2" />
+              View All Reports
+            </Button>
+          )}
+          {modalState.type === 'appointments' && modalState.data && (
+            <Button 
+              variant="success" 
+              onClick={() => handleScheduleAppointment({ 
+                id: modalState.data.patientId, 
+                fullName: modalState.data.patientName 
+              })}
+            >
+              <FaCalendarAlt className="me-2" />
+              Schedule New
+            </Button>
+          )}
         </Modal.Footer>
       </Modal>
     </div>
   );
 };
 
-export default PatientList;
+export default EnhancedPatientList;

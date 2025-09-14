@@ -1,0 +1,102 @@
+{
+  "timestamp": "2025-09-14T12:59:03.872353+00:00",
+  "target_super_admin": "tanzeem.agra@rugrel.com",
+  "total_users": 1,
+  "active_users": 1,
+  "inactive_users": 0,
+  "django_superusers": [
+    {
+      "id": "4",
+      "username": "tanzeem_admin",
+      "email": "tanzeem.agra@rugrel.com",
+      "full_name": "Tanzeem Agra - System Administrator",
+      "is_active": true,
+      "is_staff": true,
+      "is_approved": true,
+      "roles": [
+        "SUPERUSER"
+      ],
+      "last_login": null,
+      "created_at": "2025-09-10T17:54:23.740307+00:00"
+    }
+  ],
+  "role_based_superusers": [
+    {
+      "id": "4",
+      "username": "tanzeem_admin",
+      "email": "tanzeem.agra@rugrel.com",
+      "full_name": "Tanzeem Agra - System Administrator",
+      "is_active": true,
+      "is_staff": true,
+      "is_superuser": true,
+      "roles": [
+        "SUPERUSER"
+      ],
+      "created_at": "2025-09-10T17:54:23.740307+00:00"
+    }
+  ],
+  "target_admin_status": {
+    "exists": true,
+    "id": "4",
+    "username": "tanzeem_admin",
+    "email": "tanzeem.agra@rugrel.com",
+    "full_name": "Tanzeem Agra - System Administrator",
+    "is_active": true,
+    "is_staff": true,
+    "is_superuser": true,
+    "is_approved": true,
+    "roles": [
+      "SUPERUSER"
+    ],
+    "permissions_count": 22,
+    "has_superuser_role": true,
+    "last_login": null,
+    "created_at": "2025-09-10T17:54:23.740307+00:00",
+    "profile_complete": true
+  },
+  "other_users": [],
+  "user_roles_distribution": {
+    "ADMIN": {
+      "display_name": "Administrator",
+      "user_count": 0,
+      "description": "System administrator with management capabilities",
+      "created_at": "2025-09-10T17:54:23.571294+00:00"
+    },
+    "DOCTOR": {
+      "display_name": "Doctor",
+      "user_count": 0,
+      "description": "Medical professional with scan and report access",
+      "created_at": "2025-09-10T17:54:23.567291+00:00"
+    },
+    "PATIENT": {
+      "display_name": "Patient",
+      "user_count": 0,
+      "description": "Patient with access to their own records",
+      "created_at": "2025-09-10T17:54:23.570326+00:00"
+    },
+    "SUPERUSER": {
+      "display_name": "Super User",
+      "user_count": 1,
+      "description": "Full system access with all permissions",
+      "created_at": "2025-09-10T17:54:23.558578+00:00"
+    },
+    "TECHNICIAN": {
+      "display_name": "Technician",
+      "user_count": 0,
+      "description": "Technical staff with limited system access",
+      "created_at": "2025-09-10T17:54:23.568291+00:00"
+    }
+  },
+  "orphaned_roles": [],
+  "database_integrity": {
+    "orphaned_user_roles": 0,
+    "orphaned_user_permissions": 0,
+    "inactive_roles_with_users": 0,
+    "users_without_roles": 0,
+    "duplicate_emails": 0,
+    "issues": [],
+    "recommendations": [
+      "Database integrity looks good!"
+    ]
+  }
+}

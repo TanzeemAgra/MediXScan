@@ -20,13 +20,88 @@ export const injectHeroLayoutVariables = (heroConfig) => {
     root.style.setProperty('--hero-max-height', layout.height.maximum || '800px');
   }
 
-  // Spacing Configuration
+  // Intelligent Balanced Spacing System - Mathematical Distribution
   if (layout?.spacing) {
-    root.style.setProperty('--hero-spacing-top', layout.spacing.top || '110px');
-    root.style.setProperty('--hero-spacing-bottom', layout.spacing.bottom || '60px');
-    root.style.setProperty('--hero-section-gap', layout.spacing.sectionGap || '40px');
-    root.style.setProperty('--hero-content-padding', layout.spacing.contentPadding || '2rem');
-    root.style.setProperty('--hero-navigation-gap', layout.spacing.navigationGap || '30px');
+    // Navigation Area Calculations
+    const navHeight = layout.spacing.navigationHeight || '70px';
+    const navBuffer = layout.spacing.navigationBuffer || '20px';
+    const contentTop = layout.spacing.contentAreaTop || '30px';
+    
+    // Calculate total navigation clearance
+    root.style.setProperty('--nav-total-height', navHeight);
+    root.style.setProperty('--nav-clearance', `calc(${navHeight} + ${navBuffer} + ${contentTop})`);
+    
+    // Content Distribution Percentages
+    if (layout.spacing.contentDistribution) {
+      root.style.setProperty('--content-top-area', layout.spacing.contentDistribution.topArea || '15%');
+      root.style.setProperty('--content-middle-area', layout.spacing.contentDistribution.middleArea || '60%');
+      root.style.setProperty('--content-bottom-area', layout.spacing.contentDistribution.bottomArea || '25%');
+    }
+    
+    // Internal Content Spacing
+    if (layout.spacing.internal) {
+      root.style.setProperty('--element-spacing', layout.spacing.internal.elementSpacing || '1.5rem');
+      root.style.setProperty('--title-spacing', layout.spacing.internal.titleSpacing || '2rem');
+      root.style.setProperty('--description-spacing', layout.spacing.internal.descriptionSpacing || '2.5rem');
+      root.style.setProperty('--cta-area-spacing', layout.spacing.internal.ctaAreaSpacing || '2rem');
+    }
+    
+    // External Section Spacing
+    if (layout.spacing.external) {
+      root.style.setProperty('--section-gap', layout.spacing.external.sectionGap || '4rem');
+      root.style.setProperty('--bottom-margin', layout.spacing.external.bottomMargin || '2rem');
+    }
+    
+    // Responsive Balanced Spacing Variables
+    if (layout.spacing.mobile) {
+      // Mobile navigation calculations
+      const mobileNavHeight = layout.spacing.mobile.navigationHeight || '60px';
+      const mobileNavBuffer = layout.spacing.mobile.navigationBuffer || '15px';
+      const mobileContentTop = layout.spacing.mobile.contentAreaTop || '20px';
+      
+      root.style.setProperty('--nav-total-height-mobile', mobileNavHeight);
+      root.style.setProperty('--nav-clearance-mobile', `calc(${mobileNavHeight} + ${mobileNavBuffer} + ${mobileContentTop})`);
+      
+      // Mobile content distribution
+      if (layout.spacing.mobile.contentDistribution) {
+        root.style.setProperty('--content-top-area-mobile', layout.spacing.mobile.contentDistribution.topArea || '12%');
+        root.style.setProperty('--content-middle-area-mobile', layout.spacing.mobile.contentDistribution.middleArea || '65%');
+        root.style.setProperty('--content-bottom-area-mobile', layout.spacing.mobile.contentDistribution.bottomArea || '23%');
+      }
+      
+      // Mobile internal spacing
+      if (layout.spacing.mobile.internal) {
+        root.style.setProperty('--element-spacing-mobile', layout.spacing.mobile.internal.elementSpacing || '1rem');
+        root.style.setProperty('--title-spacing-mobile', layout.spacing.mobile.internal.titleSpacing || '1.5rem');
+        root.style.setProperty('--description-spacing-mobile', layout.spacing.mobile.internal.descriptionSpacing || '2rem');
+        root.style.setProperty('--cta-area-spacing-mobile', layout.spacing.mobile.internal.ctaAreaSpacing || '1.5rem');
+      }
+    }
+    
+    if (layout.spacing.tablet) {
+      // Tablet navigation calculations
+      const tabletNavHeight = layout.spacing.tablet.navigationHeight || '65px';
+      const tabletNavBuffer = layout.spacing.tablet.navigationBuffer || '18px';
+      const tabletContentTop = layout.spacing.tablet.contentAreaTop || '25px';
+      
+      root.style.setProperty('--nav-total-height-tablet', tabletNavHeight);
+      root.style.setProperty('--nav-clearance-tablet', `calc(${tabletNavHeight} + ${tabletNavBuffer} + ${tabletContentTop})`);
+      
+      // Tablet content distribution
+      if (layout.spacing.tablet.contentDistribution) {
+        root.style.setProperty('--content-top-area-tablet', layout.spacing.tablet.contentDistribution.topArea || '13%');
+        root.style.setProperty('--content-middle-area-tablet', layout.spacing.tablet.contentDistribution.middleArea || '62%');
+        root.style.setProperty('--content-bottom-area-tablet', layout.spacing.tablet.contentDistribution.bottomArea || '25%');
+      }
+      
+      // Tablet internal spacing
+      if (layout.spacing.tablet.internal) {
+        root.style.setProperty('--element-spacing-tablet', layout.spacing.tablet.internal.elementSpacing || '1.25rem');
+        root.style.setProperty('--title-spacing-tablet', layout.spacing.tablet.internal.titleSpacing || '1.75rem');
+        root.style.setProperty('--description-spacing-tablet', layout.spacing.tablet.internal.descriptionSpacing || '2.25rem');
+        root.style.setProperty('--cta-area-spacing-tablet', layout.spacing.tablet.internal.ctaAreaSpacing || '1.75rem');
+      }
+    }
   }
 
   // Design Configuration
