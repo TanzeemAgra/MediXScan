@@ -1,0 +1,11 @@
+# Railway.toml configuration for Railway deployment
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+startCommand = "gunicorn medixscan_project.wsgi:application --bind 0.0.0.0:$PORT"
+healthcheckPath = "/"
+healthcheckTimeout = 100
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
