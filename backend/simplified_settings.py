@@ -20,6 +20,14 @@ DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 # Simplified ALLOWED_HOSTS
 ALLOWED_HOSTS = ['*']  # Temporarily allow all hosts for testing
 
+# Railway SSL/HTTPS settings
+RAILWAY_ENVIRONMENT = os.getenv('RAILWAY_ENVIRONMENT')
+if RAILWAY_ENVIRONMENT:
+    # Railway handles SSL termination, don't force HTTPS redirects
+    SECURE_SSL_REDIRECT = False
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    USE_TZ = True
+
 # Application definition - Start with minimal apps
 INSTALLED_APPS = [
     'django.contrib.admin',

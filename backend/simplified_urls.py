@@ -9,6 +9,14 @@ def simple_home(request):
     return JsonResponse({
         "message": "MediXScan Backend is working!",
         "status": "success",
+        "debug_info": {
+            "is_secure": request.is_secure(),
+            "meta_headers": {
+                "HTTP_X_FORWARDED_PROTO": request.META.get('HTTP_X_FORWARDED_PROTO'),
+                "HTTP_HOST": request.META.get('HTTP_HOST'),
+                "SERVER_PORT": request.META.get('SERVER_PORT'),
+            }
+        },
         "endpoints": {
             "admin": "/admin/",
             "health": "/health/"
