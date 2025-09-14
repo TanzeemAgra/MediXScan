@@ -166,7 +166,8 @@ class EnvironmentConfig:
             # Add Railway domains
             hosts.extend([
                 '.railway.app',
-                '.up.railway.app'
+                '.up.railway.app',
+                'medixscan-production.up.railway.app'
             ])
         
         return hosts
@@ -180,7 +181,7 @@ class EnvironmentConfig:
         
         # Default production origins
         return [
-            'https://yourapp.vercel.app',  # Replace with actual Vercel URL
+            'https://medixscan.vercel.app',  # Replace with actual Vercel URL when deployed
             'https://*.vercel.app'
         ]
     

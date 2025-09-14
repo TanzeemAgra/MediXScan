@@ -122,7 +122,7 @@ def generate_deployment_commands():
         "",
         "# 5. Set environment variables (in Vercel dashboard or CLI)",
         "vercel env add VITE_API_URL",
-        "# Enter: https://your-railway-backend.up.railway.app",
+        "# Enter: https://medixscan-production.up.railway.app",
         "",
         "vercel env add VITE_ENVIRONMENT", 
         "# Enter: production",

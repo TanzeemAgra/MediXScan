@@ -26,8 +26,8 @@ Create production environment variables in Vercel dashboard:
 **Required Environment Variables for Vercel:**
 ```bash
 # Backend API Configuration (Railway URLs)
-VITE_API_BASE_URL=https://your-railway-backend.up.railway.app/api
-VITE_BACKEND_URL=https://your-railway-backend.up.railway.app
+VITE_API_BASE_URL=https://medixscan-production.up.railway.app/api
+VITE_BACKEND_URL=https://medixscan-production.up.railway.app
 
 # OpenAI Configuration (New API Key!)
 VITE_OPENAI_API_KEY=your_new_openai_api_key_here
@@ -100,10 +100,10 @@ vercel
 ```bash
 # Set production environment variables
 vercel env add VITE_API_BASE_URL
-# Enter: https://your-railway-backend.up.railway.app/api
+# Enter: https://medixscan-production.up.railway.app/api
 
 vercel env add VITE_BACKEND_URL  
-# Enter: https://your-railway-backend.up.railway.app
+# Enter: https://medixscan-production.up.railway.app
 
 vercel env add VITE_OPENAI_API_KEY
 # Enter: your_new_openai_api_key_here
@@ -344,7 +344,7 @@ vercel env ls
 
 # Test API endpoints manually
 curl -H "Origin: https://your-vercel-app.vercel.app" \
-  https://your-railway-backend.up.railway.app/api/
+  https://medixscan-production.up.railway.app/api/
 ```
 
 #### Issue 3: Authentication Issues
