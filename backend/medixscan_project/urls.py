@@ -20,8 +20,12 @@ from django.conf import settings
 from django.conf.urls.static import static
 from test_endpoint import test_endpoint
 from health_check import health_check, simple_home
+from simple_debug import simple_debug, ping, status
 
 urlpatterns = [
+    path('ping/', ping, name='ping'),  # Ultra-simple ping
+    path('status/', status, name='status'),  # Status without DB
+    path('simple/', simple_debug, name='simple_debug'),  # Environment check
     path('', simple_home, name='home'),  # Root endpoint
     path('health/', health_check, name='health'),  # Health check
     path('admin/', admin.site.urls),
