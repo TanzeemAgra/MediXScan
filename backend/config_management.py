@@ -234,4 +234,3 @@ CORS_CONFIG = config.cors_config
 OPENAI_CONFIG = config.openai_config
 EMAIL_CONFIG = config.email_config
 AWS_CONFIG = config.aws_config
-LOGGING_CONFIG = config.logging_config

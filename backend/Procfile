@@ -1,3 +1,2 @@
-# Procfile for Railway deployment - Enhanced with proper logging
-web: python manage.py collectstatic --noinput && gunicorn medixscan_project.wsgi:application --bind 0.0.0.0:$PORT --workers=2 --log-level=info --access-logfile=- --error-logfile=-
-release: python manage.py migrate --noinput
+# Procfile for Railway deployment - Simplified for better compatibility
+web: gunicorn medixscan_project.wsgi:application --bind 0.0.0.0:$PORT --workers=2 --log-level=info

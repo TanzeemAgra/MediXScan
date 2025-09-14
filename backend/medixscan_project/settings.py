@@ -96,7 +96,7 @@ sys.path.append(str(BASE_DIR))
 try:
     from config_management import (
         DATABASE_CONFIG, SECURITY_CONFIG, CORS_CONFIG, 
-        EMAIL_CONFIG, LOGGING_CONFIG, config
+        EMAIL_CONFIG, config
     )
     
     # Use Railway-aware database configuration
