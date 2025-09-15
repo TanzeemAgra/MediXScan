@@ -1,0 +1,21 @@
+# Railway Backend Deployment Commands
+
+# 1. Login to Railway
+npm install -g @railway/cli
+railway login
+
+# 2. Initialize Railway project
+railway init
+
+# 3. Add PostgreSQL service
+railway add --database postgresql
+
+# 4. Set environment variables
+railway variables set SECRET_KEY='your-secure-django-secret-key'
+railway variables set OPENAI_API_KEY='your-openai-api-key'
+railway variables set DEBUG=False
+railway variables set ENVIRONMENT=production
+railway variables set RAILWAY_ENVIRONMENT=production
+
+# 5. Deploy backend
+railway up

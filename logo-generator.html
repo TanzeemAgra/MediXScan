@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediXScan Advanced Logo Generator</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+        }
+        .canvas-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        canvas {
+            border: 1px solid #ddd;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            background: white;
+            margin: 10px;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background: #667eea;
+            color: white;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        button:hover {
+            background: #5a67d8;
+        }
+        .preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        .preview-item {
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .size-info {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🏥 MediXScan AI - Advanced Logo Suite</h1>
+    
+    <div class="canvas-container">
+        <canvas id="logoCanvas" width="800" height="200"></canvas>
+        <canvas id="heroCanvas" width="1600" height="900" style="max-width: 800px; height: auto;"></canvas>
+        <canvas id="iconCanvas" width="512" height="512" style="max-width: 200px; height: auto;"></canvas>
+    </div>
+    
+    <div class="controls">
+        <button onclick="generateMainLogo()">🎨 Generate Main Logo</button>
+        <button onclick="generateHeroBackground()">🖼️ Generate Hero Background</button>
+        <button onclick="generateIcon()">📱 Generate Icon</button>
+        <button onclick="downloadAll()">💾 Download All</button>
+        <button onclick="generateWhiteLogo()">⚪ White Logo</button>
+    </div>
+    
+    <div class="preview" id="previewContainer">
+        <!-- Previews will be added here -->
+    </div>
+
+    <script>
+        // MediXScan Brand Colors
+        const brandColors = {
+            primary: '#667eea',      // Primary blue
+            secondary: '#764ba2',    // Purple gradient
+            accent: '#1EBCB7',       // Teal accent
+            success: '#10B981',      // Success green
+            danger: '#EF4444',       // Danger red
+            dark: '#1F2937',         // Dark text
+            white: '#FFFFFF',        // White
+            light: '#F8FAFC'         // Light background
+        };
+        
+        function generateMainLogo() {
+            const canvas = document.getElementById('logoCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Background gradient
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
+            gradient.addColorStop(0, brandColors.primary);
+            gradient.addColorStop(1, brandColors.secondary);
+            
+            // Main logo background with rounded corners
+            ctx.fillStyle = gradient;
+            roundRect(ctx, 20, 20, canvas.width - 40, canvas.height - 40, 20);
+            ctx.fill();
+            
+            // Medical cross icon on the left
+            drawMedicalCross(ctx, 80, canvas.height / 2, 40, brandColors.white);
+            
+            // AI Brain circuit on the right
+            drawAIBrain(ctx, canvas.width - 120, canvas.height / 2, 35, brandColors.accent);
+            
+            // Main text
+            ctx.fillStyle = brandColors.white;
+            ctx.font = 'bold 48px Arial, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('MediXScan', canvas.width / 2, canvas.height / 2 - 10);
+            
+            // Subtitle
+            ctx.font = '20px Arial, sans-serif';
+            ctx.fillStyle = brandColors.light;
+            ctx.fillText('AI-Powered Radiology Intelligence', canvas.width / 2, canvas.height / 2 + 30);
+            
+            // Tech elements
+            drawTechPattern(ctx, canvas.width - 200, 30, brandColors.accent, 0.3);
+            
+            console.log('Main logo generated successfully!');
+        }
+        
+        function generateHeroBackground() {
+            const canvas = document.getElementById('heroCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Professional gradient background
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            gradient.addColorStop(0, brandColors.primary);
+            gradient.addColorStop(0.5, brandColors.secondary);
+            gradient.addColorStop(1, brandColors.dark);
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Medical pattern overlay
+            drawMedicalPattern(ctx, canvas.width, canvas.height);
+            
+            // Large centered logo
+            const logoX = canvas.width / 2;
+            const logoY = canvas.height / 2 - 100;
+            
+            // Background circle for logo
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.beginPath();
+            ctx.arc(logoX, logoY, 150, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Large medical cross
+            drawMedicalCross(ctx, logoX - 80, logoY, 60, brandColors.white);
+            
+            // Large AI brain
+            drawAIBrain(ctx, logoX + 80, logoY, 55, brandColors.accent);
+            
+            // Main title
+            ctx.fillStyle = brandColors.white;
+            ctx.font = 'bold 72px Arial, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('MediXScan AI', logoX, logoY + 200);
+            
+            // Subtitle
+            ctx.font = '32px Arial, sans-serif';
+            ctx.fillStyle = brandColors.light;
+            ctx.fillText('Advanced Radiology Intelligence Platform', logoX, logoY + 250);
+            
+            // Professional tagline
+            ctx.font = '24px Arial, sans-serif';
+            ctx.fillStyle = brandColors.accent;
+            ctx.fillText('HIPAA Compliant • 99.7% Accuracy • Real-time AI Analysis', logoX, logoY + 290);
+            
+            // Corner tech elements
+            drawTechCorners(ctx, canvas.width, canvas.height);
+            
+            console.log('Hero background (1600x900) generated successfully!');
+        }
+        
+        function generateIcon() {
+            const canvas = document.getElementById('iconCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Modern app icon background
+            const gradient = ctx.createRadialGradient(
+                canvas.width / 2, canvas.height / 2, 0,
+                canvas.width / 2, canvas.height / 2, canvas.width / 2
+            );
+            gradient.addColorStop(0, brandColors.accent);
+            gradient.addColorStop(0.7, brandColors.primary);
+            gradient.addColorStop(1, brandColors.secondary);
+            
+            ctx.fillStyle = gradient;
+            roundRect(ctx, 30, 30, canvas.width - 60, canvas.height - 60, 80);
+            ctx.fill();
+            
+            // Central medical cross with AI elements
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            
+            // Large medical cross
+            drawMedicalCross(ctx, centerX, centerY, 80, brandColors.white);
+            
+            // AI circuit overlay
+            drawAIBrain(ctx, centerX + 40, centerY - 40, 30, brandColors.dark);
+            
+            // Tech corner accents
+            ctx.fillStyle = brandColors.white;
+            ctx.globalAlpha = 0.3;
+            drawTechPattern(ctx, 60, 60, brandColors.white, 1);
+            drawTechPattern(ctx, canvas.width - 120, canvas.height - 120, brandColors.white, 1);
+            ctx.globalAlpha = 1;
+            
+            console.log('App icon (512x512) generated successfully!');
+        }
+        
+        function generateWhiteLogo() {
+            const canvas = document.getElementById('logoCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Clear canvas with white background
+            ctx.fillStyle = brandColors.white;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Medical cross icon on the left
+            drawMedicalCross(ctx, 80, canvas.height / 2, 40, brandColors.primary);
+            
+            // AI Brain circuit on the right
+            drawAIBrain(ctx, canvas.width - 120, canvas.height / 2, 35, brandColors.accent);
+            
+            // Main text
+            ctx.fillStyle = brandColors.dark;
+            ctx.font = 'bold 48px Arial, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('MediXScan', canvas.width / 2, canvas.height / 2 - 10);
+            
+            // Subtitle
+            ctx.font = '20px Arial, sans-serif';
+            ctx.fillStyle = brandColors.primary;
+            ctx.fillText('AI-Powered Radiology Intelligence', canvas.width / 2, canvas.height / 2 + 30);
+            
+            console.log('White logo generated successfully!');
+        }
+        
+        // Helper functions
+        function roundRect(ctx, x, y, width, height, radius) {
+            ctx.beginPath();
+            ctx.moveTo(x + radius, y);
+            ctx.lineTo(x + width - radius, y);
+            ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+            ctx.lineTo(x + width, y + height - radius);
+            ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+            ctx.lineTo(x + radius, y + height);
+            ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+            ctx.lineTo(x, y + radius);
+            ctx.quadraticCurveTo(x, y, x + radius, y);
+            ctx.closePath();
+        }
+        
+        function drawMedicalCross(ctx, x, y, size, color) {
+            ctx.fillStyle = color;
+            
+            // Vertical bar
+            ctx.fillRect(x - size/6, y - size/2, size/3, size);
+            
+            // Horizontal bar
+            ctx.fillRect(x - size/2, y - size/6, size, size/3);
+            
+            // Rounded ends
+            ctx.beginPath();
+            ctx.arc(x, y - size/2, size/6, 0, Math.PI * 2);
+            ctx.arc(x, y + size/2, size/6, 0, Math.PI * 2);
+            ctx.arc(x - size/2, y, size/6, 0, Math.PI * 2);
+            ctx.arc(x + size/2, y, size/6, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        function drawAIBrain(ctx, x, y, size, color) {
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 3;
+            
+            // Brain outline
+            ctx.beginPath();
+            ctx.ellipse(x, y, size * 0.6, size * 0.4, 0, 0, Math.PI * 2);
+            ctx.stroke();
+            
+            // Neural network lines
+            const points = [
+                [x - size/3, y - size/4],
+                [x + size/3, y - size/4],
+                [x - size/4, y],
+                [x + size/4, y],
+                [x - size/3, y + size/4],
+                [x + size/3, y + size/4]
+            ];
+            
+            // Connect points with curved lines
+            ctx.beginPath();
+            for (let i = 0; i < points.length; i++) {
+                for (let j = i + 1; j < points.length; j++) {
+                    ctx.moveTo(points[i][0], points[i][1]);
+                    ctx.quadraticCurveTo(x, y, points[j][0], points[j][1]);
+                }
+            }
+            ctx.stroke();
+            
+            // Neural nodes
+            ctx.fillStyle = color;
+            points.forEach(point => {
+                ctx.beginPath();
+                ctx.arc(point[0], point[1], 3, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+        
+        function drawTechPattern(ctx, x, y, color, alpha) {
+            ctx.globalAlpha = alpha;
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            
+            // Circuit pattern
+            for (let i = 0; i < 5; i++) {
+                ctx.beginPath();
+                ctx.moveTo(x + i * 15, y);
+                ctx.lineTo(x + i * 15 + 10, y + 10);
+                ctx.lineTo(x + i * 15 + 5, y + 20);
+                ctx.stroke();
+            }
+            
+            ctx.globalAlpha = 1;
+        }
+        
+        function drawMedicalPattern(ctx, width, height) {
+            ctx.globalAlpha = 0.1;
+            ctx.strokeStyle = brandColors.white;
+            ctx.lineWidth = 1;
+            
+            // Grid pattern
+            for (let x = 0; x < width; x += 100) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, height);
+                ctx.stroke();
+            }
+            
+            for (let y = 0; y < height; y += 100) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(width, y);
+                ctx.stroke();
+            }
+            
+            ctx.globalAlpha = 1;
+        }
+        
+        function drawTechCorners(ctx, width, height) {
+            ctx.strokeStyle = brandColors.accent;
+            ctx.lineWidth = 3;
+            ctx.globalAlpha = 0.6;
+            
+            // Top left corner
+            ctx.beginPath();
+            ctx.moveTo(50, 100);
+            ctx.lineTo(50, 50);
+            ctx.lineTo(100, 50);
+            ctx.stroke();
+            
+            // Top right corner
+            ctx.beginPath();
+            ctx.moveTo(width - 100, 50);
+            ctx.lineTo(width - 50, 50);
+            ctx.lineTo(width - 50, 100);
+            ctx.stroke();
+            
+            // Bottom left corner
+            ctx.beginPath();
+            ctx.moveTo(50, height - 100);
+            ctx.lineTo(50, height - 50);
+            ctx.lineTo(100, height - 50);
+            ctx.stroke();
+            
+            // Bottom right corner
+            ctx.beginPath();
+            ctx.moveTo(width - 100, height - 50);
+            ctx.lineTo(width - 50, height - 50);
+            ctx.lineTo(width - 50, height - 100);
+            ctx.stroke();
+            
+            ctx.globalAlpha = 1;
+        }
+        
+        function downloadCanvas(canvas, filename) {
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+        
+        function downloadAll() {
+            const logos = [
+                { canvas: 'logoCanvas', name: 'medixscan-logo-800x200.png' },
+                { canvas: 'heroCanvas', name: 'medixscan-hero-1600x900.png' },
+                { canvas: 'iconCanvas', name: 'medixscan-icon-512x512.png' }
+            ];
+            
+            logos.forEach(logo => {
+                const canvas = document.getElementById(logo.canvas);
+                downloadCanvas(canvas, logo.name);
+            });
+            
+            console.log('All logos downloaded successfully!');
+        }
+        
+        // Auto-generate on page load
+        window.onload = function() {
+            generateMainLogo();
+            generateHeroBackground();
+            generateIcon();
+            
+            // Add preview information
+            const previewContainer = document.getElementById('previewContainer');
+            previewContainer.innerHTML = `
+                <div class="preview-item">
+                    <h3>🎨 Main Logo</h3>
+                    <p>Perfect for headers, navigation bars, and general branding</p>
+                    <div class="size-info">800 × 200 pixels</div>
+                </div>
+                <div class="preview-item">
+                    <h3>🖼️ Hero Background</h3>
+                    <p>High-resolution background for landing pages and hero sections</p>
+                    <div class="size-info">1600 × 900 pixels</div>
+                </div>
+                <div class="preview-item">
+                    <h3>📱 App Icon</h3>
+                    <p>Modern app icon for mobile applications and favicons</p>
+                    <div class="size-info">512 × 512 pixels</div>
+                </div>
+            `;
+        };
+    </script>
+</body>
+</html>
