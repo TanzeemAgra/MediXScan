@@ -277,17 +277,36 @@ export const testOpenAIConnection = async () => {
 
 // Authentication (Soft-coded with multiple endpoint fallback)
 export const login = async (loginId, password) => {
-  // Soft-coded login data validation
+  // Soft-coded login data validation with detailed debugging
   const validateLoginData = (email, pwd) => {
-    if (!email || !pwd) {
+    console.log('🔍 Validating login data:', {
+      email: email ? `${email.substring(0,3)}***` : 'UNDEFINED/NULL',
+      password: pwd ? 'present' : 'UNDEFINED/NULL',
+      emailType: typeof email,
+      passwordType: typeof pwd
+    });
+    
+    if (email === undefined || email === null || pwd === undefined || pwd === null) {
+      console.log('❌ Validation failed: undefined/null values');
       throw new Error('Email and password are required');
     }
+    
+    if (!email || !pwd) {
+      console.log('❌ Validation failed: empty values');
+      throw new Error('Email and password are required');
+    }
+    
     if (typeof email !== 'string' || typeof pwd !== 'string') {
+      console.log('❌ Validation failed: wrong data types');
       throw new Error('Email and password must be valid strings');
     }
+    
     if (email.trim().length < 3 || pwd.length < 1) {
+      console.log('❌ Validation failed: insufficient length');
       throw new Error('Please enter a valid email and password');
     }
+    
+    console.log('✅ Login data validation passed');
     return true;
   };
 

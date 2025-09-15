@@ -139,6 +139,12 @@ const BeautifulSecureSignIn = () => {
     
     try {
       console.log('🔑 Secure login attempt for:', formData.loginId.replace(/(.{2})(.*)(@.*)/, '$1***$3'));
+      console.log('🔍 Form data check:', {
+        loginId: formData.loginId ? 'present' : 'MISSING',
+        password: formData.password ? 'present' : 'MISSING',
+        loginIdLength: formData.loginId?.length || 0,
+        passwordLength: formData.password?.length || 0
+      });
       
       const result = await login(formData.loginId.trim(), formData.password);
       
