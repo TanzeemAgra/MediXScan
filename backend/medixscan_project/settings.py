@@ -198,8 +198,13 @@ REST_FRAMEWORK = {
 }
 
 # 🚨 FINAL CORS FIX - Direct environment variable reading
-CORS_ALLOW_ALL_ORIGINS = env.bool('CORS_ALLOW_ALL_ORIGINS', default=True)  # Force enable for immediate fix
+# Security: read from env but default to False in normal operation. Operators can
+# temporarily set CORS_ALLOW_ALL_ORIGINS=True in Railway for emergency debugging,
+# but we avoid forcing it on in code to prevent unintended wide-open CORS.
+CORS_ALLOW_ALL_ORIGINS = env.bool('CORS_ALLOW_ALL_ORIGINS', default=False)
 
+# Accept either a list or a comma-separated string for CORS_ALLOWED_ORIGINS and
+# normalize it into a Python list of trimmed origins.
 CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS', default=[
     "https://www.rugrel.in",
     "https://rugrel.in",
@@ -212,6 +217,19 @@ CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS', default=[
     "http://127.0.0.1:3000",
     "http://127.0.0.1:5173",
 ])
+
+# If a maintainer supplied a string variable (some dashboards provide strings),
+# convert it into a proper list.
+if isinstance(CORS_ALLOWED_ORIGINS, str):
+    CORS_ALLOWED_ORIGINS = [o.strip() for o in CORS_ALLOWED_ORIGINS.split(',') if o.strip()]
+
+# Log CORS configuration at startup for easier debugging in Railway logs
+try:
+    print(f"[CORS] CORS_ALLOW_ALL_ORIGINS={CORS_ALLOW_ALL_ORIGINS}")
+    print(f"[CORS] CORS_ALLOWED_ORIGINS={CORS_ALLOWED_ORIGINS}")
+except Exception:
+    # Avoid crashing on logging errors in constrained environments
+    pass
 
 CORS_ALLOW_CREDENTIALS = env.bool('CORS_ALLOW_CREDENTIALS', default=True)
 

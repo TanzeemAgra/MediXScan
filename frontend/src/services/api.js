@@ -1,13 +1,15 @@
 import axios from 'axios';
 import { ENV_CONFIG, API_CONFIG, API_ENDPOINTS, ERROR_CONFIG, SECURITY_CONFIG, ConfigHelpers } from '../config/appConfig.js';
 
-// EMERGENCY FIX: Enhanced API debugging
-console.log('🚨 EMERGENCY API DEBUGGING:');
-console.log('🌐 API base URL:', ENV_CONFIG.API_BASE_URL);
-console.log('🔄 Fallback API URL:', ENV_CONFIG.FALLBACK_API_URL);
-console.log('🏠 Current domain:', ENV_CONFIG.CURRENT_DOMAIN);
-console.log('🔍 Environment mode:', import.meta.env.MODE);
-console.log('🔍 Is Production:', import.meta.env.PROD);
+// Conditional API debugging controlled by feature flag
+if (ENV_CONFIG.FEATURES && ENV_CONFIG.FEATURES.enableDebugMode) {
+  console.log('🚨 API DEBUGGING:');
+  console.log('🌐 API base URL:', ENV_CONFIG.API_BASE_URL);
+  console.log('🔄 Fallback API URL:', ENV_CONFIG.FALLBACK_API_URL);
+  console.log('🏠 Current domain:', ENV_CONFIG.CURRENT_DOMAIN);
+  console.log('🔍 Environment mode:', import.meta.env.MODE);
+  console.log('🔍 Is Production:', import.meta.env.PROD);
+}
 
 // Create axios instance with smart API configuration
 const api = axios.create({
@@ -41,31 +43,43 @@ api.interceptors.response.use(
       console.log('❌ API Response Error:', error.config?.url, error.message)
     }
     
-    // Check if this is a network error that might benefit from fallback
-    if (error.code === 'ECONNABORTED' || error.message.includes('Network Error') || 
-        error.response?.status >= 500) {
+    // Check for network/server errors or Vercel hosted 404s that should fallback
+    const isNetworkErr = error.code === 'ECONNABORTED' || error.message.includes('Network Error');
+    const isServerErr = error.response?.status >= 500;
+    const isNotFound = error.response?.status === 404;
+
+    // Detect Vercel-style responses that indicate the hostname is claimed by Vercel
+    const serverHeader = (error.response && (error.response.headers?.server || error.response.headers?.['x-vercel-id'])) || '';
+    const responseBody = error.response && (typeof error.response.data === 'string' ? error.response.data : JSON.stringify(error.response.data || {}));
+    const looksLikeVercel = isNotFound && (
+      serverHeader.toString().toLowerCase().includes('vercel') ||
+      (responseBody && responseBody.toString().toLowerCase().includes('deployment_not_found')) ||
+      (responseBody && responseBody.toString().toLowerCase().includes('deployment not found'))
+    );
+
+    if (isNetworkErr || isServerErr || looksLikeVercel) {
       
       console.log('🔄 Network error detected, checking fallback options...');
       
       // If we have a fallback URL and this wasn't already a fallback attempt
-      if (ENV_CONFIG.FALLBACK_API_URL && 
-          !error.config.url.includes(ENV_CONFIG.FALLBACK_API_URL.replace('/api', ''))) {
-        
-        console.log(`🔄 Attempting fallback API: ${ENV_CONFIG.FALLBACK_API_URL}`);
-        
-        // Create new config with fallback URL
-        const fallbackConfig = {
-          ...error.config,
-          baseURL: ENV_CONFIG.FALLBACK_API_URL,
-          url: error.config.url.replace(error.config.baseURL, '')
-        };
-        
-        try {
-          const fallbackResponse = await axios(fallbackConfig);
-          console.log('✅ Fallback API succeeded');
-          return fallbackResponse;
-        } catch (fallbackError) {
-          console.log('❌ Fallback API also failed:', fallbackError.message);
+      if (ENV_CONFIG.FALLBACK_API_URL) {
+        const alreadyFallback = error.config?.baseURL && error.config.baseURL.includes(ENV_CONFIG.FALLBACK_API_URL.replace('/api', ''));
+        if (!alreadyFallback) {
+          try {
+            if (ENV_CONFIG.FEATURES.enableDebugMode) console.log(`🔄 Attempting fallback API: ${ENV_CONFIG.FALLBACK_API_URL}`);
+            // Create new config with fallback URL
+            const fallbackConfig = {
+              ...error.config,
+              baseURL: ENV_CONFIG.FALLBACK_API_URL,
+              url: (error.config && error.config.url) ? error.config.url.replace(error.config.baseURL || '', '') : error.config.url
+            };
+
+            const fallbackResponse = await axios(fallbackConfig);
+            if (ENV_CONFIG.FEATURES.enableDebugMode) console.log('✅ Fallback API succeeded');
+            return fallbackResponse;
+          } catch (fallbackError) {
+            if (ENV_CONFIG.FEATURES.enableDebugMode) console.log('❌ Fallback API also failed:', fallbackError.message);
+          }
         }
       }
     }

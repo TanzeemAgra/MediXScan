@@ -1,24 +1,24 @@
 // Soft Coding Configuration for Radiology Application
 // This file centralizes all configuration values to make the application more maintainable
 
-// 🚨 FINAL FIX: Force working Railway endpoint
-console.log('🚨 FINAL FIX: Using confirmed working Railway endpoint');
+// Use the smart API manager so we prefer a properly-configured custom domain
+// or an environment override (but reject malformed comma-separated values).
+import { getSmartAPIURL, getSmartFallbackURL } from './smartApiConfig.js';
 
-// HARDCODED WORKING ENDPOINT - NO MORE NETWORK ERRORS
-const WORKING_API_URL = 'https://medixscan-production.up.railway.app/api';
+// Validate env override — disallow comma-separated multiple URLs
+const envApiUrl = import.meta.env.VITE_API_BASE_URL;
+const isValidEnvApi = envApiUrl && typeof envApiUrl === 'string' && envApiUrl.trim() && !envApiUrl.includes(',');
 
-// Get clean API URL - ALWAYS use working endpoint
 const getCleanAPIURL = () => {
-  console.log('✅ Using confirmed working endpoint:', WORKING_API_URL);
-  return WORKING_API_URL;
-  if (import.meta.env.PROD) {
-    const productionUrl = 'https://medixscan-production.up.railway.app/api';
-    console.log('🏭 Production mode - using Railway direct:', productionUrl);
-    return productionUrl;
+  if (isValidEnvApi) {
+    console.log('🔧 Using VITE_API_BASE_URL (env override):', envApiUrl);
+    return envApiUrl.trim();
   }
-  
-  // Development fallback
-  return envApiUrl || 'http://localhost:8000/api';
+
+  // Fall back to smart selection which prefers `https://api.rugrel.in/api` when available
+  const smart = getSmartAPIURL();
+  console.log('🧠 Using smart API selection:', smart);
+  return smart;
 };
 
 // Environment Configuration with Emergency Fix
