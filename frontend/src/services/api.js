@@ -1,11 +1,13 @@
 import axios from 'axios';
 import { ENV_CONFIG, API_CONFIG, API_ENDPOINTS, ERROR_CONFIG, SECURITY_CONFIG, ConfigHelpers } from '../config/appConfig.js';
-import { smartAPIManager } from '../config/smartApiConfig.js';
 
-// Log smart API configuration for debugging
-console.log('🌐 Using API base URL:', ENV_CONFIG.API_BASE_URL);
+// EMERGENCY FIX: Enhanced API debugging
+console.log('🚨 EMERGENCY API DEBUGGING:');
+console.log('🌐 API base URL:', ENV_CONFIG.API_BASE_URL);
 console.log('🔄 Fallback API URL:', ENV_CONFIG.FALLBACK_API_URL);
 console.log('🏠 Current domain:', ENV_CONFIG.CURRENT_DOMAIN);
+console.log('🔍 Environment mode:', import.meta.env.MODE);
+console.log('🔍 Is Production:', import.meta.env.PROD);
 
 // Create axios instance with smart API configuration
 const api = axios.create({

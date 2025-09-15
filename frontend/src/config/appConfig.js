@@ -1,26 +1,49 @@
 // Soft Coding Configuration for Radiology Application
 // This file centralizes all configuration values to make the application more maintainable
 
-// Import smart API configuration
-import { smartAPIManager, ENHANCED_ENV_CONFIG } from './smartApiConfig.js';
+// EMERGENCY FIX: Direct environment configuration (bypassing smart API for immediate fix)
+console.log('🚨 EMERGENCY FIX: Using direct environment configuration');
+console.log('🔍 VITE_API_BASE_URL:', import.meta.env.VITE_API_BASE_URL);
+console.log('🔍 VITE_FALLBACK_API_URL:', import.meta.env.VITE_FALLBACK_API_URL);
 
-// Environment Configuration with Smart API Integration
+// Get clean API URL without comma issues
+const getCleanAPIURL = () => {
+  const envApiUrl = import.meta.env.VITE_API_BASE_URL;
+  
+  // If environment variable has comma, take only the first part
+  if (envApiUrl && envApiUrl.includes(',')) {
+    const cleanUrl = envApiUrl.split(',')[0].trim();
+    console.log('⚠️ Found comma in API URL, using first part:', cleanUrl);
+    return cleanUrl;
+  }
+  
+  // For production, use Railway direct URL for immediate fix
+  if (import.meta.env.PROD) {
+    const productionUrl = 'https://medixscan-production.up.railway.app/api';
+    console.log('🏭 Production mode - using Railway direct:', productionUrl);
+    return productionUrl;
+  }
+  
+  // Development fallback
+  return envApiUrl || 'http://localhost:8000/api';
+};
+
+// Environment Configuration with Emergency Fix
 export const ENV_CONFIG = {
   // Development/Production Environment Detection
   isDevelopment: import.meta.env.DEV,
   isProduction: import.meta.env.PROD,
   mode: import.meta.env.MODE,
   
-  // Smart API URLs (fixes malformed URL issue)
-  API_BASE_URL: smartAPIManager.getAPIBaseURL(),
-  FALLBACK_API_URL: smartAPIManager.getFallbackAPIURL(),
+  // EMERGENCY FIX: Direct API URLs (no complex logic)
+  API_BASE_URL: getCleanAPIURL(),
+  FALLBACK_API_URL: import.meta.env.VITE_FALLBACK_API_URL || 'https://medixscan-production.up.railway.app/api',
   FRONTEND_URL: import.meta.env.VITE_FRONTEND_URL || 'http://localhost:5177',
   BACKEND_URL: import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000',
   
-  // Domain-specific configuration
-  CURRENT_DOMAIN: ENHANCED_ENV_CONFIG.CURRENT_DOMAIN,
-  DOMAIN_CONFIG: ENHANCED_ENV_CONFIG.DOMAIN_CONFIG,
-  isCustomDomain: ENHANCED_ENV_CONFIG.isCustomDomain,
+  // Domain-specific configuration (simplified for emergency fix)
+  CURRENT_DOMAIN: typeof window !== 'undefined' ? window.location.hostname : 'localhost',
+  isCustomDomain: typeof window !== 'undefined' ? window.location.hostname.includes('rugrel.in') : false,
   
   // Feature Flags
   FEATURES: {
