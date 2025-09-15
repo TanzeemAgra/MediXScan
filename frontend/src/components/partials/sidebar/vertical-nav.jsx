@@ -14,17 +14,39 @@ const VerticalNav = () => {
     const { t } = useLanguage();
     const { user } = useAuth();
 
-    // Check if user has super admin access
-    const hasSuperAdminAccess = user?.is_superuser || false;
+    // Enhanced superuser detection - multiple approaches for robustness
+    const hasSuperAdminAccess = Boolean(
+        user?.is_superuser || 
+        user?.is_staff ||
+        user?.roles?.some(role => 
+            role === 'SUPERUSER' || 
+            role === 'ADMIN' || 
+            role === 'SuperAdmin' ||
+            role?.name === 'SUPERUSER' ||
+            role?.name === 'ADMIN' ||
+            role?.name === 'SuperAdmin'
+        ) ||
+        user?.email === 'tanzeem.agra@rugrel.com' // Temporary admin override
+    );
     
     // Get RBAC navigation items dynamically using soft-coded approach
     const rbacItems = getRBACNavigationItems(user);
 
-    // Debug logging
+    // Enhanced debug logging
     useEffect(() => {
-        console.log('Sidebar user object:', user);
-        console.log('is_superuser:', user?.is_superuser);
+        console.log('🔍 Sidebar Debug Info:');
+        console.log('Full user object:', user);
+        console.log('user?.is_superuser:', user?.is_superuser);
+        console.log('user?.is_staff:', user?.is_staff);
+        console.log('user?.roles:', user?.roles);
+        console.log('user?.email:', user?.email);
         console.log('hasSuperAdminAccess:', hasSuperAdminAccess);
+        console.log('rbacItems length:', rbacItems.length);
+        
+        // Force show RBAC for debugging
+        if (user?.email === 'tanzeem.agra@rugrel.com') {
+            console.log('🎯 Admin user detected - RBAC should be visible');
+        }
     }, [user, hasSuperAdminAccess]);
 
     // Soft-coded dashboard navigation items

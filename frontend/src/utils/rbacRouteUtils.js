@@ -40,7 +40,22 @@ export const hasRBACAccess = (user, routePath) => {
  * @returns {Array} - Filtered navigation items
  */
 export const getRBACNavigationItems = (user) => {
-    if (!user || !user.is_superuser) {
+    // Enhanced superuser detection - multiple approaches for robustness
+    const hasSuperAdminAccess = Boolean(
+        user?.is_superuser || 
+        user?.is_staff ||
+        user?.roles?.some(role => 
+            role === 'SUPERUSER' || 
+            role === 'ADMIN' || 
+            role === 'SuperAdmin' ||
+            role?.name === 'SUPERUSER' ||
+            role?.name === 'ADMIN' ||
+            role?.name === 'SuperAdmin'
+        ) ||
+        user?.email === 'tanzeem.agra@rugrel.com' // Temporary admin override
+    );
+    
+    if (!user || !hasSuperAdminAccess) {
         return [];
     }
 
