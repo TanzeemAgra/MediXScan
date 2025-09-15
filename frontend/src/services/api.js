@@ -280,10 +280,13 @@ export const login = async (loginId, password) => {
   // Soft-coded login data validation
   const validateLoginData = (email, pwd) => {
     if (!email || !pwd) {
-      throw new Error(ERROR_CONFIG.MESSAGES.validation);
+      throw new Error('Email and password are required');
     }
-    if (email.length < 3 || pwd.length < 1) {
-      throw new Error('Email and password must be provided');
+    if (typeof email !== 'string' || typeof pwd !== 'string') {
+      throw new Error('Email and password must be valid strings');
+    }
+    if (email.trim().length < 3 || pwd.length < 1) {
+      throw new Error('Please enter a valid email and password');
     }
     return true;
   };
@@ -292,19 +295,10 @@ export const login = async (loginId, password) => {
     // Validate input
     validateLoginData(loginId, password);
     
-    // Soft-coded login data with multiple field formats for compatibility
+    // FIXED: Simple login data format that backend expects
     const loginData = {
-      // Primary format (backend expects 'username')
-      username: loginId.trim(),
-      password: password,
-      
-      // Alternative formats for compatibility
-      email: loginId.trim().toLowerCase(),
-      loginId: loginId.trim(),
-      
-      // Additional metadata for backend processing
-      loginType: 'standard',
-      clientTimestamp: new Date().toISOString()
+      email: loginId.trim(),
+      password: password
     };
 
     console.log('🔑 Login attempt for:', loginId);
