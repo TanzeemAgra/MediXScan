@@ -1,17 +1,26 @@
 // Soft Coding Configuration for Radiology Application
 // This file centralizes all configuration values to make the application more maintainable
 
-// Environment Configuration
+// Import smart API configuration
+import { smartAPIManager, ENHANCED_ENV_CONFIG } from './smartApiConfig.js';
+
+// Environment Configuration with Smart API Integration
 export const ENV_CONFIG = {
   // Development/Production Environment Detection
   isDevelopment: import.meta.env.DEV,
   isProduction: import.meta.env.PROD,
   mode: import.meta.env.MODE,
   
-  // Base URLs with fallbacks
-  API_BASE_URL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api',
+  // Smart API URLs (fixes malformed URL issue)
+  API_BASE_URL: smartAPIManager.getAPIBaseURL(),
+  FALLBACK_API_URL: smartAPIManager.getFallbackAPIURL(),
   FRONTEND_URL: import.meta.env.VITE_FRONTEND_URL || 'http://localhost:5177',
   BACKEND_URL: import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000',
+  
+  // Domain-specific configuration
+  CURRENT_DOMAIN: ENHANCED_ENV_CONFIG.CURRENT_DOMAIN,
+  DOMAIN_CONFIG: ENHANCED_ENV_CONFIG.DOMAIN_CONFIG,
+  isCustomDomain: ENHANCED_ENV_CONFIG.isCustomDomain,
   
   // Feature Flags
   FEATURES: {
