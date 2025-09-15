@@ -7,6 +7,7 @@ import { ROUTES, ConfigHelpers } from '../config/appConfig.js';
 // Auth Pages
 import SignIn from '../views/auth/sign-in';
 import SecureSignIn from '../views/auth/secure-sign-in'; // Secure version
+import BeautifulSecureSignIn from '../views/auth/beautiful-secure-sign-in'; // Beautiful + Secure version
 import SignUp from '../views/auth/sign-up';
 import RegistrationPage from '../views/auth/RegistrationPage';
 
@@ -450,7 +451,11 @@ export const BlankLayoutRouter = [
         element: <SignIn />,
       },
       {
-        path: 'sign-in', // Secure login (primary)
+        path: 'sign-in', // Beautiful + Secure login (primary)
+        element: <BeautifulSecureSignIn />,
+      },
+      {
+        path: 'secure-signin', // Enterprise secure version
         element: <SecureSignIn />,
       },
       {
