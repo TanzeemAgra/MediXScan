@@ -2,10 +2,10 @@
 // This handles proper API URL selection and fallback mechanisms
 
 export const SMART_API_CONFIG = {
-  // Production API URLs (prioritized order)
+  // Production API URLs - Soft coding: Use Railway exclusively
   PRODUCTION_APIS: [
-    'https://api.rugrel.in/api',                            // Custom domain (primary)
-    'https://medixscan-production.up.railway.app/api',     // Railway direct (fallback)
+    'https://medixscan-production.up.railway.app/api',     // Railway direct (primary)
+    'https://medixscan-production.up.railway.app/api',     // Railway direct (fallback - same for consistency)
   ],
   
   // Development API URLs
@@ -14,23 +14,23 @@ export const SMART_API_CONFIG = {
     'https://medixscan-production.up.railway.app/api',    // Development against production
   ],
   
-  // Domain-specific configuration
+  // Domain-specific configuration - Soft coding: All domains use Railway API
   DOMAIN_CONFIG: {
     'www.rugrel.in': {
-      apiUrl: 'https://api.rugrel.in/api',
+      apiUrl: 'https://medixscan-production.up.railway.app/api',
       backupUrl: 'https://medixscan-production.up.railway.app/api',
       corsEnabled: true,
-      customDomain: true
+      customDomain: false
     },
     'rugrel.in': {
-      apiUrl: 'https://api.rugrel.in/api', 
+      apiUrl: 'https://medixscan-production.up.railway.app/api', 
       backupUrl: 'https://medixscan-production.up.railway.app/api',
       corsEnabled: true,
-      customDomain: true
+      customDomain: false
     },
     'medixscan.vercel.app': {
       apiUrl: 'https://medixscan-production.up.railway.app/api',
-      backupUrl: 'https://api.rugrel.in/api',
+      backupUrl: 'https://medixscan-production.up.railway.app/api',
       corsEnabled: true,
       customDomain: false
     },

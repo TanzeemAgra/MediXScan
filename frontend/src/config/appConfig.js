@@ -15,9 +15,9 @@ const getCleanAPIURL = () => {
     return envApiUrl.trim();
   }
 
-  // Fall back to smart selection which prefers `https://api.rugrel.in/api` when available
+  // Soft coding: Fall back to smart selection which prefers Railway API for consistency
   const smart = getSmartAPIURL();
-  console.log('🧠 Using smart API selection:', smart);
+  console.log('🧠 Using smart API selection (Railway-focused):', smart);
   return smart;
 };
 
