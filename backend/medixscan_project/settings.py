@@ -197,28 +197,23 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 20,
 }
 
-# CORS settings - Using Soft-Coded Configuration Management
-try:
-    # Use advanced CORS configuration
-    CORS_ALLOWED_ORIGINS = CORS_CONFIG['CORS_ALLOWED_ORIGINS']
-    CORS_ALLOW_CREDENTIALS = CORS_CONFIG['CORS_ALLOW_CREDENTIALS']
-    CORS_ALLOW_ALL_ORIGINS = CORS_CONFIG.get('CORS_ALLOW_ALL_ORIGINS', False)
-except (NameError, KeyError):
-    # Fallback CORS configuration
-    CORS_ALLOW_ALL_ORIGINS = DEBUG  # Only in development
-    CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS', default=[
-        "http://localhost:3000",
-        "http://localhost:5173",
-        "http://localhost:5175",
-        "http://localhost:5176",
-        "http://localhost:5177",
-        "http://127.0.0.1:3000",
-        "http://127.0.0.1:5173",
-        "http://127.0.0.1:5175",
-        "http://127.0.0.1:5176",
-        "http://127.0.0.1:5177",
-    ])
-    CORS_ALLOW_CREDENTIALS = True
+# 🚨 FINAL CORS FIX - Direct environment variable reading
+CORS_ALLOW_ALL_ORIGINS = env.bool('CORS_ALLOW_ALL_ORIGINS', default=True)  # Force enable for immediate fix
+
+CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS', default=[
+    "https://www.rugrel.in",
+    "https://rugrel.in",
+    "https://medixscan.vercel.app",
+    "https://medixscan-git-main-xerxezs-projects.vercel.app",
+    "https://frontend-5zu079z1f-xerxezs-projects.vercel.app",
+    "https://medixscan-oky36lldp-xerxezs-projects.vercel.app",
+    "http://localhost:3000",
+    "http://localhost:5173",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:5173",
+])
+
+CORS_ALLOW_CREDENTIALS = env.bool('CORS_ALLOW_CREDENTIALS', default=True)
 
 # Soft-coded CORS headers configuration
 CORS_ALLOW_HEADERS = env.list('CORS_ALLOW_HEADERS', default=[
