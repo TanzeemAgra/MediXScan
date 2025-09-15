@@ -61,14 +61,22 @@ class EnvironmentConfig:
                 }
             }
         else:
-            return {
-                'ENGINE': 'django.db.backends.postgresql',
-                'NAME': os.getenv('DB_NAME', 'radiology'),
-                'USER': os.getenv('DB_USER', 'postgres'),
-                'PASSWORD': os.getenv('DB_PASSWORD'),
-                'HOST': os.getenv('DB_HOST', 'localhost'),
-                'PORT': os.getenv('DB_PORT', '5432'),
-            }
+            # For development, use SQLite if DB_NAME ends with .sqlite3
+            db_name = os.getenv('DB_NAME', 'radiology')
+            if db_name.endswith('.sqlite3'):
+                return {
+                    'ENGINE': 'django.db.backends.sqlite3',
+                    'NAME': str(Path(__file__).parent / db_name),
+                }
+            else:
+                return {
+                    'ENGINE': 'django.db.backends.postgresql',
+                    'NAME': db_name,
+                    'USER': os.getenv('DB_USER', 'postgres'),
+                    'PASSWORD': os.getenv('DB_PASSWORD'),
+                    'HOST': os.getenv('DB_HOST', 'localhost'),
+                    'PORT': os.getenv('DB_PORT', '5432'),
+                }
     
     @property
     def security_config(self):

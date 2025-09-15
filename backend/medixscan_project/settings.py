@@ -48,7 +48,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',  # Required for Token authentication
     'corsheaders',
-    'accounts',
+    'accounts.apps.AccountsConfig',  # Use proper app config to resolve path conflicts
     'reports',
     'api',
     'patient_management',  # Added patient management app
