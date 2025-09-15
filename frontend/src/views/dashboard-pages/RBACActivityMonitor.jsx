@@ -3,6 +3,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Badge, Table, Modal, Alert, Spinner, Form } from 'react-bootstrap';
+import { hasSuperAdminAccess, debugUserAccess } from '../../utils/rbacAccessControl';
 import { useAuth } from '../../context/AuthContext';
 import rbacService from '../../services/rbacService';
 import { 
@@ -30,7 +31,7 @@ const RBACActivityMonitor = () => {
     const [autoRefresh, setAutoRefresh] = useState(true);
 
     useEffect(() => {
-        if (isAuthenticated && user?.is_superuser) {
+        if (isAuthenticated && hasSuperAdminAccess(user)) {
             loadActivities();
         }
     }, [isAuthenticated, user]);
@@ -157,7 +158,13 @@ const RBACActivityMonitor = () => {
     };
 
     // Access Control Check
-    if (!isAuthenticated || !user?.is_superuser) {
+    // Enhanced Access Control Check using utility function
+    const hasAccess = hasSuperAdminAccess(user);
+    
+    // Debug logging for access control
+    debugUserAccess(user, isAuthenticated, 'RBACActivityMonitor');
+    
+    if (!isAuthenticated || !hasAccess) {
         return (
             <Container className="rbac-access-denied">
                 <Row className="justify-content-center">

@@ -5,6 +5,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Container, Row, Col, Card, Button, Badge, Table, Modal, Form, Alert, Spinner, Tabs, Tab, 
          InputGroup, FormControl, Dropdown, ButtonGroup, ProgressBar, Tooltip, OverlayTrigger,
          Accordion, ListGroup, Toast, ToastContainer } from 'react-bootstrap';
+import { hasSuperAdminAccess, debugUserAccess } from '../../utils/rbacAccessControl';
 import { useAuth } from '../../context/AuthContext';
 import rbacService from '../../services/rbacService';
 import { useRBACRoles, safeArrayOperations, errorHandlers } from '../../utils/rbacStateUtils';
@@ -176,7 +177,13 @@ const RBACUserManagement = () => {
 
     // Access Control Check
     useEffect(() => {
-        if (!isAuthenticated || !user?.is_superuser) {
+        // Enhanced Access Control Check using utility function
+    const hasAccess = hasSuperAdminAccess(user);
+    
+    // Debug logging for access control
+    debugUserAccess(user, isAuthenticated, 'RBACUserManagement');
+    
+    if (!isAuthenticated || !hasAccess) {
             setAlert({
                 show: true,
                 type: 'danger',
@@ -772,7 +779,13 @@ const RBACUserManagement = () => {
     };
 
     // Access Control Check
-    if (!isAuthenticated || !user?.is_superuser) {
+    // Enhanced Access Control Check using utility function
+    const hasAccess = hasSuperAdminAccess(user);
+    
+    // Debug logging for access control
+    debugUserAccess(user, isAuthenticated, 'RBACUserManagement');
+    
+    if (!isAuthenticated || !hasAccess) {
         return (
             <Container className="rbac-access-denied">
                 <Row className="justify-content-center">

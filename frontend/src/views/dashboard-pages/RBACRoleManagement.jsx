@@ -3,6 +3,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Badge, Table, Modal, Form, Alert, Spinner } from 'react-bootstrap';
+import { hasSuperAdminAccess, debugUserAccess } from '../../utils/rbacAccessControl';
 import { useAuth } from '../../context/AuthContext';
 import rbacService from '../../services/rbacService';
 import { 
@@ -40,7 +41,7 @@ const RBACRoleManagement = () => {
     const [roleForm, setRoleForm] = useState(getDefaultRoleForm());
 
     useEffect(() => {
-        if (isAuthenticated && user?.is_superuser) {
+        if (isAuthenticated && hasSuperAdminAccess(user)) {
             refreshData();
         }
     }, [isAuthenticated, user, refreshData]);
@@ -143,7 +144,13 @@ const RBACRoleManagement = () => {
     const permissionStats = getPermissionStatistics(permissions);
 
     // Access Control Check
-    if (!isAuthenticated || !user?.is_superuser) {
+    // Enhanced Access Control Check using utility function
+    const hasAccess = hasSuperAdminAccess(user);
+    
+    // Debug logging for access control
+    debugUserAccess(user, isAuthenticated, 'RBACRoleManagement');
+    
+    if (!isAuthenticated || !hasAccess) {
         return (
             <Container className="rbac-access-denied">
                 <Row className="justify-content-center">
