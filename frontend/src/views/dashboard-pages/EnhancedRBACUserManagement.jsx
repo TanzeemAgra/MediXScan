@@ -6,6 +6,7 @@ import { Container, Row, Col, Card, Button, Badge, Table, Modal, Form, Alert, Sp
          InputGroup, FormControl, Dropdown, ButtonGroup, ProgressBar, Tooltip, OverlayTrigger,
          Accordion, ListGroup, Toast, ToastContainer } from 'react-bootstrap';
 import { useAuth } from '../../context/AuthContext';
+import { hasSuperAdminAccess, debugUserAccess } from '../../utils/rbacAccessControl';
 import './RBACUserManagement.scss';
 
 // Soft coding technique: Import both services and use them conditionally
@@ -1042,14 +1043,19 @@ const EnhancedRBACUserManagement = () => {
 
     // Soft coding: Load users when tab changes to 'users'
     useEffect(() => {
-        if (activeTab === 'users' && isAuthenticated && user?.is_superuser) {
+        if (activeTab === 'users' && isAuthenticated && hasSuperAdminAccess(user)) {
             console.log('🔄 Active tab changed to users, loading user list...');
             loadUsers(false); // Don't show loading spinner for tab change
         }
     }, [activeTab, isAuthenticated, user]);
 
-    // Access Control Check
-    if (!isAuthenticated || !user?.is_superuser) {
+    // Enhanced Access Control Check using utility function
+    const hasAccess = hasSuperAdminAccess(user);
+    
+    // Debug logging for access control
+    debugUserAccess(user, isAuthenticated, 'EnhancedRBACUserManagement');
+    
+    if (!isAuthenticated || !hasAccess) {
         return (
             <Container className="rbac-access-denied">
                 <Row className="justify-content-center">
@@ -1062,6 +1068,9 @@ const EnhancedRBACUserManagement = () => {
                                 <Card.Title className="mt-3">Access Denied</Card.Title>
                                 <Card.Text>
                                     Super Administrator privileges are required to access the RBAC User Management System.
+                                </Card.Text>
+                                <Card.Text className="small text-muted">
+                                    Debug: Auth={String(isAuthenticated)}, Access={String(hasAccess)}, Email={user?.email}
                                 </Card.Text>
                             </Card.Body>
                         </Card>
