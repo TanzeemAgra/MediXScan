@@ -2,9 +2,14 @@ name: Deploy to Vercel
 
 on:
   push:
-    branches: [main, version_1]
+    branches: [main]
+    paths: 
+      - 'frontend/**'
+      - '.github/workflows/**'
   pull_request:
-    branches: [main, version_1]
+    branches: [main]
+    paths: 
+      - 'frontend/**'
 
 jobs:
   deploy:
@@ -20,7 +25,7 @@ jobs:
           
       - name: Install dependencies
         working-directory: ./frontend
-        run: npm install --legacy-peer-deps
+        run: npm ci
         
       - name: Build project
         working-directory: ./frontend
@@ -38,7 +43,7 @@ jobs:
       - name: Deploy to Vercel
         working-directory: ./frontend
         run: |
-          if [[ "${{ github.ref }}" == "refs/heads/main" || "${{ github.ref }}" == "refs/heads/version_1" ]]; then
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
             npx vercel --prod --token=${{ secrets.VERCEL_TOKEN }} --yes
           else
             npx vercel --token=${{ secrets.VERCEL_TOKEN }} --yes
