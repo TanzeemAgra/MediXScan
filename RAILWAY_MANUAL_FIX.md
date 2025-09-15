@@ -1,0 +1,83 @@
+# 🚨 MANUAL RAILWAY DASHBOARD FIX
+
+## Step 1: Go to Railway Dashboard
+1. Visit: https://railway.app/dashboard
+2. Select project: medixscan-production
+3. Go to: Variables tab
+
+## Step 2: Add/Update these Environment Variables:
+
+**CORS_ALLOW_ALL_ORIGINS**
+```
+True
+```
+
+**CORS_ALLOWED_ORIGINS**
+```
+https://www.rugrel.in,https://rugrel.in,https://medixscan.vercel.app,https://medixscan-git-main-xerxezs-projects.vercel.app,https://medixscan-rug.vercel.app,http://localhost:3000,http://localhost:5173,http://127.0.0.1:3000,http://127.0.0.1:5173,https://medixscan-tanzeemun.vercel.app,https://medixscan-git-main.vercel.app
+```
+
+**CORS_ALLOW_CREDENTIALS**
+```
+True
+```
+
+**CORS_ALLOW_HEADERS**
+```
+accept,accept-encoding,authorization,content-type,dnt,origin,user-agent,x-csrftoken,x-requested-with
+```
+
+**CORS_ALLOW_METHODS**
+```
+DELETE,GET,OPTIONS,PATCH,POST,PUT
+```
+
+**ALLOWED_HOSTS**
+```
+medixscan-production.up.railway.app,*.railway.app,rugrel.in,*.rugrel.in,www.rugrel.in,api.rugrel.in,*.vercel.app,medixscan.vercel.app,medixscan-git-main-xerxezs-projects.vercel.app,medixscan-rug.vercel.app,localhost,127.0.0.1
+```
+
+**SECURE_CROSS_ORIGIN_OPENER_POLICY**
+```
+same-origin-allow-popups
+```
+
+**SECURE_REFERRER_POLICY**
+```
+strict-origin-when-cross-origin
+```
+
+**DEBUG**
+```
+True
+```
+
+**DJANGO_LOG_LEVEL**
+```
+INFO
+```
+
+**CSRF_TRUSTED_ORIGINS**
+```
+https://www.rugrel.in,https://rugrel.in,https://medixscan.vercel.app,https://medixscan-git-main-xerxezs-projects.vercel.app,https://medixscan-rug.vercel.app,http://localhost:3000,http://localhost:5173,http://127.0.0.1:3000,http://127.0.0.1:5173,https://medixscan-tanzeemun.vercel.app,https://medixscan-git-main.vercel.app
+```
+
+**CSRF_COOKIE_SECURE**
+```
+False
+```
+
+**SESSION_COOKIE_SECURE**
+```
+False
+```
+
+## Step 3: Deploy
+Click 'Deploy' or wait for auto-redeploy
+
+## Step 4: Test
+After 2-3 minutes, test login at:
+- https://medixscan-git-main-xerxezs-projects.vercel.app/auth/sign-in
+- https://www.rugrel.in/auth/sign-in
+
+✅ CORS errors should be resolved!
