@@ -140,10 +140,7 @@ const BeautifulSecureSignIn = () => {
     try {
       console.log('🔑 Secure login attempt for:', formData.loginId.replace(/(.{2})(.*)(@.*)/, '$1***$3'));
       
-      const result = await login({
-        email: formData.loginId.trim(),
-        password: formData.password
-      });
+      const result = await login(formData.loginId.trim(), formData.password);
       
       if (result.success) {
         console.log('✅ Login successful, navigating to dashboard');

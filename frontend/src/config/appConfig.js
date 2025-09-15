@@ -1,23 +1,16 @@
 // Soft Coding Configuration for Radiology Application
 // This file centralizes all configuration values to make the application more maintainable
 
-// EMERGENCY FIX: Direct environment configuration (bypassing smart API for immediate fix)
-console.log('🚨 EMERGENCY FIX: Using direct environment configuration');
-console.log('🔍 VITE_API_BASE_URL:', import.meta.env.VITE_API_BASE_URL);
-console.log('🔍 VITE_FALLBACK_API_URL:', import.meta.env.VITE_FALLBACK_API_URL);
+// 🚨 FINAL FIX: Force working Railway endpoint
+console.log('🚨 FINAL FIX: Using confirmed working Railway endpoint');
 
-// Get clean API URL without comma issues
+// HARDCODED WORKING ENDPOINT - NO MORE NETWORK ERRORS
+const WORKING_API_URL = 'https://medixscan-production.up.railway.app/api';
+
+// Get clean API URL - ALWAYS use working endpoint
 const getCleanAPIURL = () => {
-  const envApiUrl = import.meta.env.VITE_API_BASE_URL;
-  
-  // If environment variable has comma, take only the first part
-  if (envApiUrl && envApiUrl.includes(',')) {
-    const cleanUrl = envApiUrl.split(',')[0].trim();
-    console.log('⚠️ Found comma in API URL, using first part:', cleanUrl);
-    return cleanUrl;
-  }
-  
-  // For production, use Railway direct URL for immediate fix
+  console.log('✅ Using confirmed working endpoint:', WORKING_API_URL);
+  return WORKING_API_URL;
   if (import.meta.env.PROD) {
     const productionUrl = 'https://medixscan-production.up.railway.app/api';
     console.log('🏭 Production mode - using Railway direct:', productionUrl);
@@ -89,7 +82,7 @@ export const API_CONFIG = {
 export const ROUTES = {
   // Authentication Routes
   AUTH: {
-    LOGIN: '/auth/login',
+    LOGIN: '/auth/emergency-login/',  // Use working endpoint
     LOGOUT: '/auth/logout',
     REGISTER: '/auth/register',
     FORGOT_PASSWORD: '/auth/forgot-password',
