@@ -6,6 +6,7 @@ import { ROUTES, ConfigHelpers } from '../config/appConfig.js';
 
 // Auth Pages
 import SignIn from '../views/auth/sign-in';
+import SecureSignIn from '../views/auth/secure-sign-in'; // Secure version
 import SignUp from '../views/auth/sign-up';
 import RegistrationPage from '../views/auth/RegistrationPage';
 
@@ -449,7 +450,11 @@ export const BlankLayoutRouter = [
         element: <SignIn />,
       },
       {
-        path: 'sign-in', // Keep for backward compatibility
+        path: 'sign-in', // Secure login (primary)
+        element: <SecureSignIn />,
+      },
+      {
+        path: 'legacy-signin', // Legacy version if needed
         element: <SignIn />,
       },
       {

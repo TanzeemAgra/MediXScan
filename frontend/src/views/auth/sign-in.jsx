@@ -433,31 +433,34 @@ const SignIn = () => {
                       )}
                     </Button>
 
-                    {/* Demo Credentials */}
+                    {/* Secure Login Help */}
                     <div className="mb-3">
                       <p className="text-center text-muted mb-2 small">
-                        <i className="fas fa-info-circle me-1"></i>
-                        Quick Demo Access
+                        <i className="fas fa-shield-alt me-1"></i>
+                        Secure Access Required
                       </p>
                       <div className="d-flex gap-2">
                         <Button
                           type="button"
-                          variant="outline-primary"
+                          variant="outline-info"
                           size="sm"
                           className="flex-1"
                           onClick={() => {
+                            // Clear form for security
                             setFormData({
-                              loginId: 'tanzeem.agra@rugrel.com',
-                              password: 'Tanzilla@tanzeem786'
+                              loginId: '',
+                              password: ''
                             });
+                            // Focus on email field
+                            document.getElementById('loginId')?.focus();
                           }}
                           style={{
                             borderRadius: theme.borderRadius,
                             fontSize: '0.85rem'
                           }}
                         >
-                          <i className="fas fa-crown me-1"></i>
-                          SuperUser
+                          <i className="fas fa-user-shield me-1"></i>
+                          Admin Login
                         </Button>
                         <Button
                           type="button"
@@ -465,10 +468,13 @@ const SignIn = () => {
                           size="sm"
                           className="flex-1"
                           onClick={() => {
+                            // Clear form for security
                             setFormData({
-                              loginId: 'dr.smith@radiology.com',
-                              password: 'doctor123'
+                              loginId: '',
+                              password: ''
                             });
+                            // Focus on email field
+                            document.getElementById('loginId')?.focus();
                           }}
                           style={{
                             borderRadius: theme.borderRadius,
@@ -476,8 +482,14 @@ const SignIn = () => {
                           }}
                         >
                           <i className="fas fa-user-md me-1"></i>
-                          Doctor
+                          Doctor Login
                         </Button>
+                      </div>
+                      <div className="text-center mt-2">
+                        <small className="text-muted">
+                          <i className="fas fa-info-circle me-1"></i>
+                          Contact admin for account credentials
+                        </small>
                       </div>
                     </div>
 
