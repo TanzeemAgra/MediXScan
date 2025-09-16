@@ -99,6 +99,9 @@ const SignIn = () => {
     try {
       console.log('🔑 Attempting login for:', formData.loginId);
       console.log('🌐 API Base URL:', ENV_CONFIG.API_BASE_URL);
+      console.log('🔍 Form data state:', formData);
+      console.log('🔍 LoginId value:', formData.loginId);
+      console.log('🔍 Password value length:', formData.password?.length);
       
       // Use AuthContext login instead of direct API call
       const result = await login({

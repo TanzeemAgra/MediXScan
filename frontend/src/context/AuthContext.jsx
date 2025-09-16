@@ -73,8 +73,19 @@ export const AuthProvider = ({ children }) => {
       setLoading(true);
       setError(null);
       
+      // DEBUG: Log what we received
+      console.log('🔍 AuthContext received credentials:', credentials);
+      console.log('🔍 Email:', credentials?.email);
+      console.log('🔍 Password length:', credentials?.password?.length);
+      
       // Soft-coded credentials validation
       if (!credentials || !credentials.email || !credentials.password) {
+        console.error('❌ AuthContext validation failed:', {
+          hasCredentials: !!credentials,
+          hasEmail: !!credentials?.email,
+          hasPassword: !!credentials?.password,
+          credentials: credentials
+        });
         throw new Error('Email and password are required');
       }
       
