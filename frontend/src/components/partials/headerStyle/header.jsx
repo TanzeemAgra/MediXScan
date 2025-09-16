@@ -12,7 +12,7 @@ import { useSelector } from 'react-redux';
 
 // Import Language Context
 import { useLanguage } from '../../../context/LanguageContext.jsx';
-import { useAuth } from '../../../context/AuthContext';
+import { useUniversalAuth } from '../../../hooks/useUniversalAuth';
 
 // Import Image
 import flag01 from "/assets/images/small/flag-01.png"
@@ -32,7 +32,7 @@ import user001 from "/assets/images/user/001.png"
 const Header = () => {
 
    const navigate = useNavigate();
-   const { logout } = useAuth();
+   const { logout } = useUniversalAuth();
    const { currentLanguage, changeLanguage, t, languages } = useLanguage();
    const pageLayout = useSelector(SettingSelector.page_layout)
    const { pageTitle } = useSelector(state => state.setting)

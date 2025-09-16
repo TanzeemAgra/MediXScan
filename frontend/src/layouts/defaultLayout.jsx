@@ -15,12 +15,13 @@ import Footer from "../components/partials/footerStyle/footer";
 import Sidebar from "../components/partials/sidebar/sidebar";
 import SettingOffCanvas from "../components/setting/SettingOffCanvas";
 import Chatbot from '../components/chatbot/Chatbot';
+import AuthErrorBoundary from '../components/AuthErrorBoundary';
 
 const DefaultLayout = () => {
   const pageLayout = useSelector(SettingSelector.page_layout)
 
   return (
-    <>
+    <AuthErrorBoundary>
       <div className="wrapper">
         <Sidebar />
         <main className="main-content content-page ">
@@ -37,7 +38,7 @@ const DefaultLayout = () => {
         <Chatbot />
       </div>
       <SettingOffCanvas />
-    </>
+    </AuthErrorBoundary>
   );
 };
 

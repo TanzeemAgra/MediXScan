@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Form, FormControl, Button, Card, Badge, Alert } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import * as api from '../../services/api';
-import { useAuth } from '../../context/AuthContext';
+import { useUniversalAuth } from '../../hooks/useUniversalAuth';
 import { ENV_CONFIG } from '../../config/appConfig';
 import { SECURE_LOGIN_CONFIG, SecureLoginUtils } from '../../config/secureLoginConfig';
 import landingPageConfig from "../../config/landingPageConfig.js";
@@ -86,7 +86,7 @@ const beautifulSecureSignInConfig = {
 
 const BeautifulSecureSignIn = () => {
   const navigate = useNavigate();
-  const { login, isAuthenticated } = useAuth();
+  const { login, isAuthenticated } = useUniversalAuth();
   const [formData, setFormData] = useState(SecureLoginUtils.clearFormData());
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);

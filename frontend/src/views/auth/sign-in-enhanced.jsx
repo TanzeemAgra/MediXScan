@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Form, FormControl, Button, Card, Badge } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import * as api from '../../services/api';
-import { useAuth } from '../../context/AuthContext';
+import { useUniversalAuth } from '../../hooks/useUniversalAuth';
 import landingPageConfig from '../../config/landingPageConfig.js';
 
 const generatePath = (path) => {
@@ -11,7 +11,7 @@ const generatePath = (path) => {
 
 const SignIn = () => {
   const navigate = useNavigate();
-  const { login: authLogin, isAuthenticated } = useAuth();
+  const { login: authLogin, isAuthenticated } = useUniversalAuth();
   const [loginId, setLoginId] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
