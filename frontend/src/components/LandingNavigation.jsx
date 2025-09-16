@@ -71,11 +71,12 @@ const LandingNavigation = ({ onCTAClick }) => {
 
   return (
     <Navbar 
-      expand={navigation.mobileBreakpoint} 
+      expand="lg"
       style={navbarStyle}
-      className="landing-navbar"
+      className={`landing-navbar ${scrolled ? 'scrolled' : ''}`}
+      variant={scrolled ? 'light' : 'dark'}
     >
-      <Container>
+      <Container fluid className="px-3">
         {/* Brand/Logo */}
         <Navbar.Brand 
           href="#home" 
@@ -88,13 +89,13 @@ const LandingNavigation = ({ onCTAClick }) => {
         >
           {navigation.logo.type === 'image' || navigation.logo.type === 'both' ? (
             <img
-              src={scrolled ? getLogoPath('white') : getLogoPath('main')}
+              src={scrolled ? getLogoPath('main') : getLogoPath('white')}
               alt={brand.name}
               style={{ 
                 maxHeight: navigation.logo.maxHeight, 
                 marginRight: navigation.logo.spacing?.marginRight || navigation.spacing?.logoSpacing || '1rem',
                 transition: 'all 0.3s ease',
-                filter: scrolled ? 'none' : 'brightness(1.1)',
+                filter: scrolled ? 'none' : 'brightness(1.2) drop-shadow(1px 1px 2px rgba(0,0,0,0.5))',
                 padding: '0.25rem 0'
               }}
               onError={(e) => {
@@ -108,17 +109,20 @@ const LandingNavigation = ({ onCTAClick }) => {
           ) : null}
         </Navbar.Brand>
 
-        {/* Mobile Toggle */}
+        {/* Mobile Toggle - Enhanced */}
         <Navbar.Toggle 
           aria-controls="landing-navbar-nav"
+          className="border-0 p-2"
           style={{
-            borderColor: scrolled ? navigation.scrollTextColor : navigation.textColor,
-            color: scrolled ? navigation.scrollTextColor : navigation.textColor
+            color: scrolled ? navigation.scrollTextColor : navigation.textColor,
+            fontSize: '1.2rem'
           }}
-        />
+        >
+          <span className="navbar-toggler-icon"></span>
+        </Navbar.Toggle>
 
-        {/* Navigation Items */}
-        <Navbar.Collapse id="landing-navbar-nav">
+        {/* Navigation Items - Enhanced Mobile Menu */}
+        <Navbar.Collapse id="landing-navbar-nav" className="text-center text-lg-start">
           <Nav className="me-auto">
             {navigation.menuItems.map((item, index) => (
               <Nav.Link
@@ -145,8 +149,8 @@ const LandingNavigation = ({ onCTAClick }) => {
             ))}
           </Nav>
 
-          {/* CTA Buttons */}
-          <div className="d-flex gap-2">
+          {/* CTA Buttons - Enhanced Mobile Layout */}
+          <div className="d-flex gap-2 flex-column flex-lg-row mt-3 mt-lg-0">
             {navigation.ctaButtons?.map((button, index) => (
               <Button
                 key={index}

@@ -9,6 +9,7 @@ import ComplianceTrustBadges from "../components/ComplianceTrustBadges.jsx";
 import CookieConsentBanner from "../components/CookieConsentBanner.jsx";
 import { injectHeroLayoutVariables } from "../utils/heroLayoutUtils.js";
 import "../assets/scss/custom/hero-responsive.scss";
+import "../assets/scss/custom/landing-responsive.scss";
 
 const LandingPage = () => {
   const [showVideoModal, setShowVideoModal] = useState(false);
@@ -83,28 +84,29 @@ const LandingPage = () => {
           }}
         ></div>
 
-        <Container className="position-relative" style={{ zIndex: 2 }}>
-          <Row className="align-items-center h-100">
-            <Col lg={8} className="text-white">
+        <Container className="position-relative h-100" style={{ zIndex: 2 }}>
+          <Row className="align-items-center h-100 justify-content-center">
+            <Col xl={8} lg={9} md={10} sm={11} xs={12} className="text-white">
               {/* Intelligent Content Container - Balanced Distribution */}
               <div 
                 className={`hero-content ${isVisible ? 'fade-in' : ''}`}
                 style={{
-                  background: currentTheme.textOverlay,
-                  backdropFilter: 'blur(10px)',
+                  background: 'var(--content-bg-desktop, rgba(0,0,0,0.3))',
+                  backdropFilter: 'blur(12px)',
                   borderRadius: '20px',
-                  padding: 'var(--element-spacing, 1.5rem)',
-                  border: '1px solid rgba(255,255,255,0.15)',
-                  boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+                  padding: 'var(--content-padding-desktop, 2.5rem)',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
                   maxWidth: '100%',
+                  width: '100%',
                   textAlign: hero.layout?.contentAlignment?.textAlign || 'left',
                   
-                  // Intelligent Content Distribution
+                  // Enhanced responsive content distribution
                   height: 'fit-content',
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'space-between',
-                  minHeight: '400px' // Minimum height for proper distribution
+                  minHeight: 'clamp(300px, 50vh, 500px)'
                 }}
               >
                 {/* Top Content Area - 15% Distribution */}
@@ -147,43 +149,46 @@ const LandingPage = () => {
                     marginBottom: 'var(--element-spacing, 1.5rem)'
                   }}
                 >
-                  {/* Clean Title */}
+                  {/* Enhanced Title with Better Mobile Visibility */}
                   <h1 
                     className="display-3 fw-bold"
                     style={{ 
-                      fontSize: 'clamp(2.5rem, 5vw, 4rem)',
-                      lineHeight: '1.2',
+                      fontSize: 'clamp(1.8rem, 8vw, 4rem)',
+                      lineHeight: '1.1',
                       color: '#ffffff',
-                      textShadow: '2px 2px 8px rgba(0,0,0,0.3)',
-                      marginBottom: 'var(--title-spacing, 2rem)'
+                      textShadow: 'var(--title-shadow-strong, 2px 2px 12px rgba(0,0,0,0.7))',
+                      marginBottom: 'clamp(1rem, 3vw, 2rem)',
+                      fontWeight: '700'
                     }}
                   >
                     {hero.title}
                   </h1>
                   
-                  {/* Clean Subtitle */}
+                  {/* Enhanced Subtitle with Better Visibility */}
                   <h2 
                     className="h4"
                     style={{
                       color: 'rgba(255, 255, 255, 0.95)',
                       fontWeight: '400',
-                      textShadow: '1px 1px 4px rgba(0,0,0,0.2)',
-                      marginBottom: 'var(--element-spacing, 1.5rem)'
+                      fontSize: 'clamp(1rem, 3.5vw, 1.4rem)',
+                      textShadow: 'var(--text-shadow-strong, 1px 1px 6px rgba(0,0,0,0.6))',
+                      marginBottom: 'clamp(0.8rem, 2vw, 1.5rem)',
+                      lineHeight: '1.3'
                     }}
                   >
                     {hero.subtitle}
                   </h2>
                   
-                  {/* Clean Description */}
+                  {/* Enhanced Description with Mobile Optimization */}
                   <p 
                     className="lead" 
                     style={{ 
-                      maxWidth: '600px',
+                      maxWidth: '100%',
                       color: 'rgba(255, 255, 255, 0.9)',
-                      fontSize: '1.1rem',
-                      lineHeight: '1.6',
-                      textShadow: '1px 1px 4px rgba(0,0,0,0.2)',
-                      marginBottom: 'var(--description-spacing, 2.5rem)'
+                      fontSize: 'clamp(0.9rem, 2.5vw, 1.2rem)',
+                      lineHeight: '1.5',
+                      textShadow: 'var(--text-shadow-strong, 1px 1px 6px rgba(0,0,0,0.6))',
+                      marginBottom: 'clamp(1.2rem, 3vw, 2.5rem)'
                     }}
                   >
                     {hero.description}
@@ -200,11 +205,10 @@ const LandingPage = () => {
                     justifyContent: 'center'
                   }}
                 >
-                  {/* Balanced CTA Buttons */}
+                  {/* Enhanced CTA Buttons - Mobile Responsive */}
                   <div 
-                    className="d-flex flex-wrap gap-3"
+                    className="d-flex flex-column flex-md-row flex-wrap gap-2 gap-md-3"
                     style={{
-                      gap: 'var(--element-spacing, 1.5rem)',
                       marginBottom: 'var(--cta-area-spacing, 2rem)'
                     }}
                   >
@@ -212,32 +216,43 @@ const LandingPage = () => {
                     <Button
                       key={index}
                       size="lg"
-                      className="px-4 py-3 d-flex align-items-center gap-2 fw-semibold"
+                      className="px-4 py-3 d-flex align-items-center justify-content-center gap-2 fw-semibold w-100 w-md-auto"
                       onClick={() => handleCTAClick(button.action)}
                       style={{
-                        borderRadius: '8px',
-                        fontSize: '1rem',
+                        borderRadius: 'var(--button-border-radius, 12px)',
+                        fontSize: 'clamp(0.9rem, 3vw, 1.1rem)',
                         border: 'none',
-                        marginBottom: '0.5rem', // Additional spacing between buttons when they wrap
+                        marginBottom: '0.5rem',
+                        minHeight: '48px', // Mobile touch target
+                        padding: 'var(--button-padding, clamp(0.75rem, 3vw, 1rem)) var(--button-horizontal-padding, clamp(1rem, 4vw, 1.5rem))',
                         background: button.type === 'primary' 
                           ? hero.design?.accentColor || '#1EBCB7'
                           : 'rgba(255, 255, 255, 0.2)',
                         backdropFilter: 'blur(10px)',
                         color: 'white',
-                        transition: 'all 0.3s ease'
+                        transition: 'all 0.3s ease',
+                        textShadow: 'var(--button-text-shadow, 1px 1px 3px rgba(0,0,0,0.5))',
+                        boxShadow: button.type === 'primary'
+                          ? '0 8px 25px rgba(30, 188, 183, 0.3)'
+                          : '0 4px 15px rgba(255, 255, 255, 0.1)'
                       }}
                       onMouseEnter={(e) => {
                         e.target.style.transform = 'translateY(-2px)';
-                        e.target.style.boxShadow = '0 8px 25px rgba(0,0,0,0.2)';
+                        e.target.style.boxShadow = button.type === 'primary'
+                          ? '0 15px 35px rgba(30, 188, 183, 0.4)'
+                          : '0 8px 25px rgba(255, 255, 255, 0.2)';
                       }}
                       onMouseLeave={(e) => {
                         e.target.style.transform = 'translateY(0)';
                         e.target.style.boxShadow = button.type === 'primary'
-                          ? '0 15px 35px rgba(30, 188, 183, 0.4)'
-                          : '0 8px 32px rgba(255, 255, 255, 0.1)';
+                          ? '0 8px 25px rgba(30, 188, 183, 0.3)'
+                          : '0 4px 15px rgba(255, 255, 255, 0.1)';
                       }}
                     >
-                      <i className={button.icon}></i>
+                      <i 
+                        className={button.icon}
+                        style={{ fontSize: 'clamp(0.8rem, 2.5vw, 1rem)' }}
+                      ></i>
                       {button.text}
                     </Button>
                   ))}

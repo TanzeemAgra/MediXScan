@@ -1,0 +1,342 @@
+/* Enhanced Responsive Landing Page Styles */
+/* Comprehensive mobile-first responsive design with better text contrast */
+
+/* CSS Custom Properties for Dynamic Responsive Design */
+:root {
+  /* Navigation heights for different breakpoints */
+  --nav-height-desktop: 80px;
+  --nav-height-tablet: 70px;
+  --nav-height-mobile: 65px;
+  
+  /* Hero section heights */
+  --hero-height-desktop: calc(100vh - var(--nav-height-desktop));
+  --hero-height-tablet: calc(100vh - var(--nav-height-tablet));
+  --hero-height-mobile: calc(100vh - var(--nav-height-mobile));
+  
+  /* Text contrast and visibility */
+  --title-shadow-strong: 2px 2px 12px rgba(0,0,0,0.7);
+  --text-shadow-strong: 1px 1px 6px rgba(0,0,0,0.6);
+  --overlay-dark: rgba(0,0,0,0.4);
+  --content-bg-mobile: rgba(0,0,0,0.6);
+  --content-bg-desktop: rgba(0,0,0,0.3);
+  
+  /* Spacing variables */
+  --content-padding-desktop: 2.5rem;
+  --content-padding-tablet: 2rem;
+  --content-padding-mobile: 1.5rem;
+  
+  /* Button responsive variables */
+  --button-border-radius: 12px;
+  --button-padding: clamp(0.75rem, 3vw, 1rem);
+  --button-horizontal-padding: clamp(1rem, 4vw, 1.5rem);
+  --button-font-size: clamp(0.9rem, 3vw, 1.1rem);
+  --button-text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+}
+
+/* Base styles for better mobile performance */
+* {
+  box-sizing: border-box;
+}
+
+/* Enhanced Navigation Styles */
+.landing-navbar {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1050;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.landing-navbar .navbar-brand {
+  font-size: 1.6rem;
+  font-weight: 700;
+  text-shadow: var(--text-shadow-strong);
+}
+
+.landing-navbar .navbar-nav .nav-link {
+  font-weight: 500;
+  text-shadow: var(--text-shadow-strong);
+  transition: all 0.3s ease;
+}
+
+/* Enhanced Hero Section */
+.hero-section {
+  position: relative;
+  min-height: 700px;
+  height: var(--hero-height-desktop);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding-top: calc(var(--nav-height-desktop) + 40px);
+  background-attachment: fixed;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+.hero-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--overlay-dark);
+  z-index: 1;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  background: var(--content-bg-desktop);
+  backdrop-filter: blur(12px);
+  border-radius: 20px;
+  padding: var(--content-padding-desktop);
+  border: 1px solid rgba(255,255,255,0.2);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  max-width: 100%;
+  width: 100%;
+}
+
+.hero-content h1 {
+  color: #ffffff !important;
+  text-shadow: var(--title-shadow-strong) !important;
+  margin-bottom: 1.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.hero-content h2 {
+  color: rgba(255,255,255,0.95) !important;
+  text-shadow: var(--text-shadow-strong) !important;
+  margin-bottom: 1rem;
+  font-weight: 400;
+}
+
+.hero-content p {
+  color: rgba(255,255,255,0.9) !important;
+  text-shadow: var(--text-shadow-strong) !important;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+.hero-content .badge {
+  background: rgba(255,255,255,0.2) !important;
+  color: #ffffff !important;
+  text-shadow: var(--text-shadow-strong) !important;
+  border: 1px solid rgba(255,255,255,0.3);
+  backdrop-filter: blur(8px);
+}
+
+/* Button improvements */
+.hero-content .btn {
+  font-weight: 600;
+  text-shadow: none;
+  border: none;
+  transition: all 0.3s ease;
+  min-width: 160px;
+  backdrop-filter: blur(10px);
+}
+
+.hero-content .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+}
+
+/* Tablet Responsive Styles */
+@media (max-width: 1024px) and (min-width: 768px) {
+  .landing-navbar {
+    height: var(--nav-height-tablet);
+  }
+  
+  .landing-navbar .navbar-brand {
+    font-size: 1.4rem;
+  }
+  
+  .hero-section {
+    height: var(--hero-height-tablet);
+    min-height: 600px;
+    padding-top: calc(var(--nav-height-tablet) + 30px);
+  }
+  
+  .hero-content {
+    padding: var(--content-padding-tablet);
+    border-radius: 15px;
+  }
+  
+  .hero-content h1 {
+    font-size: clamp(2.5rem, 5vw, 3.5rem) !important;
+  }
+  
+  .hero-content .btn {
+    min-width: 140px;
+    padding: 0.9rem 1.8rem;
+  }
+}
+
+/* Mobile Responsive Styles - Enhanced for better visibility */
+@media (max-width: 767px) {
+  .landing-navbar {
+    height: var(--nav-height-mobile);
+    background: rgba(0,0,0,0.9) !important;
+    backdrop-filter: blur(15px) !important;
+  }
+  
+  .landing-navbar.scrolled {
+    background: rgba(255,255,255,0.95) !important;
+  }
+  
+  .landing-navbar .navbar-brand {
+    font-size: 1.3rem;
+  }
+  
+  .landing-navbar .navbar-toggler {
+    border: 1px solid rgba(255,255,255,0.3);
+    padding: 0.4rem 0.6rem;
+  }
+  
+  .landing-navbar .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.8%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+  }
+  
+  .hero-section {
+    height: var(--hero-height-mobile);
+    min-height: 500px;
+    padding-top: calc(var(--nav-height-mobile) + 20px);
+    background-attachment: scroll !important; /* Better mobile performance */
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  .hero-content {
+    padding: var(--content-padding-mobile) !important;
+    border-radius: 12px;
+    background: var(--content-bg-mobile) !important;
+    backdrop-filter: blur(8px) !important;
+    margin: 0 auto;
+    max-width: 100%;
+  }
+  
+  .hero-content h1 {
+    font-size: clamp(1.8rem, 8vw, 2.5rem) !important;
+    line-height: 1.1 !important;
+    margin-bottom: 1rem !important;
+    text-shadow: var(--title-shadow-strong) !important;
+  }
+  
+  .hero-content h2 {
+    font-size: 1.1rem !important;
+    line-height: 1.3 !important;
+    margin-bottom: 0.8rem !important;
+    text-shadow: var(--text-shadow-strong) !important;
+  }
+  
+  .hero-content p {
+    font-size: 1rem !important;
+    line-height: 1.5 !important;
+    margin-bottom: 1.5rem !important;
+    text-shadow: var(--text-shadow-strong) !important;
+  }
+  
+  .hero-content .badge {
+    font-size: 0.8rem !important;
+    padding: 0.4rem 1rem !important;
+    margin-bottom: 1rem !important;
+    display: block;
+    text-align: center;
+    max-width: fit-content;
+  }
+  
+  .hero-content .btn {
+    width: 100% !important;
+    min-width: auto !important;
+    margin: 0.3rem 0 !important;
+    padding: 0.8rem 1.5rem !important;
+    font-size: 0.95rem !important;
+    border-radius: 6px !important;
+  }
+  
+  .hero-content .d-flex {
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+  }
+}
+
+/* Extra Small Mobile (iPhone SE, etc.) */
+@media (max-width: 480px) {
+  .hero-section {
+    min-height: 450px;
+    padding-top: calc(var(--nav-height-mobile) + 15px);
+  }
+  
+  .hero-content {
+    padding: 1.2rem !important;
+    margin: 0 0.5rem;
+  }
+  
+  .hero-content h1 {
+    font-size: clamp(1.5rem, 9vw, 2.2rem) !important;
+  }
+  
+  .hero-content h2 {
+    font-size: 1rem !important;
+  }
+  
+  .hero-content p {
+    font-size: 0.9rem !important;
+    margin-bottom: 1.2rem !important;
+  }
+  
+  .hero-content .btn {
+    padding: 0.7rem 1.2rem !important;
+    font-size: 0.9rem !important;
+  }
+}
+
+/* Landscape orientation adjustments for mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+  .hero-section {
+    height: auto;
+    min-height: 400px;
+    padding-top: calc(var(--nav-height-mobile) + 10px);
+    padding-bottom: 2rem;
+  }
+  
+  .hero-content {
+    padding: 1rem !important;
+  }
+  
+  .hero-content h1 {
+    font-size: 1.8rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+  
+  .hero-content h2 {
+    margin-bottom: 0.5rem !important;
+  }
+  
+  .hero-content p {
+    margin-bottom: 1rem !important;
+  }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .hero-content h1,
+  .hero-content h2,
+  .hero-content p {
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --content-bg-mobile: rgba(0,0,0,0.7);
+    --content-bg-desktop: rgba(0,0,0,0.4);
+  }
+}
