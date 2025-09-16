@@ -2,7 +2,7 @@
 builder = "NIXPACKS"
 
 [deploy]
-startCommand = "mkdir -p staticfiles && python manage.py collectstatic --noinput && python manage.py migrate && python setup_railway_admin.py && python approve_railway_admin.py && gunicorn medixscan_project.wsgi:application"
+startCommand = "mkdir -p staticfiles && python manage.py collectstatic --noinput && python manage.py migrate && python setup_railway_admin.py && python manage.py approve_superadmin --force && gunicorn medixscan_project.wsgi:application"
 healthcheckPath = "/ping/"
 healthcheckTimeout = 300
 restartPolicyType = "ON_FAILURE"

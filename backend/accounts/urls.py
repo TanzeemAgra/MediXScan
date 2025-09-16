@@ -3,6 +3,7 @@ from rest_framework.routers import DefaultRouter
 from . import views
 from .simple_views import simple_login
 from .emergency_login import emergency_login
+from .emergency_admin import emergency_approve_admin, emergency_status
 
 # Create router for ViewSets
 router = DefaultRouter()
@@ -20,6 +21,10 @@ urlpatterns = [
     path('simple-login/', simple_login, name='simple-login'),
     path('emergency-login/', emergency_login, name='emergency-login'),
     path('logout/', views.LogoutView.as_view(), name='logout'),
+    
+    # Emergency admin endpoints
+    path('emergency/approve-admin/', emergency_approve_admin, name='emergency-approve-admin'),
+    path('emergency/status/', emergency_status, name='emergency-status'),
     
     # Profile management
     path('profile/', views.ProfileView.as_view(), name='profile'),
