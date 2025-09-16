@@ -9,7 +9,10 @@ import json
 import time
 import logging
 import asyncio
+import openai
+from django.conf import settings
 from .free_medical_terminology_service import free_medical_terminology_service
+from config.ai_settings import get_openai_config, get_medical_config, is_feature_enabled, get_system_message
 from typing import Dict, List, Optional
 from collections import defaultdict
 
@@ -428,6 +431,318 @@ class AdvancedRAGFallback:
         }
         return color_map.get(category, '#ddd')
     
+    def analyze_with_direct_ai(self, report_text: str) -> Dict:
+        """
+        Direct OpenAI analysis when RAG completely fails
+        Soft-coded configuration with fallback mechanisms
+        """
+        try:
+            # Get soft-coded configuration
+            openai_config = get_openai_config()
+            medical_config = get_medical_config()
+            
+            # Check if AI analysis is enabled
+            if not is_feature_enabled('ENABLE_OPENAI_ANALYSIS'):
+                logger.warning("OpenAI analysis disabled by feature flag")
+                return self._create_fallback_analysis_structure(report_text)
+            
+            # Check if OpenAI API key is available
+            if not hasattr(settings, 'OPENAI_API_KEY') or not settings.OPENAI_API_KEY:
+                logger.error("OpenAI API key not configured")
+                return self._create_fallback_analysis_structure(report_text)
+            
+            openai.api_key = settings.OPENAI_API_KEY
+            logger.info("Attempting direct OpenAI analysis as RAG fallback")
+            
+            # Enhanced prompt for comprehensive medical analysis
+            analysis_prompt = f"""
+            As an expert medical AI specializing in radiology report analysis, provide a comprehensive analysis of this medical report. Since external medical databases are unavailable, rely on your extensive training in medical terminology and radiology.
+
+            REPORT TO ANALYZE:
+            {report_text}
+
+            Please provide a structured JSON response with the following sections:
+
+            1. DETECTED_TERMS: Identify and categorize medical terms
+            2. MEDICAL_ACCURACY: Assess accuracy and identify issues  
+            3. DIAGNOSTIC_DISCREPANCIES: Find potential errors or inconsistencies
+            4. CORRECTED_REPORT: Provide an improved version
+            5. QUALITY_METRICS: Scoring and assessment
+            6. CLINICAL_SIGNIFICANCE: Urgency level and recommendations
+
+            Format as valid JSON with these exact keys:
+            {{
+                "detected_terms": {{
+                    "anatomical": [list of anatomical terms with definitions],
+                    "pathological": [list of pathological findings],
+                    "imaging": [list of imaging-related terms],
+                    "abbreviations": [list of medical abbreviations]
+                }},
+                "medical_accuracy": {{
+                    "score": (number 0-100),
+                    "issues": [list of accuracy issues found],
+                    "suggestions": [list of improvement suggestions]
+                }},
+                "diagnostic_discrepancies": [
+                    {{
+                        "error_type": "category",
+                        "severity": "minor|major|critical", 
+                        "error": "description",
+                        "correction": "suggested fix",
+                        "explanation": "detailed explanation"
+                    }}
+                ],
+                "corrected_report": "improved version of the report",
+                "terminology_coverage": {{
+                    "total_medical_terms": (number),
+                    "recognized_terms": (number), 
+                    "coverage_percentage": (number)
+                }},
+                "clinical_significance": "routine|significant|urgent"
+            }}
+
+            Focus on:
+            - Medical terminology accuracy and completeness
+            - Proper anatomical references and imaging descriptions
+            - Grammar and professional medical language
+            - Identification of critical findings requiring attention
+            - Standardization of measurements and abbreviations
+            """
+
+            try:
+                # Try primary model first with soft-coded configuration
+                primary_model = openai_config['PRIMARY_MODEL']
+                max_tokens = openai_config['MAX_TOKENS'].get(primary_model, 2000)
+                
+                response = openai.ChatCompletion.create(
+                    model=primary_model,
+                    messages=[
+                        {
+                            "role": "system", 
+                            "content": get_system_message('MEDICAL_EXPERT') + " " + get_system_message('JSON_RESPONSE')
+                        },
+                        {"role": "user", "content": analysis_prompt}
+                    ],
+                    max_tokens=max_tokens,
+                    temperature=openai_config['TEMPERATURE'],
+                    timeout=openai_config['TIMEOUT']
+                )
+                
+                logger.info(f"Successfully used primary model: {primary_model}")
+                
+            except Exception as primary_error:
+                logger.warning(f"Primary OpenAI model ({openai_config['PRIMARY_MODEL']}) failed: {primary_error}")
+                logger.info(f"Trying fallback model: {openai_config['FALLBACK_MODEL']}")
+                
+                try:
+                    # Fallback to configured fallback model
+                    fallback_model = openai_config['FALLBACK_MODEL']
+                    fallback_tokens = openai_config['MAX_TOKENS'].get(fallback_model, 1500)
+                    
+                    response = openai.ChatCompletion.create(
+                        model=fallback_model,
+                        messages=[
+                            {
+                                "role": "system", 
+                                "content": get_system_message('FALLBACK_ANALYSIS') + " " + get_system_message('JSON_RESPONSE')
+                            },
+                            {"role": "user", "content": analysis_prompt}
+                        ],
+                        max_tokens=fallback_tokens,
+                        temperature=openai_config['TEMPERATURE'],
+                        timeout=openai_config['TIMEOUT']
+                    )
+                    
+                    logger.info(f"Successfully used fallback model: {fallback_model}")
+                    
+                except Exception as fallback_error:
+                    logger.error(f"Fallback model ({openai_config['FALLBACK_MODEL']}) also failed: {fallback_error}")
+                    
+                    # Try backup model if available
+                    if openai_config.get('BACKUP_MODEL'):
+                        logger.info(f"Trying backup model: {openai_config['BACKUP_MODEL']}")
+                        
+                        backup_model = openai_config['BACKUP_MODEL']
+                        backup_tokens = openai_config['MAX_TOKENS'].get(backup_model, 1000)
+                        
+                        response = openai.ChatCompletion.create(
+                            model=backup_model,
+                            messages=[
+                                {
+                                    "role": "system", 
+                                    "content": get_system_message('FALLBACK_ANALYSIS')
+                                },
+                                {"role": "user", "content": analysis_prompt}
+                            ],
+                            max_tokens=backup_tokens,
+                            temperature=openai_config['TEMPERATURE']
+                        )
+                        
+                        logger.info(f"Successfully used backup model: {backup_model}")
+                    else:
+                        raise fallback_error
+            
+            # Parse OpenAI response
+            ai_content = response.choices[0].message.content.strip()
+            
+            # Extract JSON from response (handle potential markdown formatting)
+            if '```json' in ai_content:
+                ai_content = ai_content.split('```json')[1].split('```')[0].strip()
+            elif '```' in ai_content:
+                ai_content = ai_content.split('```')[1].strip()
+            
+            try:
+                ai_analysis = json.loads(ai_content)
+                logger.info("Successfully parsed OpenAI analysis response")
+                
+                # Validate and enhance the response structure
+                validated_analysis = self._validate_and_enhance_ai_response(ai_analysis, report_text)
+                return validated_analysis
+                
+            except json.JSONDecodeError as json_error:
+                logger.error(f"Failed to parse OpenAI JSON response: {json_error}")
+                logger.error(f"Raw response: {ai_content[:500]}...")
+                
+                # Create structured analysis from text response
+                return self._parse_text_response_to_structure(ai_content, report_text)
+        
+        except Exception as e:
+            logger.error(f"Direct OpenAI analysis failed: {str(e)}")
+            return self._create_fallback_analysis_structure(report_text)
+
+    def _validate_and_enhance_ai_response(self, ai_analysis: dict, original_text: str) -> dict:
+        """Validate and enhance OpenAI response to match expected structure"""
+        try:
+            # Ensure all required keys exist with proper structure
+            enhanced_analysis = {
+                'detected_terms': {
+                    'anatomical': ai_analysis.get('detected_terms', {}).get('anatomical', []),
+                    'pathological': ai_analysis.get('detected_terms', {}).get('pathological', []),
+                    'imaging': ai_analysis.get('detected_terms', {}).get('imaging', []),
+                    'abbreviations': ai_analysis.get('detected_terms', {}).get('abbreviations', [])
+                },
+                'medical_accuracy': {
+                    'score': max(0, min(100, ai_analysis.get('medical_accuracy', {}).get('score', 75))),
+                    'issues': ai_analysis.get('medical_accuracy', {}).get('issues', []),
+                    'suggestions': ai_analysis.get('medical_accuracy', {}).get('suggestions', [])
+                },
+                'terminology_coverage': {
+                    'total_medical_terms': ai_analysis.get('terminology_coverage', {}).get('total_medical_terms', 0),
+                    'recognized_terms': ai_analysis.get('terminology_coverage', {}).get('recognized_terms', 0),
+                    'coverage_percentage': ai_analysis.get('terminology_coverage', {}).get('coverage_percentage', 0)
+                },
+                'clinical_significance': ai_analysis.get('clinical_significance', 'routine'),
+                'diagnostic_discrepancies': ai_analysis.get('diagnostic_discrepancies', []),
+                'corrected_report': ai_analysis.get('corrected_report', original_text),
+                'ai_metadata': {
+                    'analysis_method': 'direct_openai_fallback',
+                    'model_used': 'gpt-4/gpt-3.5-turbo',
+                    'confidence_level': 'high' if ai_analysis.get('medical_accuracy', {}).get('score', 75) > 80 else 'moderate',
+                    'fallback_reason': 'RAG medical database unavailable'
+                }
+            }
+            
+            return enhanced_analysis
+            
+        except Exception as e:
+            logger.error(f"Failed to validate AI response: {str(e)}")
+            return self._create_fallback_analysis_structure(original_text)
+
+    def _parse_text_response_to_structure(self, text_response: str, original_text: str) -> dict:
+        """Parse text response when JSON parsing fails"""
+        try:
+            # Basic structure with extracted information
+            return {
+                'detected_terms': {
+                    'anatomical': self._extract_terms_from_text(text_response, ['anatomy', 'anatomical']),
+                    'pathological': self._extract_terms_from_text(text_response, ['pathology', 'findings']),
+                    'imaging': self._extract_terms_from_text(text_response, ['imaging', 'radiology']),
+                    'abbreviations': self._extract_abbreviations_from_text(text_response)
+                },
+                'medical_accuracy': {
+                    'score': 70,  # Default moderate score
+                    'issues': ['OpenAI response format issue - manual parsing applied'],
+                    'suggestions': ['Review AI analysis in text format']
+                },
+                'terminology_coverage': {
+                    'total_medical_terms': len(text_response.split()),
+                    'recognized_terms': 0,
+                    'coverage_percentage': 50
+                },
+                'clinical_significance': 'routine',
+                'ai_text_response': text_response[:1000],  # Store partial response for reference
+                'ai_metadata': {
+                    'analysis_method': 'direct_openai_text_fallback',
+                    'parsing_status': 'text_mode'
+                }
+            }
+        except Exception as e:
+            logger.error(f"Text parsing fallback failed: {str(e)}")
+            return self._create_fallback_analysis_structure(original_text)
+
+    def _create_fallback_analysis_structure(self, original_text: str) -> dict:
+        """Create basic analysis structure when all AI methods fail"""
+        return {
+            'detected_terms': {
+                'anatomical': [],
+                'pathological': [], 
+                'imaging': [],
+                'abbreviations': []
+            },
+            'medical_accuracy': {
+                'score': 60,
+                'issues': ['External medical databases unavailable', 'AI analysis systems temporarily offline'],
+                'suggestions': ['Manual review recommended', 'Retry analysis later']
+            },
+            'terminology_coverage': {
+                'total_medical_terms': 0,
+                'recognized_terms': 0,
+                'coverage_percentage': 0
+            },
+            'clinical_significance': 'routine',
+            'corrected_report': original_text,
+            'system_status': {
+                'analysis_method': 'basic_fallback',
+                'rag_status': 'offline',
+                'ai_status': 'offline',
+                'message': 'Basic analysis structure - manual review required'
+            }
+        }
+
+    def _extract_terms_from_text(self, text: str, keywords: List[str]) -> List[dict]:
+        """Extract medical terms from text based on keywords"""
+        terms = []
+        text_lower = text.lower()
+        
+        for keyword in keywords:
+            # Simple pattern matching for terms near keywords
+            pattern = rf'{keyword}[^.]*?([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)'
+            matches = re.findall(pattern, text, re.IGNORECASE)
+            for match in matches[:5]:  # Limit to 5 per keyword
+                terms.append({
+                    'term': match.strip(),
+                    'definition': f'{keyword.title()}-related term',
+                    'source': 'ai_extraction'
+                })
+        
+        return terms
+
+    def _extract_abbreviations_from_text(self, text: str) -> List[dict]:
+        """Extract abbreviations from text"""
+        abbreviations = []
+        # Match uppercase letter combinations
+        pattern = r'\b[A-Z]{2,}\b'
+        matches = re.findall(pattern, text)
+        
+        for abbrev in set(matches[:10]):  # Limit and deduplicate
+            abbreviations.append({
+                'abbreviation': abbrev,
+                'definition': f'Medical abbreviation: {abbrev}',
+                'source': 'ai_extraction'
+            })
+        
+        return abbreviations
+
     def generate_corrected_report(self, original_text: str) -> str:
         """Generate a corrected version of the report"""
         corrected_text = original_text

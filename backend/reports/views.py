@@ -44,7 +44,7 @@ class AnalyzeReportView(APIView):
             
             logger.info(f"Analyzing report for user: {request.user.email}")
             
-            # Try RAG service first, fallback to advanced system if it fails
+            # Try RAG service first, fallback to advanced system, then direct AI if both fail
             try:
                 logger.info("Attempting primary RAG service analysis")
                 rag_analysis = radiology_rag_service.enhance_report_analysis(report_text)
@@ -56,6 +56,7 @@ class AnalyzeReportView(APIView):
                     
                 logger.info(f"Primary RAG analysis successful: {total_terms} terms detected")
                 fallback_used = False
+                system_used = "Primary RAG Service"
                 
             except Exception as rag_error:
                 logger.warning(f"Primary RAG service failed: {str(rag_error)}")
@@ -63,18 +64,41 @@ class AnalyzeReportView(APIView):
                 
                 try:
                     rag_analysis = advanced_rag_fallback.enhance_report_analysis_with_external(report_text)
+                    
+                    # Check if advanced RAG returned meaningful results
+                    total_terms = sum(len(terms) for terms in rag_analysis.get('detected_terms', {}).values())
+                    if total_terms < 5:  # If very few terms found, consider it a failure
+                        raise Exception("Advanced RAG fallback returned insufficient medical data")
+                    
                     fallback_used = True
+                    system_used = "Advanced RAG Fallback"
                     logger.info("Enhanced RAG fallback with external sources completed successfully")
+                    
                 except Exception as fallback_error:
                     logger.error(f"Advanced RAG fallback also failed: {str(fallback_error)}")
-                    # Return minimal analysis structure
-                    rag_analysis = {
-                        'detected_terms': {'anatomical': [], 'pathological': [], 'imaging': [], 'abbreviations': []},
-                        'medical_accuracy': {'score': 70, 'issues': ['Analysis completed with basic processing'], 'suggestions': []},
-                        'terminology_coverage': {'total_medical_terms': 0, 'recognized_terms': 0, 'coverage_percentage': 0},
-                        'clinical_significance': 'routine'
-                    }
-                    fallback_used = True
+                    logger.info("Switching to direct OpenAI analysis as final fallback")
+                    
+                    try:
+                        # Use direct OpenAI analysis when all RAG systems fail
+                        rag_analysis = advanced_rag_fallback.analyze_with_direct_ai(report_text)
+                        fallback_used = True
+                        system_used = "Direct OpenAI Analysis"
+                        logger.info("Direct OpenAI analysis completed successfully")
+                        
+                    except Exception as ai_error:
+                        logger.error(f"Direct OpenAI analysis failed: {str(ai_error)}")
+                        logger.warning("All analysis systems failed, using basic fallback structure")
+                        
+                        # Final fallback - basic analysis structure
+                        rag_analysis = {
+                            'detected_terms': {'anatomical': [], 'pathological': [], 'imaging': [], 'abbreviations': []},
+                            'medical_accuracy': {'score': 50, 'issues': ['All analysis systems temporarily unavailable'], 'suggestions': ['Manual review required']},
+                            'terminology_coverage': {'total_medical_terms': 0, 'recognized_terms': 0, 'coverage_percentage': 0},
+                            'clinical_significance': 'routine',
+                            'system_status': 'offline'
+                        }
+                        fallback_used = True
+                        system_used = "Basic Fallback"
             
             # Generate enhanced diagnostic discrepancies from RAG analysis
             diagnostic_discrepancies = []
@@ -210,10 +234,10 @@ class AnalyzeReportView(APIView):
                     'analysis_timestamp': time.strftime('%Y-%m-%d %H:%M:%S'),
                     'user': request.user.email,
                     'rag_enhanced': True,
-                    'system_used': 'Advanced RAG Fallback' if fallback_used else 'Primary RAG Service',
-                    'source_vocabulary': 'Built-in Medical Knowledge Base' if fallback_used else 'radiologyassistant.nl',
+                    'system_used': system_used,
+                    'source_vocabulary': self._get_source_vocabulary(system_used),
                     'fallback_used': fallback_used,
-                    'analysis_method': 'comprehensive_medical_analysis'
+                    'analysis_method': 'comprehensive_medical_analysis_with_ai_fallback'
                 }
             }
             
@@ -235,6 +259,16 @@ class AnalyzeReportView(APIView):
                 'details': str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
+    def _get_source_vocabulary(self, system_used: str) -> str:
+        """Get the vocabulary source based on the system used"""
+        source_map = {
+            'Primary RAG Service': 'radiologyassistant.nl + External Medical APIs',
+            'Advanced RAG Fallback': 'Built-in Medical Knowledge Base + External Sources',
+            'Direct OpenAI Analysis': 'OpenAI GPT-4/3.5-turbo Medical Training Data',
+            'Basic Fallback': 'Minimal Built-in Vocabulary'
+        }
+        return source_map.get(system_used, 'Unknown Source')
+
     def _get_openai_analysis(self, report_text: str, rag_analysis: dict) -> dict:
         """Get additional AI analysis using OpenAI with RAG context"""
         try:
