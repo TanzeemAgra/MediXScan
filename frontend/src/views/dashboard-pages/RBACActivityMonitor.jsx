@@ -4,7 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Badge, Table, Modal, Alert, Spinner, Form } from 'react-bootstrap';
 import { hasSuperAdminAccess, debugUserAccess } from '../../utils/rbacAccessControl';
-import { useAuth } from '../../context/AuthContext';
+import { useUniversalAuth } from '../../hooks/useUniversalAuth';
 import rbacService from '../../services/rbacService';
 import { 
     safeArrayOperations,
@@ -13,7 +13,7 @@ import {
 import './RBACComponents.scss';
 
 const RBACActivityMonitor = () => {
-    const { isAuthenticated, user } = useAuth();
+    const { isAuthenticated, user } = useUniversalAuth();
     const [loading, setLoading] = useState(false);
     const [alert, setAlert] = useState({ show: false, type: 'info', message: '' });
     

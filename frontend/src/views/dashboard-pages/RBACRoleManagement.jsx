@@ -4,7 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Badge, Table, Modal, Form, Alert, Spinner } from 'react-bootstrap';
 import { hasSuperAdminAccess, debugUserAccess } from '../../utils/rbacAccessControl';
-import { useAuth } from '../../context/AuthContext';
+import { useUniversalAuth } from '../../hooks/useUniversalAuth';
 import rbacService from '../../services/rbacService';
 import { 
     useRBACRoles, 
@@ -18,7 +18,7 @@ import {
 import './RBACComponents.scss';
 
 const RBACRoleManagement = () => {
-    const { isAuthenticated, user } = useAuth();
+    const { isAuthenticated, user } = useUniversalAuth();
     const [alert, setAlert] = useState({ show: false, type: 'info', message: '' });
     
     // Use custom hook for RBAC state management with error handling

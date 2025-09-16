@@ -5,7 +5,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Container, Row, Col, Card, Button, Badge, Table, Modal, Form, Alert, Spinner, Tabs, Tab, 
          InputGroup, FormControl, Dropdown, ButtonGroup, ProgressBar, Tooltip, OverlayTrigger,
          Accordion, ListGroup, Toast, ToastContainer } from 'react-bootstrap';
-import { useAuth } from '../../context/AuthContext';
+import { useUniversalAuth } from '../../hooks/useUniversalAuth';
 import { hasSuperAdminAccess, debugUserAccess } from '../../utils/rbacAccessControl';
 import './RBACUserManagement.scss';
 
@@ -155,7 +155,7 @@ const createRbacService = () => {
 const rbacService = createRbacService();
 
 const EnhancedRBACUserManagement = () => {
-    const { isAuthenticated, user } = useAuth();
+    const { isAuthenticated, user } = useUniversalAuth();
     const [activeTab, setActiveTab] = useState('dashboard');
     const [loading, setLoading] = useState(false);
     const [alert, setAlert] = useState({ show: false, type: 'info', message: '' });

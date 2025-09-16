@@ -6,13 +6,13 @@ import { Container, Row, Col, Card, Button, Badge, Table, Modal, Form, Alert, Sp
          InputGroup, FormControl, Dropdown, ButtonGroup, ProgressBar, Tooltip, OverlayTrigger,
          Accordion, ListGroup, Toast, ToastContainer } from 'react-bootstrap';
 import { hasSuperAdminAccess, debugUserAccess } from '../../utils/rbacAccessControl';
-import { useAuth } from '../../context/AuthContext';
+import { useUniversalAuth } from '../../hooks/useUniversalAuth';
 import rbacService from '../../services/rbacService';
 import { useRBACRoles, safeArrayOperations, errorHandlers } from '../../utils/rbacStateUtils';
 import './RBACUserManagement.scss';
 
 const RBACUserManagement = () => {
-    const { isAuthenticated, user } = useAuth();
+    const { isAuthenticated, user } = useUniversalAuth();
     const [activeTab, setActiveTab] = useState('dashboard');
     const [loading, setLoading] = useState(false);
     const [alert, setAlert] = useState({ show: false, type: 'info', message: '' });

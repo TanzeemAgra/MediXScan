@@ -1,12 +1,12 @@
 // Role-Based Access Control Hook
 // Comprehensive RBAC integration for React frontend
 
-import { useState, useEffect, useContext } from 'react';
-import { AuthContext } from '../context/AuthContext';
+import { useState, useEffect } from 'react';
+import { useUniversalAuth } from './useUniversalAuth';
 import { api } from '../services/api';
 
 export const useRBAC = () => {
-  const { user, token } = useContext(AuthContext);
+  const { user, token } = useUniversalAuth();
   const [permissions, setPermissions] = useState([]);
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(true);

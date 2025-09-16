@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useUniversalAuth } from '../hooks/useUniversalAuth';
 import { useNavigate } from 'react-router-dom';
 
 const SimpleLoginForm = () => {
@@ -7,7 +7,7 @@ const SimpleLoginForm = () => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const { login } = useAuth();
+  const { login } = useUniversalAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
