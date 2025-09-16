@@ -492,9 +492,15 @@ export const login = async (loginId, password) => {
     if (error.response) {
       console.error('📡 Error response:', error.response.status, error.response.data);
       
-      // Soft-coded status code handling
+      // Enhanced error handling for user approval issues
       const statusMessages = {
-        400: error.response.data?.error || ERROR_CONFIG.MESSAGES.validation,
+        400: (() => {
+          const errorText = error.response.data?.error || '';
+          if (errorText.includes('pending approval')) {
+            return 'Your account is pending approval by an administrator. Please contact support or wait for activation.';
+          }
+          return errorText || ERROR_CONFIG.MESSAGES.validation;
+        })(),
         401: ERROR_CONFIG.MESSAGES.authentication,
         403: ERROR_CONFIG.MESSAGES.authorization,
         404: 'Login service not found',

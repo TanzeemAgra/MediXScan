@@ -9,6 +9,7 @@ import { hasSuperAdminAccess, debugUserAccess } from '../../utils/rbacAccessCont
 import { useUniversalAuth } from '../../hooks/useUniversalAuth';
 import rbacService from '../../services/rbacService';
 import { useRBACRoles, safeArrayOperations, errorHandlers } from '../../utils/rbacStateUtils';
+import EnhancedUserApproval from '../../components/EnhancedUserApproval';
 import './RBACUserManagement.scss';
 
 const RBACUserManagement = () => {
@@ -1590,33 +1591,10 @@ const RBACUserManagement = () => {
                     </Tab>
 
                     {/* Registration Notifications Tab (Super Admin Only) */}
-                    <Tab eventKey="notifications" title={<><i className="fas fa-bell me-2"></i>Registration Notifications<Badge bg="danger" className="ms-2">0</Badge></>}>
+                    <Tab eventKey="notifications" title={<><i className="fas fa-user-check me-2"></i>User Approvals<Badge bg="warning" className="ms-2">{notificationStats.totalPending}</Badge></>}>
                         <div className="tab-content-wrapper">
-                            <Row className="mb-4">
-                                <Col>
-                                    <Card>
-                                        <Card.Body>
-                                            <h4>🔔 Registration Notifications</h4>
-                                            <p>This is the Registration Notifications tab for doctor approval management.</p>
-                                            <Alert variant="info">
-                                                <strong>Feature Status:</strong> Registration notification system is now active.
-                                                Super admins can approve or reject doctor registrations from this interface.
-                                            </Alert>
-                                            <div className="d-flex gap-2">
-                                                <Button variant="primary" onClick={() => alert('Approval system ready!')}>
-                                                    <i className="fas fa-check me-2"></i>Test Approval
-                                                </Button>
-                                                <Button variant="warning" onClick={() => alert('Rejection system ready!')}>
-                                                    <i className="fas fa-times me-2"></i>Test Rejection
-                                                </Button>
-                                                <Button variant="info" onClick={() => loadRegistrationNotifications()}>
-                                                    <i className="fas fa-sync-alt me-2"></i>Load Notifications
-                                                </Button>
-                                            </div>
-                                        </Card.Body>
-                                    </Card>
-                                </Col>
-                            </Row>
+                            {/* Enhanced User Approval Component */}
+                            <EnhancedUserApproval />
                         </div>
                     </Tab>
 

@@ -33,6 +33,7 @@ import RBACRoleManagement from '../views/dashboard-pages/RBACRoleManagement';
 import RBACActivityMonitor from '../views/dashboard-pages/RBACActivityMonitor';
 import RBACSessionManagement from '../views/dashboard-pages/RBACSessionManagement';
 import RBACSecurityAlerts from '../views/dashboard-pages/RBACSecurityAlerts';
+import UserApprovalPage from '../views/dashboard-pages/UserApprovalPage';
 
 // Landing Page
 import LandingPage from '../views/LandingPage';
@@ -175,6 +176,10 @@ export const DefaultRoute = [
       {
         path: 'rbac-user-management',
         element: <EnhancedRBACUserManagement />,
+      },
+      {
+        path: 'user-approval',
+        element: <UserApprovalPage />,
       },
       {
         path: 'rbac-role-management',

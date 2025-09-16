@@ -1,0 +1,95 @@
+// User Approval Page Styles
+.user-approval-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8f9ff 0%, #e6eeff 100%);
+
+  .breadcrumb {
+    background: transparent;
+    padding: 0;
+    margin-bottom: 0.5rem;
+  }
+
+  .card {
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  // Enhanced visual hierarchy
+  h2 {
+    color: #2c3e50;
+    font-weight: 600;
+    
+    i {
+      background: linear-gradient(45deg, #3498db, #2980b9);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+  }
+
+  // Responsive improvements
+  @media (max-width: 768px) {
+    .container-fluid {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      
+      i {
+        display: block;
+        margin-bottom: 0.5rem;
+      }
+    }
+  }
+
+  // Access denied styling
+  .text-danger {
+    i {
+      opacity: 0.7;
+    }
+  }
+}
+
+// Override Bootstrap breadcrumb styles
+.breadcrumb {
+  .breadcrumb-item {
+    color: #6c757d;
+
+    &.active {
+      color: #495057;
+      font-weight: 500;
+    }
+
+    a {
+      color: #007bff;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+// Enhanced shadow effects
+.shadow-sm {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08) !important;
+}
+
+// Loading states
+.user-approval-page {
+  .loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+}

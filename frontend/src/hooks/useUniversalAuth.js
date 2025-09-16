@@ -4,38 +4,57 @@
 import React, { useContext } from 'react';
 import { RoleUtils, USER_ROLES } from '../config/roleBasedAccess';
 
+// Safe imports - will not throw if files don't exist
+let AuthContext = null;
+let EnhancedAuthContext = null;
+
+try {
+  const authModule = require('../context/AuthContext');
+  AuthContext = authModule?.AuthContext || authModule?.default;
+} catch (e) {
+  // AuthContext not available
+}
+
+try {
+  const enhancedAuthModule = require('../context/EnhancedAuthContext');
+  EnhancedAuthContext = enhancedAuthModule?.AuthContext || enhancedAuthModule?.default;
+} catch (e) {
+  // EnhancedAuthContext not available
+}
+
 // Universal hook that tries multiple contexts and provides safe fallbacks
 export const useUniversalAuth = () => {
   // Try to get auth context from multiple sources
   let authData = {};
 
+  // Try multiple auth contexts with silent fallbacks
   try {
-    // Try 1: Enhanced Auth Context (from DualAuthProvider)
-    const { AuthContext: EnhancedAuthContext } = require('../context/EnhancedAuthContext');
-    const enhancedAuth = useContext(EnhancedAuthContext);
-    if (enhancedAuth && Object.keys(enhancedAuth).length > 0) {
-      authData = enhancedAuth;
+    // Try 1: Enhanced Auth Context (if available)
+    if (EnhancedAuthContext) {
+      const enhancedAuth = useContext(EnhancedAuthContext);
+      if (enhancedAuth && typeof enhancedAuth === 'object' && Object.keys(enhancedAuth).length > 0) {
+        authData = enhancedAuth;
+      }
     }
   } catch (error) {
-    // Enhanced context not available
+    // Enhanced context failed silently
   }
 
-  if (!authData || Object.keys(authData).length === 0) {
+  // Try 2: Original Auth Context (if enhanced not available or failed)
+  if ((!authData || Object.keys(authData).length === 0) && AuthContext) {
     try {
-      // Try 2: Original Auth Context
-      const { AuthContext: OriginalAuthContext } = require('../context/AuthContext');
-      const originalAuth = useContext(OriginalAuthContext);
-      if (originalAuth && Object.keys(originalAuth).length > 0) {
+      const originalAuth = useContext(AuthContext);
+      if (originalAuth && typeof originalAuth === 'object' && Object.keys(originalAuth).length > 0) {
         authData = originalAuth;
       }
     } catch (error) {
-      // Original context not available
+      // Original context failed silently
     }
   }
 
+  // Try 3: Check localStorage for existing auth state (if no context available)
   if (!authData || Object.keys(authData).length === 0) {
     try {
-      // Try 3: Check localStorage for existing auth state
       const token = localStorage.getItem('authToken');
       const userData = localStorage.getItem('userData');
       
@@ -64,8 +83,13 @@ export const useUniversalAuth = () => {
     }
   }
 
-  // Final fallback - return safe defaults
+  // Final fallback - return safe defaults (suppress excessive logging)
   if (!authData || Object.keys(authData).length === 0) {
+    // Only log fallback usage in development and limit frequency
+    if (process.env.NODE_ENV === 'development' && Math.random() < 0.1) {
+      console.info('useUniversalAuth: Using fallback auth state (no provider found)');
+    }
+    
     authData = {
       user: null,
       token: null,
