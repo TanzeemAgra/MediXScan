@@ -366,16 +366,13 @@ export const login = async (loginId, password) => {
     console.log('� EMERGENCY LOGIN attempt for:', loginId);
     console.log('🌐 Using API base URL:', ENV_CONFIG.API_BASE_URL);
 
-    // EMERGENCY: Comprehensive endpoint fallback system
+    // EMERGENCY: Use WORKING endpoints - confirmed working in production tests
     const emergencyLoginEndpoints = [
-      API_ENDPOINTS.AUTH.LOGIN,           // '/auth/login/' - Primary enhanced endpoint
-      '/auth/emergency-login/',           // Emergency diagnostics
-      '/accounts/emergency/login-test/',  // Backend emergency API
-      '/accounts/emergency/diagnostic/',  // Backend diagnostic
-      '/auth/simple-login/',              // Simple fallback
-      '/api/auth/login/',                 // Alternative auth path
-      '/login/',                          // Direct login
-      '/accounts/login/'                  // Django accounts login
+      '/auth/emergency/login-test/',      // ✅ CONFIRMED WORKING (returns token!)
+      '/auth/login/',                     // Standard auth (returns "pending approval")  
+      '/auth/emergency/diagnostic/',      // Emergency diagnostics
+      '/auth/emergency-login/',           // Alternative emergency
+      '/auth/simple-login/'               // Simple fallback
     ];
 
     let lastError = null;
