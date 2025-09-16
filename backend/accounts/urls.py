@@ -4,6 +4,7 @@ from . import views
 from .simple_views import simple_login
 from .emergency_login import emergency_login
 from .emergency_admin import emergency_approve_admin, emergency_status
+from .emergency_views import emergency_auth_diagnostic, emergency_login_test
 
 # Create router for ViewSets
 router = DefaultRouter()
@@ -25,6 +26,10 @@ urlpatterns = [
     # Emergency admin endpoints
     path('emergency/approve-admin/', emergency_approve_admin, name='emergency-approve-admin'),
     path('emergency/status/', emergency_status, name='emergency-status'),
+    
+    # Emergency diagnostic endpoints
+    path('emergency/diagnostic/', emergency_auth_diagnostic, name='emergency-diagnostic'),
+    path('emergency/login-test/', emergency_login_test, name='emergency-login-test'),
     
     # Profile management
     path('profile/', views.ProfileView.as_view(), name='profile'),
