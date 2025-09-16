@@ -228,9 +228,24 @@ CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS', default=[
 ])
 
 # If a maintainer supplied a string variable (some dashboards provide strings),
-# convert it into a proper list.
+# convert it into a proper list and validate URL schemes.
 if isinstance(CORS_ALLOWED_ORIGINS, str):
     CORS_ALLOWED_ORIGINS = [o.strip() for o in CORS_ALLOWED_ORIGINS.split(',') if o.strip()]
+
+# Validate and fix CORS origins - ensure all have proper schemes
+validated_origins = []
+for origin in CORS_ALLOWED_ORIGINS:
+    origin = origin.strip()
+    if origin:
+        # Fix missing schemes - add https:// for production domains, http:// for localhost
+        if not origin.startswith(('http://', 'https://')):
+            if 'localhost' in origin or '127.0.0.1' in origin:
+                origin = f'http://{origin}'
+            else:
+                origin = f'https://{origin}'
+        validated_origins.append(origin)
+
+CORS_ALLOWED_ORIGINS = validated_origins
 
 # Log CORS configuration at startup for easier debugging in Railway logs
 try:
