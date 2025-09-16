@@ -2,6 +2,7 @@
 // Soft-coded solution to prevent "useAuth must be used within an AuthProvider" errors
 
 import React, { useContext } from 'react';
+import { RoleUtils, USER_ROLES } from '../config/roleBasedAccess';
 
 // Universal hook that tries multiple contexts and provides safe fallbacks
 export const useUniversalAuth = () => {
@@ -84,21 +85,50 @@ export const useUniversalAuth = () => {
     };
   }
 
-  // Ensure all required properties exist with safe defaults
+  // Get user role using soft-coded role system
+  const user = authData.user || null;
+  const userRole = user ? RoleUtils.getUserRole(user) : USER_ROLES.GUEST;
+  
+  // Ensure all required properties exist with safe defaults and enhanced RBAC
   return {
-    user: authData.user || null,
+    user: user,
     token: authData.token || null,
     isAuthenticated: Boolean(authData.isAuthenticated),
     loading: Boolean(authData.loading),
     error: authData.error || null,
     login: authData.login || null,
     logout: authData.logout || (() => { window.location.href = '/auth/sign-in'; }),
-    // RBAC properties
-    hasRole: authData.hasRole || (() => false),
-    hasPermission: authData.hasPermission || (() => false),
-    isSuperUser: Boolean(authData.user?.is_superuser || authData.isSuperUser),
-    isDoctor: Boolean(authData.user?.groups?.includes('Doctor') || authData.isDoctor),
-    isStaff: Boolean(authData.user?.is_staff || authData.isStaff),
+    
+    // Enhanced RBAC properties using soft-coded system
+    userRole: userRole,
+    roleName: userRole.name,
+    roleDisplayName: userRole.displayName,
+    roleLevel: userRole.level,
+    
+    // Permission checking functions
+    hasPermission: (permission) => RoleUtils.hasPermission(user, permission),
+    hasAnyPermission: (permissions) => RoleUtils.hasAnyPermission(user, permissions),
+    canAccessNavItem: (navItem) => RoleUtils.canAccessNavItem(user, navItem),
+    getAllowedNavigation: () => RoleUtils.getAllowedNavigation(user),
+    hasMinimumRoleLevel: (level) => RoleUtils.hasMinimumRoleLevel(user, level),
+    
+    // Legacy RBAC properties for backward compatibility
+    hasRole: (role) => userRole.name === role.toUpperCase(),
+    isSuperUser: Boolean(userRole.name === 'SUPERUSER' || user?.is_superuser),
+    isAdmin: Boolean(userRole.name === 'ADMIN' || userRole.name === 'SUPERUSER'),
+    isDoctor: Boolean(userRole.name === 'DOCTOR' || userRole.name === 'RADIOLOGIST'),
+    isStaff: Boolean(userRole.level >= 60 || user?.is_staff), // Doctors and above are considered staff
+    isTechnician: Boolean(userRole.name === 'TECHNICIAN'),
+    isNurse: Boolean(userRole.name === 'NURSE'),
+    isClient: Boolean(userRole.name === 'CLIENT'),
+    
+    // Quick access permission checks for common features
+    canAccessAdmin: () => RoleUtils.hasPermission(user, 'admin_dashboard'),
+    canManageUsers: () => RoleUtils.hasPermission(user, 'user_management'),
+    canAccessRadiology: () => RoleUtils.hasPermission(user, 'radiology_access'),
+    canManageReports: () => RoleUtils.hasPermission(user, 'report_management'),
+    canViewAnalytics: () => RoleUtils.hasPermission(user, 'analytics_access') || RoleUtils.hasPermission(user, 'view_analytics'),
+    
     // Additional safety properties
     clearError: authData.clearError || (() => {}),
     refreshAuthToken: authData.refreshAuthToken || (() => Promise.resolve(false))

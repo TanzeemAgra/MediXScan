@@ -14,22 +14,18 @@ const VerticalNav = () => {
     const { t } = useLanguage();
     const { user, isSuperUser, isStaff } = useUniversalAuth();
 
-    // Enhanced superuser detection - use universal auth values plus fallbacks
-    const hasSuperAdminAccess = Boolean(
-        isSuperUser ||
-        isStaff ||
-        user?.is_superuser || 
-        user?.is_staff ||
-        user?.roles?.some(role => 
-            role === 'SUPERUSER' || 
-            role === 'ADMIN' || 
-            role === 'SuperAdmin' ||
-            role?.name === 'SUPERUSER' ||
-            role?.name === 'ADMIN' ||
-            role?.name === 'SuperAdmin'
-        ) ||
-        user?.email === 'tanzeem.agra@rugrel.com' // Temporary admin override
-    );
+    // Use role-based access system for better control
+    const { 
+        canAccessAdmin, 
+        canManageUsers, 
+        canAccessRadiology, 
+        hasPermission,
+        userRole,
+        getAllowedNavigation 
+    } = useUniversalAuth();
+    
+    const hasSuperAdminAccess = canAccessAdmin();
+    const allowedNavItems = getAllowedNavigation();
     
     // Get RBAC navigation items dynamically using soft-coded approach
     const rbacItems = getRBACNavigationItems(user);
