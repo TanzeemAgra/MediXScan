@@ -104,10 +104,15 @@ const SignIn = () => {
       console.log('🔍 Password value length:', formData.password?.length);
       
       // Use AuthContext login instead of direct API call
-      const result = await login({
-        email: formData.loginId.trim(),
-        password: formData.password
-      });
+      // Ensure we have valid credentials before sending
+      const loginCredentials = {
+        email: formData.loginId?.trim() || '',
+        password: formData.password || ''
+      };
+      
+      console.log('🔍 Sending credentials to AuthContext:', loginCredentials);
+      
+      const result = await login(loginCredentials);
       
       console.log('✅ Login result:', result);
       

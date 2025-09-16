@@ -78,19 +78,31 @@ export const AuthProvider = ({ children }) => {
       console.log('🔍 Email:', credentials?.email);
       console.log('🔍 Password length:', credentials?.password?.length);
       
-      // Soft-coded credentials validation
-      if (!credentials || !credentials.email || !credentials.password) {
-        console.error('❌ AuthContext validation failed:', {
-          hasCredentials: !!credentials,
-          hasEmail: !!credentials?.email,
-          hasPassword: !!credentials?.password,
-          credentials: credentials
-        });
+      // Soft-coded credentials validation with better error details
+      const email = credentials?.email?.trim();
+      const password = credentials?.password;
+      
+      if (!credentials) {
+        console.error('❌ AuthContext: No credentials object provided');
         throw new Error('Email and password are required');
       }
       
+      if (!email || email === '') {
+        console.error('❌ AuthContext: Email is empty or missing');
+        throw new Error('Email is required');
+      }
+      
+      if (!password || password === '') {
+        console.error('❌ AuthContext: Password is empty or missing');
+        throw new Error('Password is required');
+      }
+      
+      console.log('✅ AuthContext: Credentials validation passed');
+      console.log('🔍 Email:', email);
+      console.log('🔍 Password length:', password.length);
+      
       // Use the enhanced login function from api.js
-      const response = await loginAPI(credentials.email, credentials.password);
+      const response = await loginAPI(email, password);
       
       // Soft-coded token handling based on response structure
       let accessToken, refreshToken, userData;
