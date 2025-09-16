@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Form, FormControl, Button, Card, Badge } from 'react-bootstrap';
+import { Container, Row, Col, Form, Button, Card, Badge } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import * as api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
@@ -85,10 +85,16 @@ const SignIn = () => {
   }, [isAuthenticated, navigate, redirectPath]);
 
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
+    console.log(`🔄 handleInputChange called - Field: ${field}, Value: "${value}"`);
+    
+    setFormData(prev => {
+      const newData = {
+        ...prev,
+        [field]: value
+      };
+      console.log(`🔍 Form data updated:`, newData);
+      return newData;
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -179,13 +185,17 @@ const SignIn = () => {
         <i className={`${field.icon} me-2`} style={{ color: theme.primaryColor }}></i>
         {field.label}
       </label>
-      <FormControl
+      <input
         type={field.type}
-        className="form-control-lg"
+        className="form-control form-control-lg"
         id={field.id}
+        name={field.id}
         placeholder={field.placeholder}
-        value={formData[field.id]}
-        onChange={(e) => handleInputChange(field.id, e.target.value)}
+        value={formData[field.id] || ''}
+        onChange={(e) => {
+          console.log(`🔍 Input ${field.id} changed to:`, e.target.value);
+          handleInputChange(field.id, e.target.value);
+        }}
         required={field.required}
         style={{
           borderRadius: theme.borderRadius,

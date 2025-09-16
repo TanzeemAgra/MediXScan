@@ -10,6 +10,7 @@ import SecureSignIn from '../views/auth/secure-sign-in'; // Secure version
 import BeautifulSecureSignIn from '../views/auth/beautiful-secure-sign-in'; // Beautiful + Secure version
 import SignUp from '../views/auth/sign-up';
 import RegistrationPage from '../views/auth/RegistrationPage';
+import SimpleLoginForm from '../components/SimpleLoginForm'; // Emergency simple login
 
 // Dashboard Pages
 import MainDashboard from '../views/dashboard-pages/main-dashboard';
@@ -453,6 +454,10 @@ export const BlankLayoutRouter = [
       {
         path: 'sign-in', // Beautiful + Secure login (primary)
         element: <BeautifulSecureSignIn />,
+      },
+      {
+        path: 'simple-login', // EMERGENCY: Simple working login form
+        element: <SimpleLoginForm />,
       },
       {
         path: 'secure-signin', // Enterprise secure version
