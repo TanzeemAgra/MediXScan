@@ -9,6 +9,7 @@ import SignIn from '../views/auth/sign-in';
 import SecureSignIn from '../views/auth/secure-sign-in'; // Secure version
 import BeautifulSecureSignIn from '../views/auth/beautiful-secure-sign-in'; // Beautiful + Secure version
 import ModernSignIn from '../components/auth/ModernSignIn'; // New comprehensive sign-in
+import EmergencyLogin from '../components/auth/EmergencyLogin'; // Emergency fallback login
 import SignUp from '../views/auth/sign-up';
 import RegistrationPage from '../views/auth/RegistrationPage';
 import SimpleLoginForm from '../components/SimpleLoginForm'; // Emergency simple login
@@ -467,6 +468,10 @@ export const BlankLayoutRouter = [
       {
         path: 'simple-login', // EMERGENCY: Simple working login form
         element: <SimpleLoginForm />,
+      },
+      {
+        path: 'emergency-login', // EMERGENCY: Fallback authentication (no context dependencies)
+        element: <EmergencyLogin />,
       },
       {
         path: 'secure-signin', // Enterprise secure version

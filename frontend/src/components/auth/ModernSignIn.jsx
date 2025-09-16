@@ -1,7 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { Container, Row, Col, Card, Alert, Spinner, Button, Form } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
-import { AuthContext } from '../../context/AuthContext';
 import { 
   AUTH_METHODS, 
   AUTH_THEME, 
@@ -10,9 +9,96 @@ import {
   DEFAULT_CREDENTIALS 
 } from '../../config/newAuthConfig';
 
-const ModernSignIn = () => {
+// Import the safe auth hook
+import { useSafeAuth } from '../../context/DualAuthProvider';
+
+// Error Boundary Component
+class AuthErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error('Auth component error:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-vh-100 d-flex align-items-center justify-content-center">
+          <div className="text-center">
+            <h3>Authentication Error</h3>
+            <p>Something went wrong with the authentication system.</p>
+            <button 
+              className="btn btn-primary"
+              onClick={() => window.location.reload()}
+            >
+              Reload Page
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
+const ModernSignInCore = () => {
   const navigate = useNavigate();
-  const { login, loading, error, isAuthenticated } = useContext(AuthContext);
+  
+  // Use the safe auth hook with defensive programming and error handling
+  let authContextValue = {};
+  try {
+    authContextValue = useSafeAuth() || {};
+  } catch (error) {
+    console.error('Safe auth hook error:', error);
+    authContextValue = {};
+  }
+  
+  // Destructure with defaults to prevent undefined errors
+  const { 
+    login = null, 
+    loading = false, 
+    error = null, 
+    isAuthenticated = false 
+  } = authContextValue || {};
+  
+  // Soft-coded fallback login function if context is unavailable
+  const fallbackLogin = async (credentials) => {
+    try {
+      const response = await fetch('https://medixscan-production.up.railway.app/api/auth/login/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(credentials)
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok && data.token) {
+        // Store token and redirect
+        localStorage.setItem('authToken', data.token);
+        localStorage.setItem('userData', JSON.stringify(data.user));
+        navigate('/dashboard');
+        return { success: true };
+      } else {
+        throw new Error(data.error || 'Login failed');
+      }
+    } catch (error) {
+      console.error('Fallback login error:', error);
+      return { success: false, error: error.message };
+    }
+  };
+  
+  // Use context login or fallback
+  const activeLogin = login || fallbackLogin;
   
   // State Management
   const [activeMethod, setActiveMethod] = useState(AUTH_METHODS.EMAIL_PASSWORD.id);
@@ -21,6 +107,7 @@ const ModernSignIn = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [contextError, setContextError] = useState(null);
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -115,7 +202,7 @@ const ModernSignIn = () => {
 
       console.log('Login attempt with data:', loginData);
       
-      const result = await login(loginData);
+      const result = await activeLogin(loginData);
       
       if (result.success) {
         navigate('/dashboard');
@@ -306,8 +393,8 @@ const ModernSignIn = () => {
                 {/* Method Selection Tabs */}
                 {renderMethodTabs()}
 
-                {/* Error Alert */}
-                {error && (
+                {/* Error Alert - Show context errors or authentication errors */}
+                {(error || contextError) && (
                   <Alert 
                     variant="danger" 
                     className="mb-4"
@@ -319,8 +406,19 @@ const ModernSignIn = () => {
                     }}
                   >
                     <i className="fas fa-exclamation-circle me-2"></i>
-                    {error}
+                    {contextError ? `Context Error: ${contextError}` : error}
                   </Alert>
+                )}
+
+                {/* Context Status Indicator (development only) */}
+                {process.env.NODE_ENV === 'development' && (
+                  <div className="mb-3">
+                    <small className="text-muted">
+                      Auth Status: {login ? '✅ Context Available' : '⚠️ Using Fallback'} | 
+                      Loading: {loading ? 'Yes' : 'No'} | 
+                      Authenticated: {isAuthenticated ? 'Yes' : 'No'}
+                    </small>
+                  </div>
                 )}
 
                 {/* Login Form */}
@@ -445,6 +543,15 @@ const ModernSignIn = () => {
         </Row>
       </Container>
     </div>
+  );
+};
+
+// Main component wrapped with error boundary
+const ModernSignIn = () => {
+  return (
+    <AuthErrorBoundary>
+      <ModernSignInCore />
+    </AuthErrorBoundary>
   );
 };
 

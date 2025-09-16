@@ -2,9 +2,36 @@
 // Provides dual authentication support with fallback capability
 
 import React, { useState, useEffect } from 'react';
-import { AuthProvider as OriginalAuthProvider } from './AuthContext';
-import { AuthProvider as EnhancedAuthProvider } from './EnhancedAuthContext';
+import { AuthProvider as OriginalAuthProvider, AuthContext as OriginalAuthContext } from './AuthContext';
+import { AuthProvider as EnhancedAuthProvider, AuthContext as EnhancedAuthContext } from './EnhancedAuthContext';
 import { AUTH_FEATURES } from '../config/newAuthConfig';
+
+// Export the current context for components to use
+export { OriginalAuthContext, EnhancedAuthContext };
+
+// Soft-coded safe auth hook that works with any context
+export const useSafeAuth = () => {
+  try {
+    // Try enhanced auth first
+    const { useAuth } = require('./EnhancedAuthContext');
+    return useAuth();
+  } catch (error) {
+    try {
+      // Fallback to original auth
+      const { useAuth } = require('./AuthContext');
+      return useAuth();
+    } catch (fallbackError) {
+      // Return empty object if no context available
+      console.warn('No auth context available, using fallback');
+      return {
+        login: null,
+        loading: false,
+        error: null,
+        isAuthenticated: false
+      };
+    }
+  }
+};
 
 const DualAuthProvider = ({ children }) => {
   const [useEnhancedAuth, setUseEnhancedAuth] = useState(true);
