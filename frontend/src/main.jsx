@@ -34,8 +34,8 @@ import { Provider } from "react-redux";
 // Language provider
 import { LanguageProvider } from "./context/LanguageContext.jsx";
 
-// Auth provider
-import { AuthProvider } from "./context/AuthContext";
+// Auth provider - Enhanced with fallback support
+import DualAuthProvider from "./context/DualAuthProvider";
 
 // Error Boundary
 import ErrorBoundary from "./components/ErrorBoundary";
@@ -52,7 +52,7 @@ createRoot(document.getElementById('root')).render(
     <ErrorBoundary>
       <Provider store={store}>
         <LanguageProvider>
-          <AuthProvider>
+          <DualAuthProvider>
             <RouterProvider router={router} />
             <ToastContainer 
               position="top-right"
@@ -66,7 +66,7 @@ createRoot(document.getElementById('root')).render(
               pauseOnHover
               theme="light"
             />
-          </AuthProvider>
+          </DualAuthProvider>
         </LanguageProvider>
       </Provider>
     </ErrorBoundary>

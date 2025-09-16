@@ -8,6 +8,7 @@ import { ROUTES, ConfigHelpers } from '../config/appConfig.js';
 import SignIn from '../views/auth/sign-in';
 import SecureSignIn from '../views/auth/secure-sign-in'; // Secure version
 import BeautifulSecureSignIn from '../views/auth/beautiful-secure-sign-in'; // Beautiful + Secure version
+import ModernSignIn from '../components/auth/ModernSignIn'; // New comprehensive sign-in
 import SignUp from '../views/auth/sign-up';
 import RegistrationPage from '../views/auth/RegistrationPage';
 import SimpleLoginForm from '../components/SimpleLoginForm'; // Emergency simple login
@@ -452,7 +453,15 @@ export const BlankLayoutRouter = [
         element: <SignIn />,
       },
       {
-        path: 'sign-in', // Beautiful + Secure login (primary)
+        path: 'sign-in', // New Modern Comprehensive Sign-In (PRIMARY)
+        element: <ModernSignIn />,
+      },
+      {
+        path: 'modern-signin', // Alternative path for modern sign-in
+        element: <ModernSignIn />,
+      },
+      {
+        path: 'beautiful-signin', // Fallback: Beautiful + Secure login
         element: <BeautifulSecureSignIn />,
       },
       {
