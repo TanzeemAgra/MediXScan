@@ -6,6 +6,16 @@
 import { useState, useEffect } from 'react';
 import { RESPONSIVE_CONFIG } from '@config/responsiveConfig.js';
 
+// Safe configuration access with fallbacks
+const getSafeConfig = () => {
+  try {
+    return RESPONSIVE_CONFIG || {};
+  } catch (error) {
+    console.warn('Error accessing RESPONSIVE_CONFIG:', error);
+    return {};
+  }
+};
+
 export const useResponsiveButtons = () => {
   const [deviceType, setDeviceType] = useState('desktop');
   const [buttonConfig, setButtonConfig] = useState(null);
@@ -22,28 +32,67 @@ export const useResponsiveButtons = () => {
 
   // Get button configuration based on device
   const getButtonConfig = (device) => {
-    const config = RESPONSIVE_CONFIG.buttons[device];
+    const safeConfig = getSafeConfig();
+    const buttonsConfig = safeConfig.buttons || {};
+    const config = buttonsConfig[device];
+    
+    if (!config) {
+      // Fallback configuration if device config is missing
+      return {
+        containerStyle: {
+          display: 'flex',
+          flexDirection: 'row',
+          flexWrap: 'wrap',
+          gap: '16px',
+          justifyContent: 'center',
+          alignItems: 'center',
+          width: '100%',
+          maxWidth: '500px',
+          margin: '0 auto'
+        },
+        buttonStyle: {
+          width: 'auto',
+          minWidth: '180px',
+          maxWidth: '250px',
+          minHeight: '48px',
+          fontSize: '1.1rem',
+          padding: '12px 24px',
+          borderRadius: '12px',
+          border: 'none',
+          cursor: 'pointer',
+          transition: 'all 0.3s ease',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          textAlign: 'center',
+          visibility: 'visible !important',
+          opacity: '1 !important'
+        }
+      };
+    }
+    
+    const layout = config.layout || 'horizontal';
     
     return {
       containerStyle: {
         display: 'flex',
-        flexDirection: config.layout === 'vertical-centered' || config.layout === 'vertical-full' ? 'column' : 'row',
-        flexWrap: config.flexWrap,
-        gap: config.gap,
-        justifyContent: config.layout.includes('centered') ? 'center' : 'flex-start',
-        alignItems: config.layout.includes('vertical') ? 'stretch' : 'center',
+        flexDirection: layout === 'vertical-centered' || layout === 'vertical-full' ? 'column' : 'row',
+        flexWrap: config.flexWrap || 'wrap',
+        gap: config.gap || '16px',
+        justifyContent: layout.includes('centered') ? 'center' : 'flex-start',
+        alignItems: layout.includes('vertical') ? 'stretch' : 'center',
         width: '100%',
         maxWidth: '500px', // Prevent overstretching
         margin: '0 auto'
       },
       buttonStyle: {
-        width: config.width,
-        minWidth: config.minWidth,
-        maxWidth: config.maxWidth,
-        minHeight: config.minHeight,
-        fontSize: config.fontSize,
-        padding: config.padding,
-        borderRadius: config.borderRadius,
+        width: config.width || 'auto',
+        minWidth: config.minWidth || '180px',
+        maxWidth: config.maxWidth || '250px',
+        minHeight: config.minHeight || '48px',
+        fontSize: config.fontSize || '1.1rem',
+        padding: config.padding || '12px 24px',
+        borderRadius: config.borderRadius || '12px',
         border: 'none',
         cursor: 'pointer',
         transition: 'all 0.3s ease',
@@ -82,18 +131,32 @@ export const useResponsiveButtons = () => {
 
   // Handle resize with debounce
   useEffect(() => {
-    const handleResize = () => {
-      const newDeviceType = detectDevice();
-      if (newDeviceType !== deviceType) {
-        setDeviceType(newDeviceType);
-        setButtonConfig(getButtonConfig(newDeviceType));
-      }
-    };
+    try {
+      const handleResize = () => {
+        try {
+          const newDeviceType = detectDevice();
+          if (newDeviceType !== deviceType) {
+            setDeviceType(newDeviceType);
+            setButtonConfig(getButtonConfig(newDeviceType));
+          }
+        } catch (error) {
+          console.warn('Error in handleResize:', error);
+          // Set safe fallback
+          setDeviceType('desktop');
+          setButtonConfig(getButtonConfig('desktop'));
+        }
+      };
 
-    // Initial setup
-    const initialDevice = detectDevice();
-    setDeviceType(initialDevice);
-    setButtonConfig(getButtonConfig(initialDevice));
+      // Initial setup
+      const initialDevice = detectDevice();
+      setDeviceType(initialDevice);
+      setButtonConfig(getButtonConfig(initialDevice));
+    } catch (error) {
+      console.warn('Error in useResponsiveButtons useEffect:', error);
+      // Safe fallback
+      setDeviceType('desktop');
+      setButtonConfig(getButtonConfig('desktop'));
+    }
 
     // Debounced resize handler
     let timeoutId;
