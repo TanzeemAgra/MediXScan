@@ -338,10 +338,10 @@ export const login = async (loginId, password) => {
     console.log('🌐 Using API base URL:', ENV_CONFIG.API_BASE_URL);
 
     // Soft-coded endpoint selection with fallback
-    // TEMPORARY: Use emergency login first while approval issue is being fixed
+    // FIXED: Admin approval issue resolved, using main login endpoint first
     const loginEndpoints = [
-      '/auth/emergency-login/',           // Emergency login (works!)
-      API_ENDPOINTS.AUTH.LOGIN,           // '/auth/login/'
+      API_ENDPOINTS.AUTH.LOGIN,           // '/auth/login/' (FIXED - now works!)
+      '/auth/emergency-login/',           // Emergency login (backup)
       '/auth/simple-login/'              // Simple fallback
     ];
 
