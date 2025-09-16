@@ -63,11 +63,66 @@ class RegisterView(APIView):
 
 @method_decorator(csrf_exempt, name='dispatch')
 class LoginView(APIView):
-    """Enhanced login endpoint with RBAC support"""
+    """Enhanced login endpoint with RBAC support and soft-coded authentication"""
     permission_classes = [AllowAny]
     
+    def enhanced_user_lookup(self, email_or_username):
+        """Soft-coded user lookup that tries multiple methods"""
+        try:
+            # Method 1: Direct email lookup
+            user = User.objects.filter(email=email_or_username).first()
+            if user:
+                print(f"✅ Found user by email: {user.username}")
+                return user
+            
+            # Method 2: Username lookup  
+            user = User.objects.filter(username=email_or_username).first()
+            if user:
+                print(f"✅ Found user by username: {user.username}")
+                return user
+                
+            # Method 3: Case-insensitive combined lookup
+            from django.db.models import Q
+            user = User.objects.filter(
+                Q(email__iexact=email_or_username) | 
+                Q(username__iexact=email_or_username)
+            ).first()
+            if user:
+                print(f"✅ Found user by Q lookup: {user.username}")
+                return user
+                
+            return None
+        except Exception as e:
+            print(f"❌ Error in user lookup: {e}")
+            return None
+    
+    def enhanced_authentication(self, user, password):
+        """Soft-coded authentication with multiple methods"""
+        try:
+            # Method 1: Standard Django authentication with username
+            auth_user = authenticate(username=user.username, password=password)
+            if auth_user:
+                print(f"✅ Auth successful with username: {user.username}")
+                return auth_user
+            
+            # Method 2: Authentication with email as username
+            auth_user = authenticate(username=user.email, password=password)
+            if auth_user:
+                print(f"✅ Auth successful with email: {user.email}")
+                return auth_user
+            
+            # Method 3: Direct password verification
+            if user.check_password(password):
+                print(f"✅ Direct password check successful")
+                return user
+                
+            return None
+        except Exception as e:
+            print(f"❌ Error in authentication: {e}")
+            return None
+    
     def post(self, request):
-        print("=== MAIN LOGIN VIEW CALLED ===")
+        print("=== ENHANCED LOGIN VIEW CALLED ===")
         print(f"Request data: {request.data}")
         print(f"Request method: {request.method}")
         print(f"Request headers: {dict(request.headers)}")
@@ -85,19 +140,20 @@ class LoginView(APIView):
                     'error': 'Email and password required'
                 }, status=status.HTTP_400_BAD_REQUEST)
             
-            # Check if user exists
-            try:
-                user_obj = User.objects.get(email=email)
-                print(f"User found: {user_obj.email}, active: {user_obj.is_active}")
-            except User.DoesNotExist:
+            # Enhanced user lookup
+            user_obj = self.enhanced_user_lookup(email)
+            if not user_obj:
                 print(f"User {email} does not exist")
                 return Response({
-                    'error': 'User not found'
+                    'error': 'User not found',
+                    'debug': 'ENHANCED_USER_LOOKUP_FAILED'
                 }, status=status.HTTP_400_BAD_REQUEST)
             
-            # Authenticate
-            user = authenticate(username=email, password=password)
-            print(f"Authentication result: {user}")
+            print(f"User found: {user_obj.email}, active: {user_obj.is_active}")
+            
+            # Enhanced Authentication
+            user = self.enhanced_authentication(user_obj, password)
+            print(f"Enhanced authentication result: {user}")
             
             if user:
                 if not user.is_active:
@@ -156,9 +212,10 @@ class LoginView(APIView):
                 print(f"Returning success response")
                 return Response(response_data, status=status.HTTP_200_OK)
             else:
-                print("Authentication failed")
+                print("Enhanced authentication failed")
                 return Response({
-                    'error': 'Invalid email or password'
+                    'error': 'Invalid email or password',
+                    'debug': 'ENHANCED_AUTHENTICATION_FAILED'
                 }, status=status.HTTP_400_BAD_REQUEST)
                 
         except Exception as e:
