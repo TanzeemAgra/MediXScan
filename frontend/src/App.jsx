@@ -12,6 +12,9 @@ import {
 // Import deployment configuration utilities
 import { deploymentWarningHandler } from "./utils/deploymentConfigUtils";
 
+// Import responsive utilities
+import { injectResponsiveVariables } from "./utils/responsiveUtils";
+
 function App() {
   const dispatch = useDispatch();
   
@@ -20,6 +23,20 @@ function App() {
     
     // Initialize deployment optimizations (suppress SASS warnings)
     deploymentWarningHandler.initializeDeploymentOptimizations();
+    
+    // Initialize responsive variables
+    injectResponsiveVariables();
+    
+    // Re-inject on window resize
+    const handleResize = () => {
+      injectResponsiveVariables();
+    };
+    
+    window.addEventListener('resize', handleResize);
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
   }, [dispatch]);
   
   return null;

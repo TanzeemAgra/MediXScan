@@ -1,0 +1,184 @@
+/*
+ * Enhanced Button Visibility CSS
+ * Purpose: Guarantee button visibility across all devices and screen sizes
+ * Fixes: Watch Demo button disappearing issue
+ */
+
+/* Force button visibility - highest priority */
+.hero-cta-button,
+.smart-responsive-btn,
+.smart-button-container button {
+  visibility: visible !important;
+  display: flex !important;
+  opacity: 1 !important;
+  position: relative !important;
+  z-index: 100 !important;
+  pointer-events: auto !important;
+  transform: none !important;
+}
+
+/* Smart Button Container - Responsive Layout */
+.smart-button-container {
+  display: flex !important;
+  width: 100% !important;
+  max-width: 500px !important;
+  margin: 0 auto !important;
+  padding: 0 !important;
+  gap: 1rem !important;
+  z-index: 100 !important;
+}
+
+/* Desktop Layout (1200px+) */
+@media (min-width: 1200px) {
+  .smart-button-container {
+    flex-direction: row !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+  }
+  
+  .smart-responsive-btn {
+    width: auto !important;
+    min-width: 180px !important;
+    max-width: 250px !important;
+    flex: 0 0 auto !important;
+  }
+}
+
+/* Large Tablet Layout (992px - 1199px) */
+@media (min-width: 992px) and (max-width: 1199px) {
+  .smart-button-container {
+    flex-direction: row !important;
+    justify-content: center !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+    gap: 0.8rem !important;
+  }
+  
+  .smart-responsive-btn {
+    width: auto !important;
+    min-width: 160px !important;
+    max-width: 220px !important;
+    flex: 0 0 auto !important;
+  }
+}
+
+/* Tablet Layout (768px - 991px) */
+@media (min-width: 768px) and (max-width: 991px) {
+  .smart-button-container {
+    flex-direction: row !important;
+    justify-content: center !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+    gap: 0.75rem !important;
+  }
+  
+  .smart-responsive-btn {
+    width: auto !important;
+    min-width: 140px !important;
+    max-width: 200px !important;
+    flex: 0 0 auto !important;
+    font-size: 0.95rem !important;
+  }
+}
+
+/* Mobile Layout (480px - 767px) */
+@media (min-width: 480px) and (max-width: 767px) {
+  .smart-button-container {
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: stretch !important;
+    gap: 0.75rem !important;
+  }
+  
+  .smart-responsive-btn {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    flex: 1 1 auto !important;
+    min-height: 52px !important;
+    font-size: 1.05rem !important;
+  }
+}
+
+/* Small Mobile Layout (320px - 479px) */
+@media (max-width: 479px) {
+  .smart-button-container {
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: stretch !important;
+    gap: 1rem !important;
+    width: 100% !important;
+  }
+  
+  .smart-responsive-btn {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    flex: 1 1 auto !important;
+    min-height: 56px !important;
+    font-size: 1.1rem !important;
+    padding: 16px 18px !important;
+  }
+}
+
+/* Enhanced Hover Effects */
+.smart-responsive-btn:hover {
+  transform: translateY(-2px) !important;
+  transition: all 0.3s ease !important;
+}
+
+.smart-responsive-btn:active {
+  transform: translateY(0) !important;
+}
+
+.smart-responsive-btn:focus {
+  outline: 2px solid rgba(255, 255, 255, 0.5) !important;
+  outline-offset: 2px !important;
+}
+
+/* Force visibility on all common hiding scenarios */
+.hero-section .smart-responsive-btn,
+.hero-content .smart-responsive-btn,
+.hero-bottom-area .smart-responsive-btn {
+  visibility: visible !important;
+  display: flex !important;
+  opacity: 1 !important;
+}
+
+/* Prevent Bootstrap overrides */
+.btn.smart-responsive-btn {
+  display: flex !important;
+  visibility: visible !important;
+}
+
+/* Ensure text visibility inside buttons */
+.smart-responsive-btn * {
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Loading state styling */
+.smart-responsive-btn-loading {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: rgba(255, 255, 255, 0.7) !important;
+  cursor: wait !important;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .smart-responsive-btn {
+    border: 2px solid white !important;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .smart-responsive-btn {
+    transition: none !important;
+  }
+  
+  .smart-responsive-btn:hover {
+    transform: none !important;
+  }
+}

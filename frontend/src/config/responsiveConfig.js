@@ -1,13 +1,14 @@
-// Responsive Design Configuration
-// Comprehensive soft-coded responsive system for all screen sizes
+// Enhanced Responsive Design Configuration
+// Comprehensive soft-coded responsive system for all screen sizes with button visibility fixes
 
 export const RESPONSIVE_CONFIG = {
-  // Breakpoints for different device sizes
+  // Enhanced Breakpoints for different device sizes
   breakpoints: {
-    xs: '480px',
-    sm: '576px', 
-    md: '768px',
-    lg: '992px',
+    xs: '320px',    // Small mobile
+    sm: '480px',    // Large mobile
+    md: '768px',    // Tablet
+    lg: '992px',    // Desktop
+    xl: '1200px',   // Large desktop
     xl: '1200px',
     xxl: '1400px'
   },
@@ -37,6 +38,62 @@ export const RESPONSIVE_CONFIG = {
       fontSize: '0.9rem',
       itemSpacing: '1rem',
       brandFontSize: '1.3rem'
+    }
+  },
+
+  // Enhanced Button Configuration - Fixes Watch Demo button disappearing
+  buttons: {
+    desktop: {
+      layout: 'horizontal',
+      width: 'auto',
+      minWidth: '180px',
+      maxWidth: '250px',
+      minHeight: '48px',
+      fontSize: '1.1rem',
+      padding: '12px 24px',
+      gap: '16px',
+      borderRadius: '12px',
+      visibility: 'always',
+      flexWrap: 'wrap'
+    },
+    tablet: {
+      layout: 'horizontal-stacked',
+      width: 'auto', 
+      minWidth: '160px',
+      maxWidth: '220px',
+      minHeight: '46px',
+      fontSize: '1rem',
+      padding: '11px 22px',
+      gap: '14px',
+      borderRadius: '10px',
+      visibility: 'always',
+      flexWrap: 'wrap'
+    },
+    mobile: {
+      layout: 'vertical-centered',
+      width: '100%',
+      minWidth: '100%',
+      maxWidth: '100%', 
+      minHeight: '52px', // Larger for touch
+      fontSize: '1.05rem',
+      padding: '14px 20px',
+      gap: '12px',
+      borderRadius: '8px',
+      visibility: 'always',
+      flexWrap: 'nowrap'
+    },
+    smallMobile: {
+      layout: 'vertical-full',
+      width: '100%',
+      minWidth: '100%',
+      maxWidth: '100%',
+      minHeight: '56px', // Extra large for small screens
+      fontSize: '1.1rem',
+      padding: '16px 18px',
+      gap: '15px',
+      borderRadius: '8px',
+      visibility: 'always',
+      flexWrap: 'nowrap'
     }
   },
 

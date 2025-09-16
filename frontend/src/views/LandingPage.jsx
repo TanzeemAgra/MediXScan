@@ -8,8 +8,10 @@ import LandingNavigation from "../components/LandingNavigation.jsx";
 import ComplianceTrustBadges from "../components/ComplianceTrustBadges.jsx";
 import CookieConsentBanner from "../components/CookieConsentBanner.jsx";
 import { injectHeroLayoutVariables } from "../utils/heroLayoutUtils.js";
+import { SmartResponsiveButton, SmartButtonContainer } from "../hooks/useResponsiveButtons.jsx";
 import "../assets/scss/custom/hero-responsive.scss";
 import "../assets/scss/custom/landing-responsive.scss";
+import "../assets/scss/custom/smart-button-visibility.scss";
 
 const LandingPage = () => {
   const [showVideoModal, setShowVideoModal] = useState(false);
@@ -205,58 +207,30 @@ const LandingPage = () => {
                     justifyContent: 'center'
                   }}
                 >
-                  {/* Enhanced CTA Buttons - Mobile Responsive */}
-                  <div 
-                    className="d-flex flex-column flex-md-row flex-wrap gap-2 gap-md-3"
-                    style={{
-                      marginBottom: 'var(--cta-area-spacing, 2rem)'
-                    }}
-                  >
-                  {hero.ctaButtons.map((button, index) => (
-                    <Button
-                      key={index}
-                      size="lg"
-                      className="px-4 py-3 d-flex align-items-center justify-content-center gap-2 fw-semibold w-100 w-md-auto"
-                      onClick={() => handleCTAClick(button.action)}
-                      style={{
-                        borderRadius: 'var(--button-border-radius, 12px)',
-                        fontSize: 'clamp(0.9rem, 3vw, 1.1rem)',
-                        border: 'none',
-                        marginBottom: '0.5rem',
-                        minHeight: '48px', // Mobile touch target
-                        padding: 'var(--button-padding, clamp(0.75rem, 3vw, 1rem)) var(--button-horizontal-padding, clamp(1rem, 4vw, 1.5rem))',
-                        background: button.type === 'primary' 
-                          ? hero.design?.accentColor || '#1EBCB7'
-                          : 'rgba(255, 255, 255, 0.2)',
-                        backdropFilter: 'blur(10px)',
-                        color: 'white',
-                        transition: 'all 0.3s ease',
-                        textShadow: 'var(--button-text-shadow, 1px 1px 3px rgba(0,0,0,0.5))',
-                        boxShadow: button.type === 'primary'
-                          ? '0 8px 25px rgba(30, 188, 183, 0.3)'
-                          : '0 4px 15px rgba(255, 255, 255, 0.1)'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.target.style.transform = 'translateY(-2px)';
-                        e.target.style.boxShadow = button.type === 'primary'
-                          ? '0 15px 35px rgba(30, 188, 183, 0.4)'
-                          : '0 8px 25px rgba(255, 255, 255, 0.2)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.target.style.transform = 'translateY(0)';
-                        e.target.style.boxShadow = button.type === 'primary'
-                          ? '0 8px 25px rgba(30, 188, 183, 0.3)'
-                          : '0 4px 15px rgba(255, 255, 255, 0.1)';
-                      }}
-                    >
-                      <i 
-                        className={button.icon}
-                        style={{ fontSize: 'clamp(0.8rem, 2.5vw, 1rem)' }}
-                      ></i>
-                      {button.text}
-                    </Button>
-                  ))}
-                  </div>
+                  {/* Enhanced Smart Responsive CTA Buttons - Guaranteed Visibility */}
+                  <SmartButtonContainer>
+                    {hero.ctaButtons.map((button, index) => (
+                      <SmartResponsiveButton
+                        key={index}
+                        type={button.type}
+                        icon={button.icon}
+                        onClick={() => handleCTAClick(button.action)}
+                        className="hero-cta-button"
+                        style={{
+                          // Ensure buttons are always visible with important declarations
+                          visibility: 'visible !important',
+                          display: 'flex !important',
+                          opacity: '1 !important',
+                          position: 'relative !important',
+                          zIndex: '100 !important',
+                          // Override any conflicting styles
+                          transform: 'none !important'
+                        }}
+                      >
+                        {button.text}
+                      </SmartResponsiveButton>
+                    ))}
+                  </SmartButtonContainer>
                 </div>
               </div>
             </Col>
